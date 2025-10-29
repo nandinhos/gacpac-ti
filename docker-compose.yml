@@ -10,7 +10,7 @@ services:
       MYSQL_USER: ${MYSQL_USER:-sgaiti_user}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-sgaiti_pass}
     ports:
-      - "33060:3306"
+      - "${MYSQL_HOST_PORT:-53106}:3306"
     volumes:
     - mysql_data:/var/lib/mysql
     networks:
@@ -32,7 +32,7 @@ services:
       PMA_PASSWORD: ${MYSQL_PASSWORD:-sgaiti_pass}
       UPLOAD_LIMIT: 50M
     ports:
-      - "8090:80"
+      - "${PHPMYADMIN_HOST_PORT:-58090}:80"
     depends_on:
       mysql:
         condition: service_healthy
@@ -47,7 +47,7 @@ services:
     container_name: sgaiti-backend
     restart: always
     ports:
-      - "5050:5050"
+      - "${BACKEND_HOST_PORT:-55050}:5050"
     depends_on:
       mysql:
         condition: service_healthy
@@ -63,13 +63,13 @@ services:
       context: .
       dockerfile: Dockerfile.frontend
       args:
-        VITE_API_URL: ${VITE_API_URL:-http://localhost:5050/api}
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:55050/api}
     container_name: sgaiti-frontend
     restart: always
     environment:
-      VITE_API_URL: ${VITE_API_URL:-http://localhost:5050/api}
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:55050/api}
     ports:
-      - "8100:80"
+      - "${FRONTEND_HOST_PORT:-58100}:80"
     depends_on:
       - backend
     networks:
