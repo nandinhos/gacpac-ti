@@ -83,10 +83,10 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({ user, assets, custo
                 <tbody>
                   {userLogHistory.slice().reverse().map(log => (
                     <tr key={log.id} className="bg-white border-b hover:bg-gray-50 cursor-pointer" onClick={() => onViewLogDetails(log)}>
-                      <td className="px-4 py-2 font-mono">{log.cautelaNumber}</td>
-                      <td className="px-4 py-2">{new Date(log.checkoutDate).toLocaleDateString('pt-BR')}</td>
+                      <td className="px-4 py-2 font-mono">{log.cautela_number}</td>
+                      <td className="px-4 py-2">{new Date(log.checkout_date).toLocaleDateString('pt-BR')}</td>
                       <td className="px-4 py-2">
-                        {log.checkinDate ? new Date(log.checkinDate).toLocaleDateString('pt-BR') : <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Ativa</span>}
+                      {log.checkin_date ? new Date(log.checkin_date).toLocaleDateString('pt-BR') : <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Ativa</span>}
                       </td>
                       <td className="px-4 py-2" title={log.assetIds.map(id => assets.find(a => a.id === id)?.type).join(', ')}>
                         {log.assetIds.length}

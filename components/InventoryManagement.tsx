@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Asset, AssetStatus, MilitaryUser, InventoryRecord, InventoryAsset, Sector, AssetCategory } from '../types';
+import { inventoryApi } from '../services/api';
 import QrScannerModal from './QrScannerModal';
 import InventoryDetailsModal from './InventoryDetailsModal';
 import ReopenInventoryModal from './ReopenInventoryModal';
@@ -64,7 +65,7 @@ const StartInventoryModal: React.FC<{
               className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="">Selecione um militar</option>
-              {users.filter(u => u.active).map(u => (
+              {users.filter(u => u.is_active).map(u => (
                 <option key={u.id} value={u.id}>{u.rank} {u.name}</option>
               ))}
             </select>
@@ -107,7 +108,7 @@ const InventoryManagement: React.FC<InventoryManagementProps> = ({ assets, setAs
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [manualUncatalogued, setManualUncatalogued] = useState<string>('');
   const [sectorFilter, setSectorFilter] = useState<string>('all');
-  
+
   const [editingAsset, setEditingAsset] = useState<InventoryAsset | null>(null);
   const [observingAsset, setObservingAsset] = useState<InventoryAsset | null>(null);
 
@@ -123,48 +124,29 @@ const InventoryManagement: React.FC<InventoryManagementProps> = ({ assets, setAs
     setSelection({ pending: new Set(), found: new Set(), uncatalogued: new Set() });
   }, [activeSession]);
 
-  const handleStartInventory = (responsibleUserId: number, sectorId: number | 'all', commissionNumber?: string) => {
-    let assetsToCount = assets.filter(a => a.status !== AssetStatus.Decommissioned);
-    if (sectorId !== 'all') {
-        assetsToCount = assetsToCount.filter(a => a.currentSectorId === sectorId);
+  const handleStartInventory = async (responsibleUserId: number, sectorId: number | 'all', commissionNumber?: string) => {
+    try {
+      const createdRecord = await inventoryApi.create({
+        commissionNumber: commissionNumber || '',
+        startDate: new Date().toISOString().split('T')[0],
+        sectorId: sectorId === 'all' ? undefined : sectorId?.toString(),
+        responsibleUserId,
+      });
+
+      // Reload records to get the new one
+      const data = await inventoryApi.getAll();
+      setInventoryRecords(data);
+
+      // Find the created record
+      const record = data.find(r => r.id === createdRecord.id);
+      if (record) {
+        handleContinueInventory(record);
+      }
+      setIsStartModalOpen(false);
+    } catch (error: any) {
+      console.error('Error creating inventory:', error);
+      alert('Erro ao criar inventário: ' + error.message);
     }
-    const newRecordId = lastRecordId + 1;
-    
-    const inventoryAssetsToCount: InventoryAsset[] = assetsToCount.map(a => ({...a, inventoryObservation: ''}));
-
-    const newRecord: InventoryRecord = {
-      id: newRecordId,
-      startDate: new Date().toISOString(),
-      responsibleUserId,
-      sectorId: sectorId === 'all' ? undefined : sectorId,
-      commissionNumber,
-      summary: {
-        total: inventoryAssetsToCount.length,
-        found: 0,
-        pending: inventoryAssetsToCount.length,
-        uncatalogued: 0,
-      },
-      foundAssets: [],
-      pendingAssets: inventoryAssetsToCount,
-      uncataloguedItems: [],
-      status: 'Em Andamento',
-      observations: '',
-    };
-    
-    setInventoryRecords(prev => [newRecord, ...prev]);
-
-    setActiveSession({
-      id: newRecordId,
-      isNew: true,
-      responsibleUserId,
-      sectorId: sectorId === 'all' ? undefined : sectorId,
-      commissionNumber,
-      pending: inventoryAssetsToCount,
-      found: [],
-      uncatalogued: [],
-      observations: '',
-    });
-    setIsStartModalOpen(false);
   };
 
   const handleContinueInventory = (record: InventoryRecord) => {
@@ -188,20 +170,20 @@ const InventoryManagement: React.FC<InventoryManagementProps> = ({ assets, setAs
 
     setActiveSession(prev => {
         if (!prev) return null;
-        const pendingAssetIndex = prev.pending.findIndex(a => a.qrCode.toLowerCase() === code);
-        
+        const pendingAssetIndex = prev.pending.findIndex(a => (a.qr_code || '').toLowerCase() === code);
+
         if (pendingAssetIndex > -1) {
             const foundAsset = prev.pending[pendingAssetIndex];
             const newPending = [...prev.pending];
             newPending.splice(pendingAssetIndex, 1);
-            
+
             return {
                 ...prev,
                 pending: newPending,
-                found: [foundAsset, ...prev.found].sort((a,b) => a.qrCode.localeCompare(b.qrCode)),
+                found: [foundAsset, ...prev.found].sort((a,b) => (a.qr_code || '').localeCompare(b.qr_code || '')),
             };
         } else {
-            const alreadyFound = prev.found.some(a => a.qrCode.toLowerCase() === code);
+            const alreadyFound = prev.found.some(a => (a.qr_code || '').toLowerCase() === code);
             const alreadyUncatalogued = prev.uncatalogued.includes(code.toUpperCase());
 
             if (!alreadyFound && !alreadyUncatalogued) {
@@ -239,10 +221,10 @@ const InventoryManagement: React.FC<InventoryManagementProps> = ({ assets, setAs
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') handleScan();
   };
-  
+
   const handleSaveProgress = () => {
     if (!activeSession) return;
-    
+
     setInventoryRecords(prevRecords => prevRecords.map(rec => {
       if (rec.id === activeSession.id) {
         return {
@@ -264,11 +246,11 @@ const InventoryManagement: React.FC<InventoryManagementProps> = ({ assets, setAs
 
     setActiveSession(null);
   };
-  
+
   const handleFinishInventory = () => {
     if (!activeSession) return;
     if (!window.confirm("Tem certeza que deseja concluir este inventário?")) return;
-    
+
      setInventoryRecords(prevRecords => prevRecords.map(rec => {
       if (rec.id === activeSession.id) {
         return {
@@ -289,10 +271,10 @@ const InventoryManagement: React.FC<InventoryManagementProps> = ({ assets, setAs
       }
       return rec;
     }));
-      
+
     setActiveSession(null);
   };
-  
+
   const handleDiscardAndExit = () => {
     if (!activeSession) return;
     if (window.confirm("Tem certeza que deseja sair? O progresso não salvo nesta sessão será perdido.")) {
@@ -333,7 +315,7 @@ const InventoryManagement: React.FC<InventoryManagementProps> = ({ assets, setAs
         }
         return rec;
     }));
-    
+
     if (reopenedRecordForSession) {
         handleContinueInventory(reopenedRecordForSession);
     }
@@ -393,7 +375,7 @@ const InventoryManagement: React.FC<InventoryManagementProps> = ({ assets, setAs
         return { ...prev, uncatalogued: newSet };
     });
   };
-  
+
   const handleSelectAll = (list: 'pending' | 'found' | 'uncatalogued') => {
     if (!activeSession) return;
     setSelection(prev => {
@@ -409,14 +391,14 @@ const InventoryManagement: React.FC<InventoryManagementProps> = ({ assets, setAs
       return { ...prev, [list]: newSet as any };
     });
   };
-  
+
   const handleMarkSelectedAsFound = () => {
     if (!activeSession) return;
     setActiveSession(prev => {
         if (!prev) return null;
         const itemsToMove = prev.pending.filter(a => selection.pending.has(a.id));
         const newPending = prev.pending.filter(a => !selection.pending.has(a.id));
-        const newFound = [...prev.found, ...itemsToMove].sort((a,b) => a.qrCode.localeCompare(b.qrCode));
+        const newFound = [...prev.found, ...itemsToMove].sort((a,b) => (a.qr_code || '').localeCompare(b.qr_code || ''));
         return { ...prev, pending: newPending, found: newFound };
     });
     setSelection(prev => ({ ...prev, pending: new Set() }));
@@ -428,12 +410,12 @@ const InventoryManagement: React.FC<InventoryManagementProps> = ({ assets, setAs
         if (!prev) return null;
         const itemsToMove = prev.found.filter(a => selection.found.has(a.id));
         const newFound = prev.found.filter(a => !selection.found.has(a.id));
-        const newPending = [...prev.pending, ...itemsToMove].sort((a,b) => a.qrCode.localeCompare(b.qrCode));
+        const newPending = [...prev.pending, ...itemsToMove].sort((a,b) => (a.qr_code || '').localeCompare(b.qr_code || ''));
         return { ...prev, found: newFound, pending: newPending };
     });
     setSelection(prev => ({ ...prev, found: new Set() }));
   };
-  
+
   const handleRemoveSelectedUncatalogued = () => {
     if (!activeSession) return;
     setActiveSession(prev => {
@@ -463,7 +445,7 @@ const InventoryManagement: React.FC<InventoryManagementProps> = ({ assets, setAs
             <button onClick={handleDiscardAndExit} className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition">Descartar e Sair</button>
           </div>
         </div>
-        
+
         <div className="bg-white p-6 rounded-lg shadow-md mb-6">
             <label className="block text-sm font-medium text-gray-700">Escanear QR Code</label>
             <div className="flex items-center mt-1">
@@ -572,7 +554,10 @@ const InventoryManagement: React.FC<InventoryManagementProps> = ({ assets, setAs
             </thead>
             <tbody>
               {filteredRecords.map(record => {
-                const user = users.find(u => u.id === record.responsibleUserId);
+                const user = users.find(u => u.id === record.responsible_user_id) || {
+                  name: record.responsible_user_name,
+                  rank: record.responsible_user_rank
+                };
                 const sector = sectors.find(s => s.id === record.sectorId);
                 const getStatusBadge = () => {
                     switch(record.status) {
@@ -633,7 +618,7 @@ const InventoryManagement: React.FC<InventoryManagementProps> = ({ assets, setAs
       </div>
 
       {isStartModalOpen && <StartInventoryModal users={users} sectors={sectors} onStart={handleStartInventory} onCancel={() => setIsStartModalOpen(false)} />}
-      
+
       {viewingRecord && (
         <InventoryDetailsModal
           record={viewingRecord}
@@ -680,7 +665,7 @@ const InventoryItemRow: React.FC<{
             <td className="p-2 text-center">
                 <input type="checkbox" checked={isSelected} onChange={onToggleSelection} className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"/>
             </td>
-            <td className="p-2 font-mono text-xs">{asset.qrCode}</td>
+            <td className="p-2 font-mono text-xs">{asset.qr_code}</td>
             <td className="p-2 text-xs font-semibold">{asset.type}</td>
             <td className="p-2 text-xs">{asset.category}</td>
             <td className="p-2 text-xs">{sector}</td>
@@ -744,7 +729,7 @@ const ObservationModal: React.FC<{ asset: InventoryAsset; onSave: (assetId: numb
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
             <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
                 <h3 className="text-lg font-bold mb-1">Observação do Item</h3>
-                <p className="text-sm text-gray-600 mb-4">{asset.qrCode} - {asset.type}</p>
+                <p className="text-sm text-gray-600 mb-4">{asset.qr_code} - {asset.type}</p>
                 <textarea value={observation} onChange={e => setObservation(e.target.value)} rows={5} className="w-full p-2 border rounded" placeholder="Ex: Tela arranhada, falta cabo de força..."/>
                 <div className="flex justify-end space-x-2 mt-4">
                     <button onClick={onCancel} className="px-4 py-2 bg-gray-200 rounded">Cancelar</button>
@@ -771,12 +756,12 @@ const AssetEditModalForInventory: React.FC<{
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        
-        let newFormData: Partial<Asset> = { 
-            ...formData, 
+
+        let newFormData: Partial<Asset> = {
+            ...formData,
             [name]: value
         };
-        
+
         if (name === 'currentSectorId' || name === 'custodianUserId') {
             newFormData[name] = value ? Number(value) : undefined;
         }
@@ -793,7 +778,7 @@ const AssetEditModalForInventory: React.FC<{
                 }
             }
         }
-        
+
         setFormData(newFormData as Asset);
     };
 
@@ -810,7 +795,7 @@ const AssetEditModalForInventory: React.FC<{
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
             <div className="bg-white p-8 rounded-lg shadow-2xl w-full max-w-lg">
                 <h2 className="text-2xl font-bold mb-2 text-gray-800">Editar Ativo (Inventário)</h2>
-                <p className="text-sm text-gray-500 mb-6">{asset.type} ({asset.qrCode})</p>
+                <p className="text-sm text-gray-500 mb-6">{asset.type} ({asset.qr_code})</p>
                 <form onSubmit={handleSubmit}>
                     <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-4">
                         <div>
@@ -878,8 +863,8 @@ const SelectAllRow: React.FC<{
     const allSelected = allIds.length > 0 && selectionSet.size === allIds.length;
     return (
         <li className="flex items-center p-2 bg-gray-100 font-semibold text-xs text-gray-600 sticky top-0 z-10">
-            <input 
-                type="checkbox" 
+            <input
+                type="checkbox"
                 checked={allSelected}
                 onChange={() => onSelectAll(listKey)}
                 className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 mr-2"
@@ -898,7 +883,7 @@ const ListItem: React.FC<{
 }> = ({ id, label, isSelected, onToggle }) => {
     return (
         <li className={`flex items-center p-2 text-sm ${isSelected ? 'bg-blue-50' : ''}`}>
-            <input 
+            <input
                 type="checkbox"
                 checked={isSelected}
                 onChange={onToggle}

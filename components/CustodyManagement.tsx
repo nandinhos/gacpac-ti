@@ -2,16 +2,17 @@ import React, { useState, useMemo } from 'react';
 import { CustodyLog, MilitaryUser, Asset, AssetStatus } from '../types';
 import QrScannerModal from './QrScannerModal';
 import CustodyDetailsModal from './CustodyDetailsModal';
+import { custodyApi } from '../services/api';
 
 const CustodyForm: React.FC<{
-  onSave: (log: Omit<CustodyLog, 'id' | 'cautelaNumber'>) => void;
+  onSave: (log: Omit<CustodyLog, 'id' | 'cautela_number'>) => void;
   onCancel: () => void;
   users: MilitaryUser[];
   assets: Asset[];
 }> = ({ onSave, onCancel, users, assets }) => {
-  const [userId, setUserId] = useState<number | ''>('');
+  const [user_id, setUserId] = useState<string>('');
   const [assetQrCode, setAssetQrCode] = useState('');
-  const [selectedAssetIds, setSelectedAssetIds] = useState<number[]>([]);
+  const [selectedAssetIds, setSelectedAssetIds] = useState<string[]>([]);
   const [error, setError] = useState('');
   const [isScannerOpen, setIsScannerOpen] = useState(false);
 
@@ -21,10 +22,10 @@ const CustodyForm: React.FC<{
     const qrCode = (code || assetQrCode).trim().toLowerCase();
     if (!qrCode) return;
 
-    const asset = assets.find(a => a.qrCode.toLowerCase() === qrCode);
+    const asset = assets.find(a => a.qr_code.toLowerCase() === qrCode);
     if (asset) {
         if(asset.status !== AssetStatus.Available) {
-            setError(`Ativo ${asset.qrCode} não está disponível.`);
+            setError(`Ativo ${asset.qr_code} não está disponível.`);
             return;
         }
         if (!selectedAssetIds.includes(asset.id)) {
@@ -37,21 +38,21 @@ const CustodyForm: React.FC<{
     }
   };
 
-  const handleRemoveAsset = (id: number) => {
+  const handleRemoveAsset = (id: string) => {
     setSelectedAssetIds(selectedAssetIds.filter(assetId => assetId !== id));
   };
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!userId || selectedAssetIds.length === 0) {
+    if (!user_id || selectedAssetIds.length === 0) {
       alert("Selecione um militar e adicione pelo menos um ativo.");
       return;
     }
     onSave({
-      userId: Number(userId),
+      user_id: user_id,
       assetIds: selectedAssetIds,
-      checkoutDate: new Date().toISOString(),
-      termUrl: `/terms/term-${Date.now()}.pdf`
+      checkout_date: new Date().toISOString(),
+      term_url: `/terms/term-${Date.now()}.pdf`
     });
   };
 
@@ -70,9 +71,9 @@ const CustodyForm: React.FC<{
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700">Militar Responsável</label>
-            <select value={userId} onChange={(e) => setUserId(Number(e.target.value))} required className="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+            <select value={user_id} onChange={(e) => setUserId(e.target.value)} required className="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
               <option value="">Selecione um militar</option>
-              {users.filter(u => u.active).map(u => <option key={u.id} value={u.id}>{u.rank} {u.name}</option>)}
+              {users.filter(u => u.is_active).map(u => <option key={u.id} value={u.id}>{u.rank} {u.name}</option>)}
             </select>
           </div>
 
@@ -101,7 +102,7 @@ const CustodyForm: React.FC<{
                 <ul>
                     {selectedAssets.map(asset => (
                     <li key={asset.id} className="flex justify-between items-center p-2 bg-white rounded shadow-sm mb-1">
-                        <span>{asset.qrCode} - {asset.type}</span>
+                        <span>{asset.qr_code} - {asset.name}</span>
                         <button type="button" onClick={() => handleRemoveAsset(asset.id)} className="text-red-500 hover:text-red-700 p-1 rounded-full" title="Remover">
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
@@ -127,19 +128,21 @@ const CustodyManagement: React.FC<{
   assets: Asset[];
   setAssets: React.Dispatch<React.SetStateAction<Asset[]>>;
   users: MilitaryUser[];
-}> = ({ custodyLogs, setCustodyLogs, assets, setAssets, users }) => {
+  onDataChange?: () => void;
+  onCreateCustody?: () => void;
+}> = ({ custodyLogs, setCustodyLogs, assets, setAssets, users, onDataChange, onCreateCustody }) => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [viewingLog, setViewingLog] = useState<CustodyLog | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const lastLogId = useMemo(() => custodyLogs.reduce((max, log) => log.id > max ? log.id : max, 0), [custodyLogs]);
+  const lastLogId = useMemo(() => custodyLogs.reduce((max, log) => Math.max(max, log.id), 0), [custodyLogs]);
 
-  const handleSave = (logData: Omit<CustodyLog, 'id' | 'cautelaNumber'>) => {
+  const handleSave = (logData: Omit<CustodyLog, 'id' | 'cautela_number'>) => {
     const currentYear = new Date().getFullYear();
-    const logsThisYear = custodyLogs.filter(log => new Date(log.checkoutDate).getFullYear() === currentYear);
+    const logsThisYear = custodyLogs.filter(log => new Date(log.checkout_date).getFullYear() === currentYear);
     const lastNumberThisYear = logsThisYear.reduce((max, log) => {
         try {
-            const num = parseInt(log.cautelaNumber.split('/')[0]);
+            const num = parseInt(log.cautela_number.split('/')[0]);
             return num > max ? num : max;
         } catch {
             return max;
@@ -150,7 +153,7 @@ const CustodyManagement: React.FC<{
     
     const newLog: CustodyLog = {
       id: lastLogId + 1,
-      cautelaNumber: newCautelaNumber,
+      cautela_number: newCautelaNumber,
       ...logData
     };
     setCustodyLogs(prev => [newLog, ...prev]);
@@ -167,42 +170,50 @@ const CustodyManagement: React.FC<{
     setIsFormOpen(false);
   };
 
-  const handleDischarge = (logId: number) => {
-    const logToDischarge = custodyLogs.find(l => l.id === logId);
+  const handleDischarge = async (logId: number) => {
+    const logToDischarge = custodyLogs.find(l => l.id == logId);
     if (!logToDischarge) return;
 
-    if (window.confirm(`Tem certeza que deseja dar baixa na cautela ${logToDischarge.cautelaNumber}? Os ativos serão retornados ao almoxarifado.`)) {
-        setCustodyLogs(prev => prev.map(log => log.id === logId ? { ...log, checkinDate: new Date().toISOString() } : log));
-        
-        // Update asset status
-        const updatedAssets = assets.map(asset => {
-            if (logToDischarge.assetIds.includes(asset.id)) {
-                return { ...asset, status: AssetStatus.Available, custodianUserId: undefined };
-            }
-            return asset;
-        });
-        setAssets(updatedAssets);
-
-        setViewingLog(prev => prev ? { ...prev, checkinDate: new Date().toISOString() } : null);
+    if (window.confirm(`Tem certeza que deseja dar baixa na cautela ${logToDischarge.cautela_number}? Os ativos serão retornados ao almoxarifado.`)) {
+        try {
+            await custodyApi.checkin(logId, { checkin_date: new Date().toISOString().split('T')[0] });
+            // Update local state immediately for responsiveness (TALL Stack style)
+            setCustodyLogs(prev => prev.map(log => log.id == logId ? { ...log, checkin_date: new Date().toISOString().split('T')[0] } : log));
+            const assetsToUpdate = logToDischarge.assetIds;
+            setAssets(prev => prev.map(asset => assetsToUpdate.includes(asset.id) ? { ...asset, status: AssetStatus.Available, custodianUserId: undefined } : asset));
+            // Then reload to confirm
+            if (onDataChange) onDataChange();
+        } catch (error) {
+            console.error('Error discharging custody:', error);
+            alert('Erro ao dar baixa na cautela. Tente novamente.');
+        }
     }
   };
 
-  const handleUploadSignedTerm = (logId: number, fileUrl: string) => {
-    setCustodyLogs(prev => prev.map(log => log.id === logId ? { ...log, signedTermUrl: fileUrl } : log));
-    setViewingLog(prev => prev ? { ...prev, signedTermUrl: fileUrl } : null);
+  const handleUploadSignedTerm = async (logId: number, fileUrl: string) => {
+    try {
+        await custodyApi.update(logId, { term_url: fileUrl });
+        // Update local state immediately
+        setCustodyLogs(prev => prev.map(log => log.id == logId ? { ...log, signed_term_url: fileUrl } : log));
+        // Then reload to confirm
+        if (onDataChange) onDataChange();
+    } catch (error) {
+        console.error('Error uploading signed term:', error);
+        alert('Erro ao enviar termo assinado. Tente novamente.');
+    }
   };
 
   const filteredLogs = useMemo(() => {
-    const sortedLogs = [...custodyLogs].sort((a,b) => new Date(b.checkoutDate).getTime() - new Date(a.checkoutDate).getTime());
+    const sortedLogs = [...custodyLogs].sort((a,b) => new Date(b.checkout_date).getTime() - new Date(a.checkout_date).getTime());
     if (!searchTerm.trim()) {
         return sortedLogs;
     }
     return sortedLogs.filter(log => {
-        const user = users.find(u => u.id === log.userId);
+        const user = users.find(u => u.id === log.user_id);
         if (!user) return false;
         const term = searchTerm.toLowerCase();
         return (
-            user.name.toLowerCase().includes(term) || user.rank.toLowerCase().includes(term) || log.cautelaNumber.includes(term)
+            user.name.toLowerCase().includes(term) || user.rank.toLowerCase().includes(term) || log.cautela_number.includes(term)
         );
     });
   }, [custodyLogs, searchTerm, users]);
@@ -211,9 +222,9 @@ const CustodyManagement: React.FC<{
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-800">Gestão de Cautelas</h1>
-        <button onClick={() => setIsFormOpen(true)} className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition flex items-center">
+        <button onClick={() => onCreateCustody ? onCreateCustody() : setIsFormOpen(true)} className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition flex items-center">
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-            Abrir Cautela
+            Criar Cautela
         </button>
       </div>
 
@@ -242,19 +253,19 @@ const CustodyManagement: React.FC<{
             </thead>
             <tbody>
               {filteredLogs.map(log => {
-                const user = users.find(u => u.id === log.userId);
-                const status = log.checkinDate ? 'Concluída' : 'Ativa';
+                const user = users.find(u => u.id === log.user_id);
+                const status = log.checkin_date ? 'Concluída' : 'Ativa';
                 return (
                   <tr key={log.id} className="bg-white border-b hover:bg-gray-50">
-                    <td className="px-6 py-4 font-mono">{log.cautelaNumber}</td>
+                    <td className="px-6 py-4 font-mono">{log.cautela_number}</td>
                     <td className="px-6 py-4 font-medium text-gray-900">{user ? `${user.rank} ${user.name}` : 'N/A'}</td>
-                    <td className="px-6 py-4">{new Date(log.checkoutDate).toLocaleDateString('pt-BR')}</td>
+                    <td className="px-6 py-4">{new Date(log.checkout_date).toLocaleDateString('pt-BR')}</td>
                     <td className="px-6 py-4">
                       <span className={`px-2 py-1 text-xs font-medium rounded-full ${status === 'Ativa' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
                         {status}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-center">{log.assetIds.length}</td>
+                    <td className="px-6 py-4 text-center">{log.assetIds?.length || 0}</td>
                     <td className="px-6 py-4 text-right">
                        <div className="flex items-center justify-end space-x-1">
                             <button
@@ -264,7 +275,7 @@ const CustodyManagement: React.FC<{
                             >
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                             </button>
-                            {!log.checkinDate && (
+                            {!log.checkin_date && (
                                 <button
                                     onClick={() => handleDischarge(log.id)}
                                     className="p-2 text-gray-400 rounded-full hover:bg-gray-100 hover:text-green-600 focus:outline-none"
@@ -294,8 +305,8 @@ const CustodyManagement: React.FC<{
       {viewingLog && (
         <CustodyDetailsModal
           log={viewingLog}
-          user={users.find(u => u.id === viewingLog.userId)!}
-          assetsInLog={assets.filter(a => viewingLog.assetIds.includes(a.id))}
+          user={users.find(u => u.id === viewingLog.user_id)!}
+          assetsInLog={assets.filter(a => viewingLog.assetIds?.includes(a.id))}
           onClose={() => setViewingLog(null)}
           onDischarge={handleDischarge}
           onUploadSignedTerm={handleUploadSignedTerm}

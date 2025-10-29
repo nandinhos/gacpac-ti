@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Asset, Sector, MilitaryUser, CustodyLog, AssetStatus } from '../types';
 
@@ -7,10 +6,13 @@ interface StatCardProps {
   value: string | number;
   icon: React.ReactNode;
   color: string;
+  onClick?: () => void;
 }
 
-const StatCard: React.FC<StatCardProps> = ({ title, value, icon, color }) => (
-  <div className="bg-white p-6 rounded-lg shadow-md flex items-center">
+const StatCard: React.FC<StatCardProps> = ({ title, value, icon, color, onClick }) => (
+  <div 
+    onClick={onClick}
+    className={`bg-white p-6 rounded-lg shadow-md flex items-center ${onClick ? 'cursor-pointer hover:shadow-lg hover:scale-105 transition-transform duration-200' : ''}`}>
     <div className={`p-3 rounded-full mr-4 ${color}`}>
       {icon}
     </div>
@@ -26,26 +28,25 @@ interface DashboardProps {
     users: MilitaryUser[];
     sectors: Sector[];
     logs: CustodyLog[];
+    setActiveView: (view: string) => void;
+    navigateToAssetsWithFilter: (status: AssetStatus | 'all') => void;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ assets, users, sectors, logs }) => {
+const Dashboard: React.FC<DashboardProps> = ({ assets, users, sectors, logs, setActiveView, navigateToAssetsWithFilter }) => {
     const totalAssets = assets.length;
     const assetsInUse = assets.filter(a => a.status === AssetStatus.InUse).length;
     const assetsAvailable = assets.filter(a => a.status === AssetStatus.Available).length;
     const assetsInMaintenance = assets.filter(a => a.status === AssetStatus.Maintenance).length;
-
-    const activeUsers = users.filter(u => u.active).length;
-    const activeLogs = logs.filter(l => !l.checkinDate).length;
 
   return (
     <div>
       <h1 className="text-3xl font-bold text-gray-800 mb-6">Dashboard</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <StatCard title="Total de Ativos" value={totalAssets} color="bg-blue-100 text-blue-600" icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>} />
-        <StatCard title="Ativos Cautelados" value={assetsInUse} color="bg-green-100 text-green-600" icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>} />
-        <StatCard title="Disponíveis" value={assetsAvailable} color="bg-yellow-100 text-yellow-600" icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>} />
-        <StatCard title="Em Manutenção" value={assetsInMaintenance} color="bg-red-100 text-red-600" icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"></path></svg>} />
+        <StatCard title="Total de Ativos" value={totalAssets} color="bg-blue-100 text-blue-600" icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>} onClick={() => navigateToAssetsWithFilter('all')} />
+        <StatCard title="Ativos Cautelados" value={assetsInUse} color="bg-green-100 text-green-600" icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>} onClick={() => setActiveView('custody')} />
+        <StatCard title="Disponíveis" value={assetsAvailable} color="bg-yellow-100 text-yellow-600" icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>} onClick={() => navigateToAssetsWithFilter(AssetStatus.Available)} />
+        <StatCard title="Em Manutenção" value={assetsInMaintenance} color="bg-red-100 text-red-600" icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"></path></svg>} onClick={() => navigateToAssetsWithFilter(AssetStatus.Maintenance)} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -61,13 +62,13 @@ const Dashboard: React.FC<DashboardProps> = ({ assets, users, sectors, logs }) =
                         </tr>
                     </thead>
                     <tbody>
-                        {logs.filter(l => !l.checkinDate).slice(0, 5).map(log => {
-                            const user = users.find(u => u.id === log.userId);
+                        {logs.filter(l => !l.checkin_date).slice(0, 5).map(log => {
+                            const user = users.find(u => u.id === log.user_id);
                             return (
                                 <tr key={log.id} className="bg-white border-b hover:bg-gray-50">
                                     <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">{user ? `${user.rank} ${user.name}` : 'N/A'}</td>
-                                    <td className="px-6 py-4">{new Date(log.checkoutDate).toLocaleDateString('pt-BR')}</td>
-                                    <td className="px-6 py-4">{log.assetIds.length}</td>
+                                    <td className="px-6 py-4">{new Date(log.checkout_date).toLocaleDateString('pt-BR')}</td>
+                                    <td className="px-6 py-4">{log.assetIds?.length || 0}</td>
                                 </tr>
                             )
                         })}
@@ -82,16 +83,28 @@ const Dashboard: React.FC<DashboardProps> = ({ assets, users, sectors, logs }) =
                     <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                         <tr>
                             <th scope="col" className="px-6 py-3">Setor</th>
-                            <th scope="col" className="px-6 py-3">Nº de Ativos</th>
+                            <th scope="col" className="px-6 py-3 text-center">Nº de Ativos</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {sectors.map(sector => (
-                            <tr key={sector.id} className="bg-white border-b hover:bg-gray-50">
-                                <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">{sector.name}</td>
-                                <td className="px-6 py-4">{assets.filter(a => a.currentSectorId === sector.id).length}</td>
-                            </tr>
-                        ))}
+                        {sectors.map(sector => {
+                            const assetCount = assets.filter(asset => {
+                                let currentAssetSectorId;
+                                if (asset.status === 'Em Uso' && asset.custodian_user_id) {
+                                    const custodian = users.find(u => u.id === asset.custodian_user_id);
+                                    currentAssetSectorId = custodian?.sector_id;
+                                } else {
+                                    currentAssetSectorId = asset.sector_id;
+                                }
+                                return currentAssetSectorId === sector.id;
+                            }).length;
+                            return (
+                                <tr key={sector.id} className="bg-white border-b hover:bg-gray-50">
+                                    <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">{sector.name}</td>
+                                    <td className="px-6 py-4 text-center">{assetCount}</td>
+                                </tr>
+                            )
+                        })}
                     </tbody>
                 </table>
             </div>

@@ -1,0 +1,84 @@
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: sgaiti-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-sgaiti_root_pass}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-sgaiti_db}
+      MYSQL_USER: ${MYSQL_USER:-sgaiti_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-sgaiti_pass}
+    ports:
+      - "33060:3306"
+    volumes:
+    - mysql_data:/var/lib/mysql
+    networks:
+      - sgaiti-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # phpMyAdmin
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: sgaiti-phpmyadmin
+    restart: always
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: ${MYSQL_USER:-sgaiti_user}
+      PMA_PASSWORD: ${MYSQL_PASSWORD:-sgaiti_pass}
+      UPLOAD_LIMIT: 50M
+    ports:
+      - "8090:80"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - sgaiti-network
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: sgaiti-backend
+    restart: always
+    ports:
+      - "5050:5050"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - uploads:/app/uploads
+    networks:
+      - sgaiti-network
+
+  # Frontend (Nginx serving built React app)
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:5050/api}
+    container_name: sgaiti-frontend
+    restart: always
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:5050/api}
+    ports:
+      - "8100:80"
+    depends_on:
+      - backend
+    networks:
+      - sgaiti-network
+
+volumes:
+  mysql_data:
+  uploads:
+
+networks:
+  sgaiti-network:
+    driver: bridge

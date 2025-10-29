@@ -8,10 +8,10 @@ const UserForm: React.FC<{
   sectors: Sector[];
   onSave: (user: MilitaryUser) => void;
   onCancel: () => void;
-  lastUserId: number;
+  lastUserId: string;
 }> = ({ user, sectors, onSave, onCancel, lastUserId }) => {
   const [formData, setFormData] = useState<Partial<MilitaryUser>>(
-    user || { name: '', rank: '', militaryId: '', sectorId: sectors[0]?.id, active: true }
+    user || { name: '', rank: '', military_id: '', sector_id: sectors[0]?.id, is_active: true }
   );
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -26,14 +26,14 @@ const UserForm: React.FC<{
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.rank || !formData.militaryId) return;
+    if (!formData.name || !formData.rank || !formData.military_id) return;
     const newUser: MilitaryUser = {
-      id: formData.id || lastUserId + 1,
+      id: formData.id || `temp-${Date.now()}`,
       name: formData.name,
       rank: formData.rank,
-      militaryId: formData.militaryId,
-      sectorId: Number(formData.sectorId),
-      active: formData.active !== undefined ? formData.active : true,
+      military_id: formData.military_id,
+      sector_id: formData.sector_id,
+      is_active: formData.is_active !== undefined ? formData.is_active : true,
     };
     onSave(newUser);
   };
@@ -65,8 +65,8 @@ const UserForm: React.FC<{
               </select>
             </div>
             <div className="col-span-2 flex items-center">
-                <input type="checkbox" id="active" name="active" checked={formData.active} onChange={handleChange} className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
-                <label htmlFor="active" className="ml-2 block text-sm text-gray-900">Militar Ativo</label>
+                <input type="checkbox" id="is_active" name="is_active" checked={formData.is_active} onChange={handleChange} className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+                <label htmlFor="is_active" className="ml-2 block text-sm text-gray-900">Militar Ativo</label>
             </div>
           </div>
           <div className="mt-8 flex justify-end space-x-4">
@@ -92,6 +92,9 @@ const UserManagement: React.FC<{
   const [editingUser, setEditingUser] = useState<Partial<MilitaryUser> | null>(null);
   const [viewingUser, setViewingUser] = useState<MilitaryUser | null>(null);
   const [viewingLog, setViewingLog] = useState<CustodyLog | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all'); // 'all', 'active', 'inactive'
+  const [sectorFilter, setSectorFilter] = useState('all'); // 'all' or a sector ID
 
   const handleAdd = () => {
     setEditingUser(null);
@@ -103,7 +106,7 @@ const UserManagement: React.FC<{
     setIsFormOpen(true);
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: string) => {
     if (window.confirm('Tem certeza que deseja excluir este militar?')) {
       setUsers(users.filter(u => u.id !== id));
     }
@@ -119,35 +122,62 @@ const UserManagement: React.FC<{
     setEditingUser(null);
   };
   
-  const lastUserId = useMemo(() => users.reduce((max, u) => u.id > max ? u.id : max, 0), [users]);
+  const lastUserId = useMemo(() => users.reduce((max, u) => u.id > max ? u.id : max, '0'), [users]);
+
+  const filteredUsers = useMemo(() => {
+    let filtered = users;
+
+    // Apply status filter
+    if (statusFilter !== 'all') {
+      const isActive = statusFilter === 'active';
+      filtered = filtered.filter(user => user.is_active === isActive);
+    }
+
+    // Apply sector filter
+    if (sectorFilter !== 'all') {
+      filtered = filtered.filter(user => user.sector_id === sectorFilter);
+    }
+
+    // Apply text search
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      filtered = filtered.filter(user => 
+        user.name.toLowerCase().includes(term) ||
+        user.rank.toLowerCase().includes(term) ||
+        user.military_id.toLowerCase().includes(term)
+      );
+    }
+
+    return filtered;
+  }, [users, searchTerm, statusFilter, sectorFilter]);
 
   // Handlers for CustodyDetailsModal, adapted from CustodyManagement
-  const handleDischarge = (logId: number) => {
+  const handleDischarge = (logId: string) => {
     const logToDischarge = custodyLogs.find(l => l.id === logId);
     if (!logToDischarge) return;
 
     if (window.confirm('Tem certeza que deseja dar baixa nesta cautela? Os ativos serão retornados ao almoxarifado.')) {
-        setCustodyLogs(prev => prev.map(log => log.id === logId ? { ...log, checkinDate: new Date().toISOString() } : log));
+        setCustodyLogs(prev => prev.map(log => log.id === logId ? { ...log, checkin_date: new Date().toISOString() } : log));
         
         const updatedAssets = assets.map(asset => {
-            if (logToDischarge.assetIds.includes(asset.id)) {
-                return { ...asset, status: AssetStatus.Available, custodianUserId: undefined };
+            if (logToDischarge.assetIds?.includes(asset.id)) {
+                return { ...asset, status: AssetStatus.Available, custodian_user_id: undefined };
             }
             return asset;
         });
         setAssets(updatedAssets);
 
         // Also update the log being viewed in the modal
-        setViewingLog(prev => prev ? { ...prev, checkinDate: new Date().toISOString() } : null);
+        setViewingLog(prev => prev ? { ...prev, checkin_date: new Date().toISOString() } : null);
     }
   };
 
-  const handleUploadSignedTerm = (logId: number, fileUrl: string) => {
-    setCustodyLogs(prev => prev.map(log => log.id === logId ? { ...log, signedTermUrl: fileUrl } : log));
-    setViewingLog(prev => prev ? { ...prev, signedTermUrl: fileUrl } : null);
+  const handleUploadSignedTerm = (logId: string, fileUrl: string) => {
+    setCustodyLogs(prev => prev.map(log => log.id === logId ? { ...log, signed_term_url: fileUrl } : log));
+    setViewingLog(prev => prev ? { ...prev, signed_term_url: fileUrl } : null);
   };
 
-  const userForLog = viewingLog ? users.find(u => u.id === viewingLog.userId) : null;
+  const userForLog = viewingLog ? users.find(u => u.id === viewingLog.user_id) : null;
 
   return (
     <div>
@@ -157,6 +187,36 @@ const UserManagement: React.FC<{
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
             Adicionar Militar
         </button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 p-4 bg-gray-50 rounded-lg border">
+        <div className="col-span-1 md:col-span-3">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Busca Rápida</label>
+            <input 
+            type="text"
+            placeholder="Buscar por Nome, Posto/Graduação ou Identidade..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+        </div>
+        <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Filtrar por Status</label>
+            <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="all">Todos</option>
+                <option value="active">Ativo</option>
+                <option value="inactive">Inativo</option>
+            </select>
+        </div>
+        <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Filtrar por Setor</label>
+            <select value={sectorFilter} onChange={e => setSectorFilter(e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="all">Todos os Setores</option>
+                {sectors.map(sector => (
+                    <option key={sector.id} value={sector.id}>{sector.name}</option>
+                ))}
+            </select>
+        </div>
       </div>
 
       <div className="bg-white shadow-md rounded-lg overflow-hidden">
@@ -172,16 +232,16 @@ const UserManagement: React.FC<{
               </tr>
             </thead>
             <tbody>
-              {users.map(user => {
-                const sectorName = sectors.find(s => s.id === user.sectorId)?.name || 'N/A';
+              {filteredUsers.map(user => {
+                const sectorName = user.sector_name || 'N/A';
                 return (
                   <tr key={user.id} className="bg-white border-b hover:bg-gray-50">
                     <td className="px-6 py-4 font-medium text-gray-900">{user.name}</td>
                     <td className="px-6 py-4">{user.rank}</td>
                     <td className="px-6 py-4">{sectorName}</td>
                     <td className="px-6 py-4">
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${user.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                        {user.active ? 'Ativo' : 'Inativo'}
+                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${user.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+                        {user.is_active ? 'Ativo' : 'Inativo'}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right">

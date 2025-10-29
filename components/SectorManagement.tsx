@@ -127,7 +127,12 @@ const SectorManagement: React.FC<{
             </thead>
             <tbody>
               {sectors.map(sector => {
-                const assetCount = assets.filter(a => a.currentSectorId === sector.id).length;
+                const assetCount = assets.filter(asset => {
+                  const custodian = users.find(u => u.id === asset.custodian_user_id);
+                  const isAssetInSector = asset.sector_id === sector.id && asset.status !== 'Em Uso';
+                  const isCustodianInSector = custodian?.sector_id === sector.id && asset.status === 'Em Uso';
+                  return isAssetInSector || isCustodianInSector;
+                }).length;
                 return (
                   <tr key={sector.id} className="bg-white border-b hover:bg-gray-50">
                     <td className="px-6 py-4 font-medium text-gray-900">{sector.name}</td>

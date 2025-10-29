@@ -97,18 +97,18 @@ export const initialAssets: Asset[] = [
 ];
 
 export const initialCustodyLogs: CustodyLog[] = [
-    { id: 1, cautelaNumber: '001/GAC-PAC/2023', userId: 1, assetIds: [1, 15], checkoutDate: '2023-02-15', termUrl: '/terms/term-001.pdf' },
-    { id: 2, cautelaNumber: '002/GAC-PAC/2023', userId: 2, assetIds: [2, 14, 19, 20, 21], checkoutDate: '2023-05-20', termUrl: '/terms/term-002.pdf', signedTermUrl: '/terms/signed-term-002.pdf' },
-    { id: 3, cautelaNumber: '003/GAC-PAC/2023', userId: 3, assetIds: [4], checkoutDate: '2023-11-05', termUrl: '/terms/term-003.pdf' },
-    { id: 4, cautelaNumber: '004/GAC-PAC/2023', userId: 4, assetIds: [7], checkoutDate: '2023-03-18', termUrl: '/terms/term-004.pdf' },
-    { id: 5, cautelaNumber: '001/GAC-PAC/2022', userId: 6, assetIds: [12], checkoutDate: '2022-04-22', termUrl: '/terms/term-005.pdf' },
-    { id: 6, cautelaNumber: '005/GAC-PAC/2023', userId: 9, assetIds: [8], checkoutDate: '2023-07-25', termUrl: '/terms/term-006.pdf', signedTermUrl: '/terms/signed-term-006.pdf' },
-    { id: 7, cautelaNumber: '006/GAC-PAC/2023', userId: 10, assetIds: [11], checkoutDate: '2023-09-02', termUrl: '/terms/term-007.pdf' },
-    { id: 8, cautelaNumber: '001/GAC-PAC/2024', userId: 7, assetIds: [9], checkoutDate: '2024-01-20', termUrl: '/terms/term-008.pdf' },
-    { id: 9, cautelaNumber: '007/GAC-PAC/2023', userId: 8, assetIds: [], checkoutDate: '2023-01-10', checkinDate: '2024-05-30', termUrl: '/terms/term-009.pdf', signedTermUrl: '/terms/signed-term-009.pdf' },
+    { id: 1, cautela_number: '001/GAC-PAC/2023', user_id: 1, assetIds: [1, 15], checkout_date: '2023-02-15', term_url: '/terms/term-001.pdf' },
+    { id: 2, cautela_number: '002/GAC-PAC/2023', user_id: 2, assetIds: [2, 14, 19, 20, 21], checkout_date: '2023-05-20', term_url: '/terms/term-002.pdf', signed_term_url: '/terms/signed-term-002.pdf' },
+    { id: 3, cautela_number: '003/GAC-PAC/2023', user_id: 3, assetIds: [4], checkout_date: '2023-11-05', term_url: '/terms/term-003.pdf' },
+    { id: 4, cautela_number: '004/GAC-PAC/2023', user_id: 4, assetIds: [7], checkout_date: '2023-03-18', term_url: '/terms/term-004.pdf' },
+    { id: 5, cautela_number: '001/GAC-PAC/2022', user_id: 6, assetIds: [12], checkout_date: '2022-04-22', term_url: '/terms/term-005.pdf' },
+    { id: 6, cautela_number: '005/GAC-PAC/2023', user_id: 9, assetIds: [8], checkout_date: '2023-07-25', term_url: '/terms/term-006.pdf', signed_term_url: '/terms/signed-term-006.pdf' },
+    { id: 7, cautela_number: '006/GAC-PAC/2023', user_id: 10, assetIds: [11], checkout_date: '2023-09-02', term_url: '/terms/term-007.pdf' },
+    { id: 8, cautela_number: '001/GAC-PAC/2024', user_id: 7, assetIds: [9], checkout_date: '2024-01-20', term_url: '/terms/term-008.pdf' },
+    { id: 9, cautela_number: '007/GAC-PAC/2023', user_id: 8, assetIds: [], checkout_date: '2023-01-10', checkin_date: '2024-05-30', term_url: '/terms/term-009.pdf', signed_term_url: '/terms/signed-term-009.pdf' },
     // Novas Cautelas
-    { id: 10, cautelaNumber: '002/GAC-PAC/2024', userId: 5, assetIds: [39], checkoutDate: '2024-07-10', termUrl: '/terms/term-010.pdf' },
-    { id: 11, cautelaNumber: '003/GAC-PAC/2024', userId: 13, assetIds: [40], checkoutDate: '2024-07-15', termUrl: '/terms/term-011.pdf' }
+    { id: 10, cautela_number: '002/GAC-PAC/2024', user_id: 5, assetIds: [39], checkout_date: '2024-07-10', term_url: '/terms/term-010.pdf' },
+    { id: 11, cautela_number: '003/GAC-PAC/2024', user_id: 13, assetIds: [40], checkout_date: '2024-07-15', term_url: '/terms/term-011.pdf' }
 ];
 
 const assetsToCount = initialAssets.filter(a => a.status !== AssetStatus.Decommissioned);

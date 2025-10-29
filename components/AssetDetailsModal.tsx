@@ -8,8 +8,19 @@ interface PhotoCarouselProps {
   onDeletePhoto: (index: number) => void;
 }
 
-const PhotoCarousel: React.FC<PhotoCarouselProps> = ({ photos, onAddPhotos, onDeletePhoto }) => {
+import React, { useState, useCallback } from 'react';
+import { Asset, Sector, MilitaryUser, AssetPhoto } from '../types';
+import { assetsApi } from '../services/api';
+
+interface PhotoCarouselProps {
+  assetId: string;
+  photos: AssetPhoto[];
+  onPhotoChange: () => void; // Callback to trigger a data refresh
+}
+
+const PhotoCarousel: React.FC<PhotoCarouselProps> = ({ assetId, photos, onPhotoChange }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
 
   const goToPrevious = () => {
     if (photos.length === 0) return;
@@ -25,36 +36,34 @@ const PhotoCarousel: React.FC<PhotoCarouselProps> = ({ photos, onAddPhotos, onDe
     setCurrentIndex(newIndex);
   }, [currentIndex, photos.length]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      // FIX: Explicitly type `files` as `File[]` to correct type inference.
-      const files: File[] = Array.from(e.target.files);
-      const newPhotoUrls: string[] = [];
-      let filesProcessed = 0;
-
+      const files = Array.from(e.target.files);
       if (files.length === 0) return;
 
-      files.forEach(file => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          newPhotoUrls.push(reader.result as string);
-          filesProcessed++;
-          if (filesProcessed === files.length) {
-            onAddPhotos(newPhotoUrls);
-          }
-        };
-        reader.readAsDataURL(file);
-      });
+      setIsUploading(true);
+      try {
+        await Promise.all(files.map(file => assetsApi.addPhoto(assetId, file)));
+        onPhotoChange(); // Notify parent to refetch data
+      } catch (error) {
+        console.error("Erro no upload de fotos:", error);
+        alert("Falha ao enviar uma ou mais fotos.");
+      } finally {
+        setIsUploading(false);
+      }
     }
   };
   
-  const handleDelete = () => {
+  const handleDelete = async () => {
+    if (photos.length === 0) return;
+    const photoToDelete = photos[currentIndex];
     if (window.confirm('Tem certeza que deseja excluir esta foto?')) {
-        onDeletePhoto(currentIndex);
-        if (currentIndex >= photos.length - 1 && photos.length > 1) {
-            setCurrentIndex(currentIndex - 1);
-        } else if (photos.length <= 1) {
-            setCurrentIndex(0);
+        try {
+            await assetsApi.deletePhoto(assetId, photoToDelete.id);
+            onPhotoChange();
+        } catch (error) {
+            console.error("Erro ao excluir foto:", error);
+            alert("Falha ao excluir foto.");
         }
     }
   }
@@ -64,7 +73,7 @@ const PhotoCarousel: React.FC<PhotoCarouselProps> = ({ photos, onAddPhotos, onDe
         <div className="relative h-64 bg-gray-200 rounded-lg overflow-hidden flex items-center justify-center">
         {photos.length > 0 ? (
             <>
-            <img src={photos[currentIndex]} alt={`Foto do ativo ${currentIndex + 1}`} className="w-full h-full object-contain" />
+            <img src={photos[currentIndex].url} alt={`Foto do ativo ${currentIndex + 1}`} className="w-full h-full object-contain" />
             {photos.length > 1 && (
                  <>
                     <button onClick={goToPrevious} className="absolute left-2 top-1/2 -translate-y-1/2 p-1 bg-black bg-opacity-50 text-white rounded-full hover:bg-opacity-75">
@@ -115,19 +124,13 @@ const DetailItem: React.FC<{ label: string; value?: string | number }> = ({ labe
 
 
 const AssetDetailsModal: React.FC<AssetDetailsModalProps> = ({ asset, sectors, users, onClose, onUpdateAsset }) => {
-    const sector = sectors.find(s => s.id === asset.currentSectorId)?.name;
-    const custodian = users.find(u => u.id === asset.custodianUserId);
+    const sector = sectors.find(s => s.id === asset.sector_id)?.name;
+    const custodian = users.find(u => u.id === asset.custodian_user_id);
     const custodianName = custodian ? `${custodian.rank} ${custodian.name}` : undefined;
 
-    const handleAddPhotos = (newPhotos: string[]) => {
-        const updatedAsset = { ...asset, photos: [...asset.photos, ...newPhotos] };
-        onUpdateAsset(updatedAsset);
-    };
-    
-    const handleDeletePhoto = (index: number) => {
-        const updatedPhotos = asset.photos.filter((_, i) => i !== index);
-        const updatedAsset = { ...asset, photos: updatedPhotos };
-        onUpdateAsset(updatedAsset);
+    const handlePhotoChange = () => {
+        // This will trigger the reload in App.tsx, which will flow down and update this component
+        onUpdateAsset(asset); // We pass the current asset to trigger the parent reload
     };
 
     return (
@@ -135,8 +138,8 @@ const AssetDetailsModal: React.FC<AssetDetailsModalProps> = ({ asset, sectors, u
         <div className="bg-white p-8 rounded-lg shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
             <div className="flex justify-between items-start mb-4">
                 <div>
-                    <h2 className="text-2xl font-bold text-gray-800">{asset.type}</h2>
-                    <p className="text-sm text-gray-500 font-mono">{asset.qrCode}</p>
+                    <h2 className="text-2xl font-bold text-gray-800">{asset.name}</h2>
+                    <p className="text-sm text-gray-500 font-mono">{asset.qr_code}</p>
                 </div>
                  <button onClick={onClose} className="-mt-2 -mr-2 text-gray-500 hover:text-gray-800" aria-label="Fechar">
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -147,13 +150,13 @@ const AssetDetailsModal: React.FC<AssetDetailsModalProps> = ({ asset, sectors, u
                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="md:col-span-1 space-y-4 text-center">
                         <img 
-                            src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(asset.qrCode)}`}
-                            alt={`QR Code for ${asset.qrCode}`}
+                            src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(asset.qr_code)}`}
+                            alt={`QR Code for ${asset.qr_code}`}
                             className="mx-auto border p-1"
                         />
                         <a 
-                            href={`https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(asset.qrCode)}`}
-                            download={`${asset.qrCode}.png`}
+                            href={`https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(asset.qr_code)}`}
+                            download={`${asset.qr_code}.png`}
                             className="inline-block mt-2 text-sm text-blue-600 hover:underline"
                         >
                             Baixar QR Code
@@ -162,19 +165,28 @@ const AssetDetailsModal: React.FC<AssetDetailsModalProps> = ({ asset, sectors, u
                     <div className="md:col-span-2 grid grid-cols-2 gap-x-6 gap-y-4 bg-gray-50 p-4 rounded-lg">
                         <DetailItem label="Categoria" value={asset.category} />
                         <DetailItem label="Situação" value={asset.status} />
-                        <DetailItem label="Nº de Série" value={asset.serialNumber} />
-                        <DetailItem label="Nº de Patrimônio" value={asset.patrimonyId} />
+                        <DetailItem label="Nº de Série" value={asset.serial_number} />
+                        <DetailItem label="Nº de Patrimônio" value={asset.patrimony_id} />
                         <DetailItem label="Setor Atual" value={sector} />
                         <DetailItem label="Cautelado por" value={custodianName} />
-                        <DetailItem label="Data de Aquisição" value={new Date(asset.acquisitionDate).toLocaleDateString('pt-BR')} />
-                        <DetailItem label="Fim da Garantia" value={asset.warrantyEndDate ? new Date(asset.warrantyEndDate).toLocaleDateString('pt-BR') : undefined} />
+                        <DetailItem label="Data de Aquisição" value={new Date(asset.acquisition_date).toLocaleDateString('pt-BR')} />
+                        <DetailItem label="Fim da Garantia" value={asset.warranty_expiry ? new Date(asset.warranty_expiry).toLocaleDateString('pt-BR') : undefined} />
+                        <DetailItem label="Conta" value={asset.conta} />
+                        <DetailItem label="Categoria do Inventário" value={asset.categoria_inventario} />
+                        <DetailItem label="BMP" value={asset.bmp} />
+                        <DetailItem label="Componente" value={asset.componente} />
+                        <DetailItem label="Situação do Inventário" value={asset.situacao} />
+                        <DetailItem label="Quantidade" value={asset.qtd} />
+                        <DetailItem label="Valor Atualizado" value={asset.valor_atualizado} />
+                        <DetailItem label="Depreciação Acumulada" value={asset.deprec_acumulada} />
+                        <DetailItem label="Valor Líquido" value={asset.valor_liquido} />
                     </div>
                     <div className="md:col-span-3">
                          <h3 className="text-xl font-semibold text-gray-700 mb-2 border-b pb-2">Fotos do Ativo</h3>
                          <PhotoCarousel 
+                            assetId={asset.id}
                             photos={asset.photos}
-                            onAddPhotos={handleAddPhotos}
-                            onDeletePhoto={handleDeletePhoto}
+                            onPhotoChange={handlePhotoChange}
                          />
                     </div>
                  </div>

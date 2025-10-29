@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 
+import React, { useState, useEffect, useCallback } from 'react';
+import { AssetPhoto } from '../types';
+
 interface PhotoGalleryModalProps {
-  photos: string[];
+  photos: AssetPhoto[];
   onClose: () => void;
 }
 
@@ -62,7 +65,7 @@ const PhotoGalleryModal: React.FC<PhotoGalleryModalProps> = ({ photos, onClose }
         </button>
 
         <div className="flex-grow flex items-center justify-center relative min-h-0">
-           <img src={photos[currentIndex]} alt={`Foto do ativo ${currentIndex + 1}`} className="max-w-full max-h-[75vh] object-contain" />
+           <img src={photos[currentIndex].url} alt={`Foto do ativo ${currentIndex + 1}`} className="max-w-full max-h-[75vh] object-contain" />
         </div>
         
         <div className="text-center text-sm text-gray-600 mt-2" aria-live="polite">

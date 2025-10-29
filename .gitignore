@@ -22,3 +22,22 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment files
+.env
+*.env
+backend/.env
+
+# IDE/editor local configs
+.deepvcode/
+
+# Accidental flags file
+--yes
+
+# Framework/generated runtime data
+backend/storage/
+backend/uploads/
+backend/public/storage/
+
+# Local support bundles
+amp-support-bundle-*.json.gz

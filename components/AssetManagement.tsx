@@ -1,8 +1,8 @@
 
 // components/AssetManagement.tsx
 
-import React, { useState, useMemo } from 'react';
-import { Asset, Sector, MilitaryUser, AssetStatus, AssetCategory, MaintenanceRecord } from '../types';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Asset, Sector, MilitaryUser, AssetStatus, AssetCategory, MaintenanceRecord, AssetPhoto } from '../types';
 import { generateNewQrCode } from '../services/mockData';
 import PhotoGalleryModal from './PhotoGalleryModal';
 import QrScannerModal from './QrScannerModal';
@@ -15,12 +15,13 @@ const AssetRow: React.FC<{
   users: MilitaryUser[],
   onEdit: (asset: Asset) => void,
   onDelete: (id: number) => void,
-  onViewPhotos: (photos: string[]) => void,
+  onViewPhotos: (photos: AssetPhoto[]) => void,
   onViewMaintenance: (asset: Asset) => void,
   onViewDetails: (asset: Asset) => void
 }> = ({ asset, sectors, users, onEdit, onDelete, onViewPhotos, onViewMaintenance, onViewDetails }) => {
-  const sector = sectors.find(s => s.id === asset.currentSectorId)?.name || 'N/A';
-  const user = users.find(u => u.id === asset.custodianUserId)?.name || 'N/A';
+  const custodian = users.find(u => u.id === asset.custodian_user_id);
+  const sector = asset.status === 'Em Uso' && custodian ? custodian.sector_name : asset.sector_name;
+  const user = custodian?.name || 'N/A';
 
   const getStatusBadge = (status: AssetStatus) => {
     switch (status) {
@@ -39,9 +40,13 @@ const AssetRow: React.FC<{
 
   return (
     <tr className="bg-white border-b hover:bg-gray-50">
-      <td className="px-6 py-4 font-mono text-sm text-gray-700">{asset.qrCode}</td>
-      <td className="px-6 py-4 font-medium text-gray-900">{asset.type}</td>
+      <td className="px-6 py-4 font-mono text-sm text-gray-700">{asset.qr_code}</td>
+      <td className="px-6 py-4 font-medium text-gray-900">{asset.name}</td>
       <td className="px-6 py-4">{asset.category}</td>
+      <td className="px-6 py-4">{asset.bmp}</td>
+      <td className="px-6 py-4">{asset.situacao}</td>
+      <td className="px-6 py-4">{asset.qtd}</td>
+      <td className="px-6 py-4">{asset.valor_atualizado}</td>
       <td className="px-6 py-4">{sector}</td>
       <td className="px-6 py-4">{user}</td>
       <td className="px-6 py-4">
@@ -121,16 +126,25 @@ const AssetForm: React.FC<{
       id: formData.id || lastAssetId + 1,
       qrCode: formData.qrCode || generateNewQrCode(lastAssetId),
       serialNumber: formData.serialNumber || '',
-      type: formData.type || '',
+      name: formData.name || '',
       category: formData.category || AssetCategory.Computing,
-      currentSectorId: Number(formData.currentSectorId) || 0,
-      custodianUserId: formData.custodianUserId ? Number(formData.custodianUserId) : undefined,
+      sector_id: formData.sector_id,
+      custodian_user_id: formData.custodian_user_id,
       status: formData.status || AssetStatus.Available,
       acquisitionDate: formData.acquisitionDate || new Date().toISOString().split('T')[0],
       patrimonyId: formData.patrimonyId,
       warrantyEndDate: formData.warrantyEndDate,
       photos: formData.photos || [],
       maintenanceHistory: formData.maintenanceHistory || [],
+      conta: formData.conta,
+      categoria_inventario: formData.categoria_inventario,
+      bmp: formData.bmp,
+      componente: formData.componente,
+      situacao: formData.situacao,
+      qtd: formData.qtd,
+      valor_atualizado: formData.valor_atualizado,
+      deprec_acumulada: formData.deprec_acumulada,
+      valor_liquido: formData.valor_liquido,
     };
     onSave(newAsset);
   };
@@ -142,8 +156,8 @@ const AssetForm: React.FC<{
         <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-gray-700">Tipo/Modelo</label>
-              <input type="text" name="type" value={formData.type || ''} onChange={handleChange} required className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"/>
+              <label className="block text-sm font-medium text-gray-700">Nome/Modelo</label>
+              <input type="text" name="name" value={formData.name || ''} onChange={handleChange} required className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"/>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">Categoria</label>
@@ -159,33 +173,69 @@ const AssetForm: React.FC<{
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">Nº de Série</label>
-              <input type="text" name="serialNumber" value={formData.serialNumber || ''} onChange={handleChange} required className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"/>
+              <input type="text" name="serial_number" value={formData.serial_number || ''} onChange={handleChange} required className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"/>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">Nº de Patrimônio</label>
-              <input type="text" name="patrimonyId" value={formData.patrimonyId || ''} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"/>
+              <input type="text" name="patrimony_id" value={formData.patrimony_id || ''} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"/>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">Setor Atual</label>
-              <select name="currentSectorId" value={formData.currentSectorId} onChange={handleChange} required className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+              <select name="sector_id" value={formData.sector_id} onChange={handleChange} required className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
                 <option value="">Selecione um setor</option>
                 {sectors.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
               </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">Usuário Cautelado</label>
-              <select name="custodianUserId" value={formData.custodianUserId || ''} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+              <select name="custodian_user_id" value={formData.custodian_user_id || ''} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
                  <option value="">Nenhum</option>
-                 {users.filter(u => u.active).map(u => <option key={u.id} value={u.id}>{u.rank} {u.name}</option>)}
+                 {users.filter(u => u.is_active).map(u => <option key={u.id} value={u.id}>{u.rank} {u.name}</option>)}
               </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">Data de Aquisição</label>
-              <input type="date" name="acquisitionDate" value={formData.acquisitionDate || ''} onChange={handleChange} required className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"/>
+              <input type="date" name="acquisition_date" value={formData.acquisition_date || ''} onChange={handleChange} required className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"/>
             </div>
              <div>
               <label className="block text-sm font-medium text-gray-700">Fim da Garantia</label>
-              <input type="date" name="warrantyEndDate" value={formData.warrantyEndDate || ''} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"/>
+              <input type="date" name="warranty_expiry" value={formData.warranty_expiry || ''} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"/>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Conta</label>
+              <input type="text" name="conta" value={formData.conta || ''} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"/>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Categoria do Inventário</label>
+              <input type="text" name="categoria_inventario" value={formData.categoria_inventario || ''} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"/>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">BMP</label>
+              <input type="text" name="bmp" value={formData.bmp || ''} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"/>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Componente</label>
+              <input type="text" name="componente" value={formData.componente || ''} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"/>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Situação do Inventário</label>
+              <input type="text" name="situacao" value={formData.situacao || ''} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"/>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Quantidade</label>
+              <input type="number" name="qtd" value={formData.qtd || 1} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"/>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Valor Atualizado</label>
+              <input type="number" name="valor_atualizado" value={formData.valor_atualizado || ''} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"/>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Depreciação Acumulada</label>
+              <input type="number" name="deprec_acumulada" value={formData.deprec_acumulada || ''} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"/>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Valor Líquido</label>
+              <input type="number" name="valor_liquido" value={formData.valor_liquido || ''} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"/>
             </div>
           </div>
           <div className="mt-8 flex justify-end space-x-4">
@@ -203,15 +253,23 @@ const AssetManagement: React.FC<{
   setAssets: React.Dispatch<React.SetStateAction<Asset[]>>,
   sectors: Sector[],
   users: MilitaryUser[],
-}> = ({ assets, setAssets, sectors, users }) => {
+  onDataChange: () => void,
+  initialStatusFilter?: AssetStatus | 'all';
+}> = ({ assets, setAssets, sectors, users, onDataChange, initialStatusFilter = 'all' }) => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingAsset, setEditingAsset] = useState<Partial<Asset> | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<AssetStatus | 'all'>('all');
-  const [viewingPhotos, setViewingPhotos] = useState<string[] | null>(null);
+  const [viewingPhotos, setViewingPhotos] = useState<AssetPhoto[] | null>(null);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [viewingMaintenanceAsset, setViewingMaintenanceAsset] = useState<Asset | null>(null);
   const [viewingAsset, setViewingAsset] = useState<Asset | null>(null);
+
+  useEffect(() => {
+    if (initialStatusFilter) {
+      setStatusFilter(initialStatusFilter);
+    }
+  }, [initialStatusFilter]);
 
   const handleAdd = () => {
     setEditingAsset(null);
@@ -239,7 +297,7 @@ const AssetManagement: React.FC<{
     setEditingAsset(null);
   };
 
-  const handleViewPhotos = (photos: string[]) => {
+  const handleViewPhotos = (photos: AssetPhoto[]) => {
     setViewingPhotos(photos);
   };
 
@@ -250,6 +308,7 @@ const AssetManagement: React.FC<{
   const handleUpdateAsset = (updatedAsset: Asset) => {
     setAssets(prevAssets => prevAssets.map(a => a.id === updatedAsset.id ? updatedAsset : a));
     setViewingAsset(updatedAsset); // Keep the modal open with updated data
+    onDataChange(); // Reload data from API to ensure sync
   };
 
   const handleViewMaintenance = (asset: Asset) => {
@@ -281,11 +340,15 @@ const AssetManagement: React.FC<{
         const term = searchTerm.toLowerCase();
         if (!term) return true;
         return (
-          asset.type.toLowerCase().includes(term) ||
+          asset.name.toLowerCase().includes(term) ||
           asset.qrCode.toLowerCase().includes(term) ||
           asset.serialNumber.toLowerCase().includes(term) ||
           (asset.patrimonyId && asset.patrimonyId.toLowerCase().includes(term)) ||
-          asset.category.toLowerCase().includes(term)
+          asset.category.toLowerCase().includes(term) ||
+          (asset.conta && asset.conta.toLowerCase().includes(term)) ||
+          (asset.categoria_inventario && asset.categoria_inventario.toLowerCase().includes(term)) ||
+          (asset.bmp && asset.bmp.toLowerCase().includes(term)) ||
+          (asset.componente && asset.componente.toLowerCase().includes(term))
         );
       });
   }, [assets, searchTerm, statusFilter]);
@@ -348,6 +411,10 @@ const AssetManagement: React.FC<{
                 <th scope="col" className="px-6 py-3">QR Code</th>
                 <th scope="col" className="px-6 py-3">Tipo/Modelo</th>
                 <th scope="col" className="px-6 py-3">Categoria</th>
+                <th scope="col" className="px-6 py-3">BMP</th>
+                <th scope="col" className="px-6 py-3">Situação</th>
+                <th scope="col" className="px-6 py-3">Qtd</th>
+                <th scope="col" className="px-6 py-3">Valor Atualizado</th>
                 <th scope="col" className="px-6 py-3">Setor</th>
                 <th scope="col" className="px-6 py-3">Cautelado por</th>
                 <th scope="col" className="px-6 py-3">Situação</th>
