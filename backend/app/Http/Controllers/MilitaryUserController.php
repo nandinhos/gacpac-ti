@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\MilitaryUser;
+use App\Http\Requests\StoreMilitaryUserRequest;
 
 class MilitaryUserController extends Controller
 {
@@ -19,9 +20,20 @@ class MilitaryUserController extends Controller
         return $query->get();
     }
 
-    public function store(Request $request)
+    public function store(StoreMilitaryUserRequest $request)
     {
-        return MilitaryUser::create($request->all());
+        try {
+            $user = MilitaryUser::create($request->validated());
+            return response()->json([
+                'message' => 'Usuário criado com sucesso',
+                'data' => $user
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Erro ao criar usuário',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function show(MilitaryUser $user)

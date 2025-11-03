@@ -10,18 +10,23 @@ interface PhotoGalleryModalProps {
 
 const PhotoGalleryModal: React.FC<PhotoGalleryModalProps> = ({ photos, onClose }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  
+  // Garantir que photos seja sempre um array
+  const safePhotos = photos || [];
 
   const goToPrevious = useCallback(() => {
+    if (safePhotos.length === 0) return;
     const isFirstSlide = currentIndex === 0;
-    const newIndex = isFirstSlide ? photos.length - 1 : currentIndex - 1;
+    const newIndex = isFirstSlide ? safePhotos.length - 1 : currentIndex - 1;
     setCurrentIndex(newIndex);
-  }, [currentIndex, photos]);
+  }, [currentIndex, safePhotos]);
 
   const goToNext = useCallback(() => {
-    const isLastSlide = currentIndex === photos.length - 1;
+    if (safePhotos.length === 0) return;
+    const isLastSlide = currentIndex === safePhotos.length - 1;
     const newIndex = isLastSlide ? 0 : currentIndex + 1;
     setCurrentIndex(newIndex);
-  }, [currentIndex, photos]);
+  }, [currentIndex, safePhotos]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -40,7 +45,7 @@ const PhotoGalleryModal: React.FC<PhotoGalleryModalProps> = ({ photos, onClose }
     };
   }, [goToPrevious, goToNext, onClose]);
 
-  if (!photos || photos.length === 0) {
+  if (!safePhotos || safePhotos.length === 0) {
     return null;
   }
 
@@ -65,14 +70,14 @@ const PhotoGalleryModal: React.FC<PhotoGalleryModalProps> = ({ photos, onClose }
         </button>
 
         <div className="flex-grow flex items-center justify-center relative min-h-0">
-           <img src={photos[currentIndex].url} alt={`Foto do ativo ${currentIndex + 1}`} className="max-w-full max-h-[75vh] object-contain" />
+           <img src={safePhotos[currentIndex].url} alt={`Foto do ativo ${currentIndex + 1}`} className="max-w-full max-h-[75vh] object-contain" />
         </div>
         
         <div className="text-center text-sm text-gray-600 mt-2" aria-live="polite">
-            Foto {currentIndex + 1} de {photos.length}
+            Foto {currentIndex + 1} de {safePhotos.length}
         </div>
 
-        {photos.length > 1 && (
+        {safePhotos.length > 1 && (
             <>
                 <button 
                     onClick={goToPrevious}

@@ -3,6 +3,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { Asset, Sector, MilitaryUser, AssetStatus, AssetCategory, MaintenanceRecord, AssetPhoto } from '../types';
+import { assetsApi } from '../services/api';
 import { generateNewQrCode } from '../services/mockData';
 import PhotoGalleryModal from './PhotoGalleryModal';
 import QrScannerModal from './QrScannerModal';
@@ -63,7 +64,7 @@ const AssetRow: React.FC<{
             >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
             </button>
-            {asset.photos && asset.photos.length > 0 && (
+            {asset.photos && Array.isArray(asset.photos) && asset.photos.length > 0 && (
                 <button 
                     onClick={() => onViewPhotos(asset.photos)} 
                     className="p-2 text-gray-400 rounded-full hover:bg-gray-100 hover:text-blue-600 focus:outline-none"
@@ -124,7 +125,7 @@ const AssetForm: React.FC<{
     e.preventDefault();
     const newAsset: Asset = {
       id: formData.id || lastAssetId + 1,
-      qrCode: formData.qrCode || generateNewQrCode(lastAssetId),
+      qrCode: formData.qrCode || formData.qr_code || generateNewQrCode(lastAssetId),
       serialNumber: formData.serialNumber || '',
       name: formData.name || '',
       category: formData.category || AssetCategory.Computing,
@@ -154,6 +155,10 @@ const AssetForm: React.FC<{
       <div className="bg-white p-8 rounded-lg shadow-2xl w-full max-w-2xl max-h-screen overflow-y-auto">
         <h2 className="text-2xl font-bold mb-6 text-gray-800">{formData.id ? 'Editar Ativo' : 'Adicionar Novo Ativo'}</h2>
         <form onSubmit={handleSubmit}>
+          {/* Campo oculto para preservar QR code */}
+          {formData.id && (
+            <input type="hidden" name="qr_code" value={formData.qr_code || formData.qrCode || ''} />
+          )}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="col-span-2">
               <label className="block text-sm font-medium text-gray-700">Nome/Modelo</label>
@@ -195,11 +200,11 @@ const AssetForm: React.FC<{
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">Data de Aquisição</label>
-              <input type="date" name="acquisition_date" value={formData.acquisition_date || ''} onChange={handleChange} required className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"/>
+              <input type="date" name="acquisition_date" value={formData.acquisition_date ? formData.acquisition_date.split('T')[0] : ''} onChange={handleChange} required className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"/>
             </div>
              <div>
               <label className="block text-sm font-medium text-gray-700">Fim da Garantia</label>
-              <input type="date" name="warranty_expiry" value={formData.warranty_expiry || ''} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"/>
+              <input type="date" name="warranty_expiry" value={formData.warranty_expiry ? formData.warranty_expiry.split('T')[0] : ''} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"/>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">Conta</label>
@@ -281,20 +286,37 @@ const AssetManagement: React.FC<{
     setIsFormOpen(true);
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: number) => {
     if (window.confirm('Tem certeza que deseja excluir este ativo?')) {
+      try {
+        await assetsApi.delete(String(id));
         setAssets(assets.filter(a => a.id !== id));
+        onDataChange(); // Recarregar dados da API
+      } catch (error) {
+        console.error('Erro ao excluir ativo:', error);
+        alert('Erro ao excluir ativo. Tente novamente.');
+      }
     }
   };
 
-  const handleSave = (asset: Asset) => {
-    if (editingAsset && editingAsset.id) {
-      setAssets(assets.map(a => a.id === asset.id ? asset : a));
-    } else {
-      setAssets([...assets, asset]);
+  const handleSave = async (asset: Asset) => {
+    try {
+      if (editingAsset && editingAsset.id) {
+        // Edição - chamar API
+        const updatedAsset = await assetsApi.update(String(asset.id), asset);
+        setAssets(assets.map(a => a.id === asset.id ? updatedAsset.data || updatedAsset : a));
+      } else {
+        // Criação - chamar API
+        const newAsset = await assetsApi.create(asset);
+        setAssets([...assets, newAsset.data || newAsset]);
+      }
+      setIsFormOpen(false);
+      setEditingAsset(null);
+      onDataChange(); // Recarregar dados da API para garantir sincronização
+    } catch (error) {
+      console.error('Erro ao salvar ativo:', error);
+      alert('Erro ao salvar ativo. Tente novamente.');
     }
-    setIsFormOpen(false);
-    setEditingAsset(null);
   };
 
   const handleViewPhotos = (photos: AssetPhoto[]) => {

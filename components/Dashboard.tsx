@@ -33,10 +33,16 @@ interface DashboardProps {
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ assets, users, sectors, logs, setActiveView, navigateToAssetsWithFilter }) => {
-    const totalAssets = assets.length;
-    const assetsInUse = assets.filter(a => a.status === AssetStatus.InUse).length;
-    const assetsAvailable = assets.filter(a => a.status === AssetStatus.Available).length;
-    const assetsInMaintenance = assets.filter(a => a.status === AssetStatus.Maintenance).length;
+    // Garantir que todos os arrays sejam seguros
+    const safeAssets = assets || [];
+    const safeUsers = users || [];
+    const safeSectors = sectors || [];
+    const safeLogs = logs || [];
+    
+    const totalAssets = safeAssets.length;
+    const assetsInUse = safeAssets.filter(a => a.status === AssetStatus.InUse).length;
+    const assetsAvailable = safeAssets.filter(a => a.status === AssetStatus.Available).length;
+    const assetsInMaintenance = safeAssets.filter(a => a.status === AssetStatus.Maintenance).length;
 
   return (
     <div>
@@ -62,8 +68,8 @@ const Dashboard: React.FC<DashboardProps> = ({ assets, users, sectors, logs, set
                         </tr>
                     </thead>
                     <tbody>
-                        {logs.filter(l => !l.checkin_date).slice(0, 5).map(log => {
-                            const user = users.find(u => u.id === log.user_id);
+                        {safeLogs.filter(l => !l.checkin_date).slice(0, 5).map(log => {
+                            const user = safeUsers.find(u => u.id === log.user_id);
                             return (
                                 <tr key={log.id} className="bg-white border-b hover:bg-gray-50">
                                     <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">{user ? `${user.rank} ${user.name}` : 'N/A'}</td>
@@ -87,11 +93,11 @@ const Dashboard: React.FC<DashboardProps> = ({ assets, users, sectors, logs, set
                         </tr>
                     </thead>
                     <tbody>
-                        {sectors.map(sector => {
-                            const assetCount = assets.filter(asset => {
+                        {safeSectors.map(sector => {
+                            const assetCount = safeAssets.filter(asset => {
                                 let currentAssetSectorId;
                                 if (asset.status === 'Em Uso' && asset.custodian_user_id) {
-                                    const custodian = users.find(u => u.id === asset.custodian_user_id);
+                                    const custodian = safeUsers.find(u => u.id === asset.custodian_user_id);
                                     currentAssetSectorId = custodian?.sector_id;
                                 } else {
                                     currentAssetSectorId = asset.sector_id;

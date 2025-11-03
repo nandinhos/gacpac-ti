@@ -11,7 +11,7 @@ use App\Models\InventoryRecord;
 
 class DashboardController extends Controller
 {
-    public function stats()
+    public function getStats()
     {
         $assets = Asset::all();
         $users = MilitaryUser::all();
