@@ -33,14 +33,27 @@ class InventoryRecord extends Model
         return $this->belongsTo(MilitaryUser::class, 'responsible_user_id');
     }
 
-    public function foundItems()
+    public function inventoryAssets()
     {
-        return $this->hasMany(InventoryAsset::class);
+        return $this->hasMany(InventoryAsset::class, 'inventory_id');
     }
 
     public function uncataloguedItems()
     {
-        return $this->hasMany(UncataloguedItem::class);
+        return $this->hasMany(UncataloguedItem::class, 'inventory_id');
+    }
+
+    // Compatibilidade com frontend
+    public function getFoundItemsAttribute()
+    {
+        return $this->inventoryAssets()->with('asset')->get()->map(function ($inventoryAsset) {
+            $asset = $inventoryAsset->asset;
+            if ($asset) {
+                $asset->inventoryObservation = $inventoryAsset->observation;
+                return $asset;
+            }
+            return null;
+        })->filter();
     }
 
     public function reopenHistory()

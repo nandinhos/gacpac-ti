@@ -127,10 +127,10 @@ const InventoryManagement: React.FC<InventoryManagementProps> = ({ assets, setAs
   const handleStartInventory = async (responsibleUserId: number, sectorId: number | 'all', commissionNumber?: string) => {
     try {
       const createdRecord = await inventoryApi.create({
-        commissionNumber: commissionNumber || '',
-        startDate: new Date().toISOString().split('T')[0],
-        sectorId: sectorId === 'all' ? undefined : sectorId?.toString(),
-        responsibleUserId,
+        commission_number: commissionNumber || '',
+        start_date: new Date().toISOString().split('T')[0],
+        sector_id: sectorId === 'all' ? undefined : sectorId,
+        responsible_user_id: responsibleUserId,
       });
 
       // Reload records to get the new one
@@ -150,16 +150,36 @@ const InventoryManagement: React.FC<InventoryManagementProps> = ({ assets, setAs
   };
 
   const handleContinueInventory = (record: InventoryRecord) => {
+    // Se não há dados de inventário, criar baseado nos assets disponíveis
+    let pendingAssets: InventoryAsset[] = [];
+    let foundAssets: InventoryAsset[] = [];
+    
+    if (record.foundItems && record.foundItems.length > 0) {
+      // Inventário existente com dados
+      pendingAssets = (record.pendingItems || []).map(a => ({...a}));
+      foundAssets = (record.foundItems || []).map(a => ({...a}));
+    } else {
+      // Inventário novo - gerar lista baseada no setor
+      if (record.sector_id) {
+        // Inventário por setor específico
+        pendingAssets = assets.filter(a => a.sector_id === record.sector_id).map(a => ({...a}));
+      } else {
+        // Inventário global - todos os assets
+        pendingAssets = assets.map(a => ({...a}));
+      }
+      foundAssets = [];
+    }
+    
     setActiveSession({
       id: record.id,
       isNew: false,
-      responsibleUserId: record.responsibleUserId,
-      sectorId: record.sectorId,
-      commissionNumber: record.commissionNumber,
-      pending: record.pendingAssets.map(a => ({...a})),
-      found: record.foundAssets.map(a => ({...a})),
-      uncatalogued: record.uncataloguedItems,
-      observations: record.observations || '',
+      responsibleUserId: record.responsible_user_id || 0,
+      sectorId: record.sector_id,
+      commissionNumber: record.commission_number,
+      pending: pendingAssets,
+      found: foundAssets,
+      uncatalogued: record.uncataloguedItems || [],
+      observations: record.notes || '',
     });
   };
 
@@ -222,57 +242,100 @@ const InventoryManagement: React.FC<InventoryManagementProps> = ({ assets, setAs
     if (e.key === 'Enter') handleScan();
   };
 
-  const handleSaveProgress = () => {
+  const handleSaveProgress = async () => {
     if (!activeSession) return;
 
-    setInventoryRecords(prevRecords => prevRecords.map(rec => {
-      if (rec.id === activeSession.id) {
-        return {
-          ...rec,
-          foundAssets: activeSession.found,
-          pendingAssets: activeSession.pending,
-          uncataloguedItems: activeSession.uncatalogued,
-          observations: activeSession.observations,
-          summary: {
-            ...rec.summary,
-            found: activeSession.found.length,
-            pending: activeSession.pending.length,
-            uncatalogued: activeSession.uncatalogued.length,
-          },
-        };
-      }
-      return rec;
-    }));
+    try {
+      // Preparar dados para envio
+      const updateData = {
+        status: 'Em Andamento',
+        notes: activeSession.observations,
+        found_items: activeSession.found.map(asset => ({
+          asset_id: asset.id,
+          observation: asset.inventoryObservation || null
+        })),
+        uncatalogued_items: activeSession.uncatalogued
+      };
 
-    setActiveSession(null);
+      // Salvar no backend
+      await inventoryApi.update(activeSession.id.toString(), updateData);
+
+      // Atualizar estado local
+      setInventoryRecords(prevRecords => prevRecords.map(rec => {
+        if (rec.id === activeSession.id) {
+          return {
+            ...rec,
+            foundItems: activeSession.found,
+            pendingItems: activeSession.pending,
+            uncataloguedItems: activeSession.uncatalogued,
+            notes: activeSession.observations,
+            summary: {
+              total: activeSession.found.length + activeSession.pending.length,
+              found: activeSession.found.length,
+              pending: activeSession.pending.length,
+              uncatalogued: activeSession.uncatalogued.length,
+            },
+          };
+        }
+        return rec;
+      }));
+
+      setActiveSession(null);
+      alert('Progresso salvo com sucesso!');
+    } catch (error) {
+      console.error('Erro ao salvar progresso:', error);
+      alert('Erro ao salvar progresso. Tente novamente.');
+    }
   };
 
-  const handleFinishInventory = () => {
+  const handleFinishInventory = async () => {
     if (!activeSession) return;
     if (!window.confirm("Tem certeza que deseja concluir este inventário?")) return;
 
-     setInventoryRecords(prevRecords => prevRecords.map(rec => {
-      if (rec.id === activeSession.id) {
-        return {
-          ...rec,
-          completionDate: new Date().toISOString(),
-          status: 'Concluído',
-          foundAssets: activeSession.found,
-          pendingAssets: activeSession.pending,
-          uncataloguedItems: activeSession.uncatalogued,
-          observations: activeSession.observations,
-          summary: {
-            ...rec.summary,
-            found: activeSession.found.length,
-            pending: activeSession.pending.length,
-            uncatalogued: activeSession.uncatalogued.length,
-          }
-        };
-      }
-      return rec;
-    }));
+    try {
+      // Preparar dados para conclusão
+      const updateData = {
+        status: 'Concluído',
+        end_date: new Date().toISOString().split('T')[0],
+        notes: activeSession.observations,
+        found_items: activeSession.found.map(asset => ({
+          asset_id: asset.id,
+          observation: asset.inventoryObservation || null
+        })),
+        uncatalogued_items: activeSession.uncatalogued
+      };
 
-    setActiveSession(null);
+      // Salvar no backend
+      await inventoryApi.update(activeSession.id.toString(), updateData);
+
+      // Atualizar estado local
+      setInventoryRecords(prevRecords => prevRecords.map(rec => {
+        if (rec.id === activeSession.id) {
+          return {
+            ...rec,
+            end_date: new Date().toISOString(),
+            status: 'Concluído',
+            foundItems: activeSession.found,
+            pendingItems: activeSession.pending,
+            uncataloguedItems: activeSession.uncatalogued,
+            notes: activeSession.observations,
+            summary: {
+              total: activeSession.found.length + activeSession.pending.length,
+              found: activeSession.found.length,
+              pending: activeSession.pending.length,
+              uncatalogued: activeSession.uncatalogued.length,
+            }
+          };
+        }
+        return rec;
+      }));
+
+      setActiveSession(null);
+      alert('Inventário concluído com sucesso!');
+    } catch (error) {
+      console.error('Erro ao concluir inventário:', error);
+      alert('Erro ao concluir inventário. Tente novamente.');
+    }
   };
 
   const handleDiscardAndExit = () => {
@@ -353,9 +416,16 @@ const InventoryManagement: React.FC<InventoryManagementProps> = ({ assets, setAs
         setObservingAsset(null);
     };
 
-    const handleDeleteRecord = (recordId: number) => {
+    const handleDeleteRecord = async (recordId: number) => {
         if (window.confirm("Tem certeza que deseja apagar permanentemente este registro de inventário? Esta ação não pode ser desfeita.")) {
-          setInventoryRecords(prev => prev.filter(rec => rec.id !== recordId));
+          try {
+            await inventoryApi.delete(recordId.toString());
+            setInventoryRecords(prev => prev.filter(rec => rec.id !== recordId));
+            alert('Inventário excluído com sucesso!');
+          } catch (error) {
+            console.error('Erro ao excluir inventário:', error);
+            alert('Erro ao excluir inventário. Tente novamente.');
+          }
         }
     };
 
@@ -429,9 +499,9 @@ const InventoryManagement: React.FC<InventoryManagementProps> = ({ assets, setAs
   const filteredRecords = useMemo(() => {
     return inventoryRecords.filter(record => {
         if (sectorFilter === 'all') return true;
-        if (sectorFilter === 'global') return !record.sectorId;
-        return record.sectorId === Number(sectorFilter);
-    }).sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime());
+        if (sectorFilter === 'global') return !record.sector_id;
+        return record.sector_id === Number(sectorFilter);
+    }).sort((a, b) => new Date(b.start_date).getTime() - new Date(a.start_date).getTime());
   }, [inventoryRecords, sectorFilter]);
 
   if (activeSession) {
@@ -554,11 +624,22 @@ const InventoryManagement: React.FC<InventoryManagementProps> = ({ assets, setAs
             </thead>
             <tbody>
               {filteredRecords.map(record => {
-                const user = users.find(u => u.id === record.responsible_user_id) || {
-                  name: record.responsible_user_name,
-                  rank: record.responsible_user_rank
+                const user = users.find(u => u.id === record.responsible_user_id) || 
+                             record.responsible_user || 
+                             record.responsibleUser ||
+                             {
+                               name: record.responsible_user_name || 'Usuário não encontrado',
+                               rank: record.responsible_user_rank || 'N/A'
+                             };
+                const sector = sectors.find(s => s.id === record.sector_id);
+                
+                // Criar summary se não existir (compatibilidade com API)
+                const summary = record.summary || {
+                  total: (record.foundItems?.length || 0) + (record.pendingItems?.length || 0),
+                  found: record.foundItems?.length || 0,
+                  pending: record.pendingItems?.length || 0,
+                  uncatalogued: record.uncataloguedItems?.length || 0
                 };
-                const sector = sectors.find(s => s.id === record.sectorId);
                 const getStatusBadge = () => {
                     switch(record.status) {
                         case 'Concluído': return 'bg-green-100 text-green-800';
@@ -569,12 +650,12 @@ const InventoryManagement: React.FC<InventoryManagementProps> = ({ assets, setAs
                 }
                 return (
                   <tr key={record.id} className="bg-white border-b hover:bg-gray-50">
-                    <td className="px-6 py-4">{new Date(record.startDate).toLocaleDateString('pt-BR')}</td>
+                    <td className="px-6 py-4">{new Date(record.start_date).toLocaleDateString('pt-BR')}</td>
                     <td className="px-6 py-4 font-medium">{sector ? sector.name : 'Global'}</td>
                     <td className="px-6 py-4 font-medium text-gray-900">{user ? `${user.rank} ${user.name}` : 'N/A'}</td>
                     <td className="px-6 py-4">
-                        <span title={`Encontrados: ${record.summary.found}, Faltantes: ${record.summary.pending}, Não catalogados: ${record.summary.uncatalogued}`}>
-                            {record.summary.found} / {record.summary.total}
+                        <span title={`Encontrados: ${summary.found}, Faltantes: ${summary.pending}, Não catalogados: ${summary.uncatalogued}`}>
+                            {summary.found} / {summary.total}
                         </span>
                     </td>
                     <td className="px-6 py-4">

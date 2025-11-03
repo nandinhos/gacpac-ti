@@ -177,6 +177,10 @@ export const inventoryApi = {
     method: 'POST',
     body: JSON.stringify(inventory),
   }),
+  update: (id: string, data: any) => fetchApi<InventoryRecord>(`/inventory/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  }),
   addFoundItem: (id: string, data: { assetId: string; observation?: string }) =>
     fetchApi(`/inventory/${id}/found`, {
       method: 'POST',
