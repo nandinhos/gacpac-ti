@@ -9,10 +9,16 @@ import CreateCustody from './components/CreateCustody';
 import InventoryManagement from './components/InventoryManagement';
 import SectorAssetManager from './components/SectorAssetsModal';
 import PrintLabels from './components/PrintLabels';
-import { Asset, Sector, MilitaryUser, CustodyLog, InventoryRecord } from './types';
+import LoginScreen from './components/LoginScreen';
+import UserProfile from './components/UserProfile';
+import ProtectedRoute from './components/ProtectedRoute';
+import { AuthProvider, useAuth } from './components/AuthContext';
+import { Asset, Sector, MilitaryUser, CustodyLog, InventoryRecord, AssetStatus } from './types';
 import { sectorsApi, usersApi, assetsApi, custodyApi, inventoryApi } from './services/api';
 
-const App: React.FC = () => {
+// Componente principal autenticado
+const AuthenticatedApp: React.FC = () => {
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const [activeView, setActiveView] = useState('dashboard');
   const [managingSector, setManagingSector] = useState<Sector | null>(null);
   const [loading, setLoading] = useState(true);
@@ -25,42 +31,71 @@ const App: React.FC = () => {
   const [inventoryRecords, setInventoryRecords] = useState<InventoryRecord[]>([]);
   const [initialAssetStatusFilter, setInitialAssetStatusFilter] = useState<AssetStatus | 'all'>('all');
 
+  // Se ainda está carregando a autenticação, mostrar loading
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Se não está autenticado, mostrar tela de login
+  if (!isAuthenticated) {
+    return <LoginScreen />;
+  }
+
   const navigateToAssetsWithFilter = (status: AssetStatus | 'all') => {
     setInitialAssetStatusFilter(status);
     setActiveView('assets');
   };
 
-  // Load initial data from API
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+  // CARREGAMENTO MANUAL DE DADOS - SEM useEffect AUTOMÁTICO
+  const manualLoadData = async () => {
+    const token = localStorage.getItem('auth_token');
+    if (!isAuthenticated || !token) {
+      setLoading(false);
+      return;
+    }
 
-        // Load all data in parallel
-        const [sectorsData, usersData, assetsData, custodyData, inventoryData] = await Promise.all([
-          sectorsApi.getAll(),
-          usersApi.getAll(),
-          assetsApi.getAll(),
-          custodyApi.getAll(),
-          inventoryApi.getAll(),
-        ]);
+    try {
+      setLoading(true);
+      setError(null);
+      console.log('🔍 DEBUG: Carregamento manual iniciado...');
 
-        setSectors(sectorsData);
-        setUsers(usersData);
-        setAssets(assetsData);
-        setCustodyLogs(custodyData);
-        setInventoryRecords(inventoryData);
-      } catch (err: any) {
-        console.error('Error loading data:', err);
-        setError(err.message || 'Erro ao carregar dados. Verifique se o backend está rodando.');
-      } finally {
-        setLoading(false);
-      }
-    };
+      // Load all data in parallel
+      const [sectorsData, usersData, assetsData, custodyData, inventoryData] = await Promise.all([
+        sectorsApi.getAll(),
+        usersApi.getAll(),
+        assetsApi.getAll(),
+        custodyApi.getAll(),
+        inventoryApi.getAll(),
+      ]);
 
-    loadData();
-  }, []);
+      console.log('🔍 DEBUG: Dados carregados com sucesso');
+      setSectors(sectorsData);
+      setUsers(usersData);
+      setAssets(assetsData);
+      setCustodyLogs(custodyData);
+      setInventoryRecords(inventoryData);
+    } catch (err: any) {
+      console.error('Error loading data:', err);
+      setError(err.message || 'Erro ao carregar dados. Verifique se o backend está rodando.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // INICIALIZAÇÃO SIMPLES SEM useEffect PROBLEMÁTICO
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      console.log('🔍 DEBUG: Usuário autenticado, setLoading false');
+      setLoading(false);
+    }
+  }, [isAuthenticated]);
 
   // Reload functions for specific entities
   const reloadAssets = async () => {
@@ -146,31 +181,72 @@ const App: React.FC = () => {
 
     switch (activeView) {
       case 'dashboard':
-        return <Dashboard assets={assets} users={users} sectors={sectors} logs={custodyLogs} setActiveView={setActiveView} navigateToAssetsWithFilter={navigateToAssetsWithFilter} />;
+        // TEMPORÁRIO: Dashboard vazio para debug
+        return (
+          <div className="p-8 bg-white rounded-lg shadow">
+            <h1 className="text-2xl font-bold text-green-600 mb-4">🎉 Sistema SGTI-GAC Funcionando!</h1>
+            <p className="text-gray-600 mb-4">Login realizado com sucesso. Dashboard temporariamente simplificado para debug.</p>
+            
+            <button 
+              onClick={manualLoadData}
+              disabled={loading}
+              className="mb-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+            >
+              {loading ? 'Carregando...' : 'Carregar Dados Manualmente'}
+            </button>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-blue-50 p-4 rounded">
+                <h3 className="font-semibold">Dados Carregados:</h3>
+                <p>Assets: {assets.length}</p>
+                <p>Users: {users.length}</p>
+                <p>Sectors: {sectors.length}</p>
+                <p>Custody: {custodyLogs.length}</p>
+              </div>
+              <div className="bg-green-50 p-4 rounded">
+                <h3 className="font-semibold">Status:</h3>
+                <p>✅ Autenticação OK</p>
+                <p>✅ Login funcionando</p>
+                <p>✅ Interface carregada</p>
+              </div>
+            </div>
+            
+            {error && (
+              <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded">
+                <p className="text-red-700">{error}</p>
+              </div>
+            )}
+          </div>
+        );
+        // return <Dashboard assets={assets} users={users} sectors={sectors} logs={custodyLogs} setActiveView={setActiveView} navigateToAssetsWithFilter={navigateToAssetsWithFilter} />;
       case 'assets':
         return (
-          <AssetManagement
-            assets={assets}
-            setAssets={setAssets}
-            sectors={sectors}
-            users={users}
-            onDataChange={reloadAssets}
-            initialStatusFilter={initialAssetStatusFilter}
-          />
+          <ProtectedRoute requiredAbility="edit:all">
+            <AssetManagement
+              assets={assets}
+              setAssets={setAssets}
+              sectors={sectors}
+              users={users}
+              onDataChange={reloadAssets}
+              initialStatusFilter={initialAssetStatusFilter}
+            />
+          </ProtectedRoute>
         );
       case 'sectors':
         return (
-          <SectorManagement
-            sectors={sectors}
-            setSectors={setSectors}
-            assets={assets}
-            users={users}
-            onManageSector={(sector) => {
-              setManagingSector(sector);
-              setActiveView('manageSectorAssets');
-            }}
-            onDataChange={reloadSectors}
-          />
+          <ProtectedRoute requiredAbility="edit:all">
+            <SectorManagement
+              sectors={sectors}
+              setSectors={setSectors}
+              assets={assets}
+              users={users}
+              onManageSector={(sector) => {
+                setManagingSector(sector);
+                setActiveView('manageSectorAssets');
+              }}
+              onDataChange={reloadSectors}
+            />
+          </ProtectedRoute>
         );
       case 'manageSectorAssets':
         if (!managingSector) {
@@ -178,74 +254,90 @@ const App: React.FC = () => {
           return null;
         }
         return (
-          <SectorAssetManager
-            sector={managingSector}
-            assets={assets}
-            setAssets={setAssets}
-            users={users}
-            allSectors={sectors}
-            custodyLogs={custodyLogs}
-            onBack={() => setActiveView('sectors')}
-            onDataChange={reloadAssets}
-          />
+          <ProtectedRoute requiredAbility="edit:all">
+            <SectorAssetManager
+              sector={managingSector}
+              assets={assets}
+              setAssets={setAssets}
+              users={users}
+              allSectors={sectors}
+              custodyLogs={custodyLogs}
+              onBack={() => setActiveView('sectors')}
+              onDataChange={reloadAssets}
+            />
+          </ProtectedRoute>
         );
       case 'users':
         return (
-          <UserManagement
-            users={users}
-            setUsers={setUsers}
-            sectors={sectors}
-            assets={assets}
-            setAssets={setAssets}
-            custodyLogs={custodyLogs}
-            setCustodyLogs={setCustodyLogs}
-            onDataChange={reloadUsers}
-          />
+          <ProtectedRoute requiredAbility="edit:all">
+            <UserManagement
+              users={users}
+              setUsers={setUsers}
+              sectors={sectors}
+              assets={assets}
+              setAssets={setAssets}
+              custodyLogs={custodyLogs}
+              setCustodyLogs={setCustodyLogs}
+              onDataChange={reloadUsers}
+            />
+          </ProtectedRoute>
         );
       case 'custody':
         return (
-          <CustodyManagement
-            custodyLogs={custodyLogs}
-            setCustodyLogs={setCustodyLogs}
-            assets={assets}
-            setAssets={setAssets}
-            users={users}
-            onDataChange={() => {
-              reloadCustody();
-              reloadAssets();
-            }}
-            onCreateCustody={() => setActiveView('createCustody')}
-          />
+          <ProtectedRoute requiredAbility="view:custody">
+            <CustodyManagement
+              custodyLogs={custodyLogs}
+              setCustodyLogs={setCustodyLogs}
+              assets={assets}
+              setAssets={setAssets}
+              users={users}
+              onDataChange={() => {
+                reloadCustody();
+                reloadAssets();
+              }}
+              onCreateCustody={() => setActiveView('createCustody')}
+            />
+          </ProtectedRoute>
         );
       case 'createCustody':
         return (
-          <CreateCustody
-            users={users}
-            assets={assets}
-            onCustodyCreated={() => {
-              reloadCustody();
-              reloadAssets();
-            }}
-            onBack={() => setActiveView('custody')}
-          />
+          <ProtectedRoute requiredAbility="edit:all">
+            <CreateCustody
+              users={users}
+              assets={assets}
+              onCustodyCreated={() => {
+                reloadCustody();
+                reloadAssets();
+              }}
+              onBack={() => setActiveView('custody')}
+            />
+          </ProtectedRoute>
         );
       case 'inventory':
         return (
-          <InventoryManagement
-            assets={assets}
-            setAssets={setAssets}
-            users={users}
-            sectors={sectors}
-            inventoryRecords={inventoryRecords}
-            setInventoryRecords={setInventoryRecords}
-            onDataChange={() => {
-              reloadInventory();
-              reloadAssets();
-            }}
-          />
+          <ProtectedRoute requiredAbility="view:inventory">
+            <InventoryManagement
+              assets={assets}
+              setAssets={setAssets}
+              users={users}
+              sectors={sectors}
+              inventoryRecords={inventoryRecords}
+              setInventoryRecords={setInventoryRecords}
+              onDataChange={() => {
+                reloadInventory();
+                reloadAssets();
+              }}
+            />
+          </ProtectedRoute>
         );
       case 'printLabels':
-        return <PrintLabels assets={assets} />;
+        return (
+          <ProtectedRoute requiredAbility="edit:all">
+            <PrintLabels assets={assets} />
+          </ProtectedRoute>
+        );
+      case 'profile':
+        return <UserProfile />;
       default:
         return <Dashboard assets={assets} users={users} sectors={sectors} logs={custodyLogs} />;
     }
@@ -253,13 +345,43 @@ const App: React.FC = () => {
 
   return (
     <div className="flex h-screen bg-gray-100 font-sans">
-      <Sidebar setActiveView={setActiveView} activeView={activeView} />
+      {/* SIDEBAR SIMPLIFICADO PARA DEBUG */}
+      <div className="w-64 bg-white shadow-md p-4">
+        <h1 className="text-xl font-bold text-gray-800 mb-4">SGTI-GAC</h1>
+        <button 
+          onClick={() => setActiveView('dashboard')}
+          className="w-full p-2 bg-blue-600 text-white rounded mb-2"
+        >
+          Dashboard
+        </button>
+        <button 
+          onClick={() => {
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('auth_user');
+            localStorage.removeItem('auth_abilities');
+            window.location.reload();
+          }}
+          className="w-full p-2 bg-red-600 text-white rounded"
+        >
+          Logout (Debug)
+        </button>
+      </div>
+      {/* <Sidebar setActiveView={setActiveView} activeView={activeView} /> */}
       <div className="flex-1 flex flex-col overflow-hidden">
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
           {renderView()}
         </main>
       </div>
     </div>
+  );
+};
+
+// Componente principal com AuthProvider
+const App: React.FC = () => {
+  return (
+    <AuthProvider>
+      <AuthenticatedApp />
+    </AuthProvider>
   );
 };
 

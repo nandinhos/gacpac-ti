@@ -47,7 +47,7 @@ services:
     container_name: sgaiti-backend
     restart: always
     ports:
-      - "${BACKEND_HOST_PORT:-55050}:5050"
+      - "${BACKEND_HOST_PORT:-5050}:5050"
     depends_on:
       mysql:
         condition: service_healthy
@@ -63,11 +63,11 @@ services:
       context: .
       dockerfile: Dockerfile.frontend
       args:
-        VITE_API_URL: ${VITE_API_URL:-http://localhost:55050/api}
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:5050/api}
     container_name: sgaiti-frontend
     restart: always
     environment:
-      VITE_API_URL: ${VITE_API_URL:-http://localhost:55050/api}
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:5050/api}
     ports:
       - "${FRONTEND_HOST_PORT:-58100}:80"
     depends_on:

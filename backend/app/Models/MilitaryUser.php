@@ -2,10 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
-class MilitaryUser extends Model
+class MilitaryUser extends Authenticatable
 {
+    use HasApiTokens, Notifiable;
+
     protected $table = 'military_users';
 
     protected $fillable = [
@@ -15,11 +19,22 @@ class MilitaryUser extends Model
         'sector_id',
         'email',
         'phone',
+        'password',
         'is_active',
+        'user_role',
+        'commission_inventories',
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+        'commission_inventories' => 'array',
     ];
 
     public function sector()

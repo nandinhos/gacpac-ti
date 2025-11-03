@@ -10,18 +10,75 @@ class ApiError extends Error {
   }
 }
 
+// Function to get auth token from localStorage
+function getAuthToken(): string | null {
+  return localStorage.getItem('auth_token');
+}
+
+// Function to handle auth errors (401/403)
+function handleAuthError(status: number) {
+  if (status === 401 || status === 403) {
+    // Token expired or invalid, clear auth data and redirect to login
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('auth_user');
+    localStorage.removeItem('auth_abilities');
+    
+    // Trigger a page reload to force re-authentication
+    window.location.reload();
+  }
+}
+
 async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T> {
+  const token = getAuthToken();
+  
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...options?.headers,
+  };
+
+  // Add Authorization header if token exists
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
   const response = await fetch(`${API_URL}${endpoint}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...options?.headers,
-    },
+    headers,
     ...options,
   });
 
   if (!response.ok) {
+    // Handle auth errors
+    handleAuthError(response.status);
+    
     const error = await response.json().catch(() => ({ error: 'Erro desconhecido' }));
     throw new ApiError(response.status, error.error || response.statusText);
+  }
+
+  return response.json();
+}
+
+// Special fetch for file uploads (photos)
+async function fetchApiFormData<T>(endpoint: string, formData: FormData): Promise<T> {
+  const token = getAuthToken();
+  
+  const headers: Record<string, string> = {};
+
+  // Add Authorization header if token exists (don't set Content-Type for FormData)
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const response = await fetch(`${API_URL}${endpoint}`, {
+    method: 'POST',
+    headers,
+    body: formData,
+  });
+
+  if (!response.ok) {
+    handleAuthError(response.status);
+    
+    const error = await response.json().catch(() => ({ error: 'Erro ao enviar arquivo' }));
+    throw new ApiError(response.status, error.error);
   }
 
   return response.json();
@@ -95,17 +152,7 @@ export const assetsApi = {
     formData.append('photo', photo);
     if (caption) formData.append('caption', caption);
 
-    const response = await fetch(`${API_URL}/assets/${assetId}/photos`, {
-      method: 'POST',
-      body: formData,
-    });
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ error: 'Erro ao enviar foto' }));
-      throw new ApiError(response.status, error.error);
-    }
-
-    return response.json();
+    return fetchApiFormData<AssetPhoto>(`/assets/${assetId}/photos`, formData);
   },
   deletePhoto: (assetId: string, photoId: string) =>
     fetchApi<{ message: string }>(`/assets/${assetId}/photos/${photoId}`, {
@@ -176,6 +223,10 @@ export const inventoryApi = {
   }) => fetchApi<InventoryRecord>('/inventory', {
     method: 'POST',
     body: JSON.stringify(inventory),
+  }),
+  update: (id: string, data: any) => fetchApi<InventoryRecord>(`/inventory/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
   }),
   addFoundItem: (id: string, data: { assetId: string; observation?: string }) =>
     fetchApi(`/inventory/${id}/found`, {

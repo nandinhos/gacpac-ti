@@ -3,28 +3,38 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Asset extends Model
 {
+    use HasFactory;
     protected $fillable = [
         'qr_code',
         'name',
-        'category',
-        'subcategory',
-        'description',
+        'brand',
+        'model', 
         'serial_number',
-        'patrimony_id',
-        'manufacturer',
-        'model',
+        'patrimony_number',
+        'type',
+        'category',
+        'status',
+        'condition',
+        'sector_id',
         'acquisition_date',
         'warranty_expiry',
+        'purchase_value',
+        'notes',
+        // Legacy fields - manter para compatibilidade
+        'qr_code',
+        'name',
+        'subcategory',
+        'description',
+        'patrimony_id',
+        'manufacturer',
         'purchase_price',
-        'status',
         'condition_rating',
-        'sector_id',
         'location',
         'custodian_user_id',
-        'notes',
         'conta',
         'categoria_inventario',
         'bmp',

@@ -24,7 +24,7 @@ const InventoryDetailsModal: React.FC<InventoryDetailsModalProps> = ({ record, r
     doc.setTextColor(100);
     const completionDate = record.completionDate ? new Date(record.completionDate).toLocaleString('pt-BR') : 'Em Andamento';
     doc.text(`Data: ${completionDate}`, 14, 30);
-    doc.text(`Responsável: ${responsibleUser.rank} ${responsibleUser.name}`, 14, 36);
+    doc.text(`Responsável: ${responsibleUser?.rank || 'N/A'} ${responsibleUser?.name || 'Usuário não encontrado'}`, 14, 36);
     if(record.commissionNumber) {
         doc.text(`Comissão: ${record.commissionNumber}`, 14, 42);
     }
@@ -68,21 +68,21 @@ const InventoryDetailsModal: React.FC<InventoryDetailsModalProps> = ({ record, r
     }
 
     generateTable(
-        `Itens Conferidos (${record.foundAssets.length})`,
+        `Itens Conferidos (${record.found_items?.length || 0})`,
         ['QR Code', 'Tipo/Modelo', 'Nº de Série'],
-        record.foundAssets.map(a => [a.qrCode, a.type, a.serialNumber])
+        (record.found_items || []).map(a => [a.qr_code, a.name, a.serial_number])
     );
     
     generateTable(
-        `Itens Faltantes (${record.pendingAssets.length})`,
+        `Itens Faltantes (${record.pending_items?.length || 0})`,
         ['QR Code', 'Tipo/Modelo', 'Nº de Série'],
-        record.pendingAssets.map(a => [a.qrCode, a.type, a.serialNumber])
+        (record.pending_items || []).map(a => [a.qr_code, a.name, a.serial_number])
     );
     
     generateTable(
-        `Itens Não Catalogados (${record.uncataloguedItems.length})`,
+        `Itens Não Catalogados (${record.uncatalogued_items?.length || 0})`,
         ['QR Code Identificado'],
-        record.uncataloguedItems.map(code => [code])
+        (record.uncatalogued_items || []).map(code => [code])
     );
 
     doc.save(`inventario_${record.id}_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.pdf`);
@@ -101,7 +101,7 @@ const InventoryDetailsModal: React.FC<InventoryDetailsModalProps> = ({ record, r
     csvContent += "Relatório de Inventário\n";
     const completionDate = record.completionDate ? new Date(record.completionDate).toLocaleString('pt-BR') : 'Em Andamento';
     csvContent += `Data,"${completionDate}"\n`;
-    csvContent += `Responsável,"${responsibleUser.rank} ${responsibleUser.name}"\n`;
+    csvContent += `Responsável,"${responsibleUser?.rank || 'N/A'} ${responsibleUser?.name || 'Usuário não encontrado'}"\n`;
     if (record.commissionNumber) csvContent += `Comissão,"${record.commissionNumber}"\n`;
     csvContent += "\n";
 
@@ -114,17 +114,17 @@ const InventoryDetailsModal: React.FC<InventoryDetailsModalProps> = ({ record, r
         csvContent += `"${record.observations.replace(/"/g, '""')}"\n\n`;
     }
 
-    if (record.foundAssets.length > 0) {
-        csvContent += `Itens Conferidos (${record.foundAssets.length})\n`;
-        csvContent += arrayToCsv(['QR Code', 'Tipo/Modelo', 'Nº Série'], record.foundAssets.map(a => [a.qrCode, a.type, a.serialNumber])) + "\n\n";
+    if (record.found_items && record.found_items.length > 0) {
+        csvContent += `Itens Conferidos (${record.found_items.length})\n`;
+        csvContent += arrayToCsv(['QR Code', 'Tipo/Modelo', 'Nº Série'], record.found_items.map(a => [a.qr_code, a.name, a.serial_number])) + "\n\n";
     }
-    if (record.pendingAssets.length > 0) {
-        csvContent += `Itens Faltantes (${record.pendingAssets.length})\n`;
-        csvContent += arrayToCsv(['QR Code', 'Tipo/Modelo', 'Nº Série'], record.pendingAssets.map(a => [a.qrCode, a.type, a.serialNumber])) + "\n\n";
+    if (record.pending_items && record.pending_items.length > 0) {
+        csvContent += `Itens Faltantes (${record.pending_items.length})\n`;
+        csvContent += arrayToCsv(['QR Code', 'Tipo/Modelo', 'Nº Série'], record.pending_items.map(a => [a.qr_code, a.name, a.serial_number])) + "\n\n";
     }
-    if (record.uncataloguedItems.length > 0) {
-        csvContent += `Itens Não Catalogados (${record.uncataloguedItems.length})\n`;
-        csvContent += arrayToCsv(['QR Code Identificado'], record.uncataloguedItems.map(code => [code])) + "\n\n";
+    if (record.uncatalogued_items && record.uncatalogued_items.length > 0) {
+        csvContent += `Itens Não Catalogados (${record.uncatalogued_items.length})\n`;
+        csvContent += arrayToCsv(['QR Code Identificado'], record.uncatalogued_items.map(code => [code])) + "\n\n";
     }
     
     const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -145,7 +145,7 @@ const InventoryDetailsModal: React.FC<InventoryDetailsModalProps> = ({ record, r
             <ul className="divide-y divide-gray-200 max-h-40 overflow-y-auto pr-2">
                 {items.map((item, index) => (
                     <li key={index} className="py-2 text-sm">
-                        {typeof item === 'string' ? item : `${item.qrCode} - ${item.type}`}
+                        {typeof item === 'string' ? item : `${item.qr_code || item.qrCode || 'N/A'} - ${item.name || item.type || 'N/A'}`}
                     </li>
                 ))}
             </ul>
@@ -169,7 +169,7 @@ const InventoryDetailsModal: React.FC<InventoryDetailsModalProps> = ({ record, r
         </div>
         
         <div className="text-sm grid grid-cols-2 gap-x-4 gap-y-1 mb-6">
-            <div><strong>Responsável:</strong> {responsibleUser.rank} {responsibleUser.name}</div>
+            <div><strong>Responsável:</strong> {responsibleUser?.rank || 'N/A'} {responsibleUser?.name || 'Usuário não encontrado'}</div>
             <div><strong>Comissão:</strong> {record.commissionNumber || 'N/A'}</div>
             <div><strong>Status:</strong> <span className={`px-2 py-1 text-xs font-medium rounded-full ${isReopened ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}`}>{record.status}</span></div>
             <div className="col-span-2 pt-2">
@@ -191,9 +191,9 @@ const InventoryDetailsModal: React.FC<InventoryDetailsModalProps> = ({ record, r
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {renderList(`Conferidos (${record.foundAssets.length})`, record.foundAssets)}
-            {renderList(`Faltantes (${record.pendingAssets.length})`, record.pendingAssets)}
-            {renderList(`Não Catalogados (${record.uncataloguedItems.length})`, record.uncataloguedItems)}
+            {renderList(`Conferidos (${record.found_items?.length || 0})`, record.found_items || [])}
+            {renderList(`Faltantes (${record.pending_items?.length || 0})`, record.pending_items || [])}
+            {renderList(`Não Catalogados (${record.uncatalogued_items?.length || 0})`, record.uncatalogued_items || [])}
           </div>
 
           {record.reopenHistory && record.reopenHistory.length > 0 && (
@@ -205,7 +205,7 @@ const InventoryDetailsModal: React.FC<InventoryDetailsModalProps> = ({ record, r
                           return (
                               <div key={index} className="bg-yellow-50 p-2 rounded-md text-sm">
                                   <p><strong>Data:</strong> {new Date(item.reopenDate).toLocaleString('pt-BR')}</p>
-                                  <p><strong>Usuário:</strong> {user ? `${user.rank} ${user.name}` : 'N/A'}</p>
+                                  <p><strong>Usuário:</strong> {user && user.rank && user.name ? `${user.rank} ${user.name}` : 'N/A'}</p>
                                   <p><strong>Justificativa:</strong> {item.justification}</p>
                               </div>
                           )
