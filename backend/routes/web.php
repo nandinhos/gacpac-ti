@@ -196,6 +196,94 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return redirect()->route('sectors.index')->with('success', 'Setor excluído com sucesso!');
     })->name('sectors.destroy');
 
+    // Users Management
+    Route::get('/users', function () {
+        $users = \App\Models\MilitaryUser::with('sector')
+            ->orderBy('name')
+            ->get();
+
+        return Inertia::render('Users/Index', [
+            'users' => $users
+        ]);
+    })->name('users.index');
+
+    Route::get('/users/create', function () {
+        $sectors = \App\Models\Sector::where('is_active', true)->orderBy('name')->get();
+
+        return Inertia::render('Users/Create', [
+            'sectors' => $sectors
+        ]);
+    })->name('users.create');
+
+    Route::post('/users', function (\Illuminate\Http\Request $request) {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'rank' => 'required|string|max:100',
+            'military_id' => 'required|string|max:20|unique:military_users',
+            'sector_id' => 'required|exists:sectors,id',
+            'email' => 'nullable|email|max:255|unique:military_users',
+            'password' => 'required|string|min:8|confirmed',
+            'phone' => 'nullable|string|max:20',
+            'user_role' => 'required|in:USER,ADMIN,COMMISSION',
+            'is_active' => 'boolean',
+        ]);
+
+        $validated['password'] = bcrypt($validated['password']);
+        $validated['commission_inventories'] = $validated['user_role'] === 'COMMISSION' ? [] : null;
+
+        $user = \App\Models\MilitaryUser::create($validated);
+
+        return redirect()->route('users.show', $user)->with('success', 'Usuário criado com sucesso!');
+    })->name('users.store');
+
+    Route::get('/users/{user}', function (\App\Models\MilitaryUser $user) {
+        $user->load('sector');
+
+        return Inertia::render('Users/Show', [
+            'user' => $user
+        ]);
+    })->name('users.show');
+
+    Route::get('/users/{user}/edit', function (\App\Models\MilitaryUser $user) {
+        $user->load('sector');
+        $sectors = \App\Models\Sector::where('is_active', true)->orderBy('name')->get();
+
+        return Inertia::render('Users/Edit', [
+            'user' => $user,
+            'sectors' => $sectors
+        ]);
+    })->name('users.edit');
+
+    Route::put('/users/{user}', function (\Illuminate\Http\Request $request, \App\Models\MilitaryUser $user) {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'rank' => 'required|string|max:100',
+            'military_id' => 'required|string|max:20|unique:military_users,military_id,' . $user->id,
+            'sector_id' => 'required|exists:sectors,id',
+            'email' => 'nullable|email|max:255|unique:military_users,email,' . $user->id,
+            'phone' => 'nullable|string|max:20',
+            'user_role' => 'required|in:USER,ADMIN,COMMISSION',
+            'is_active' => 'boolean',
+        ]);
+
+        // Só atualiza senha se foi fornecida
+        if ($request->filled('password')) {
+            $validated['password'] = bcrypt($request->password);
+        }
+
+        $validated['commission_inventories'] = $validated['user_role'] === 'COMMISSION' ? ($user->commission_inventories ?? []) : null;
+
+        $user->update($validated);
+
+        return redirect()->route('users.show', $user)->with('success', 'Usuário atualizado com sucesso!');
+    })->name('users.update');
+
+    Route::delete('/users/{user}', function (\App\Models\MilitaryUser $user) {
+        $user->delete();
+
+        return redirect()->route('users.index')->with('success', 'Usuário excluído com sucesso!');
+    })->name('users.destroy');
+
     // Profile routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

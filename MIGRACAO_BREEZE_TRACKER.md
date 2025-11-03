@@ -133,7 +133,7 @@ Migrar completamente o SGTI-GAC do React + Sanctum customizado para Laravel Bree
 
 #### **3.5 Módulos Auxiliares**
 - [x] **3.5.1** Migrar SectorManagement - CRUD completo implementado
-- [ ] **3.5.2** Migrar UserManagement
+- [x] **3.5.2** Migrar UserManagement - CRUD completo implementado
 - [ ] **3.5.3** Migrar PrintLabels
 - [ ] **3.5.4** Sistema de relatórios
 - [ ] **3.5.5** Integrações extras
