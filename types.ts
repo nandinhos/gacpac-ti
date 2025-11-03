@@ -91,9 +91,38 @@ export interface MilitaryUser {
   email?: string;
   phone?: string;
   is_active: boolean;
+  user_role?: 'user' | 'commission' | 'admin';
+  commission_inventories?: number[];
   created_at?: string;
   updated_at?: string;
   sector_name?: string;
+}
+
+export interface AuthUser extends MilitaryUser {
+  user_role: 'user' | 'commission' | 'admin';
+}
+
+export interface LoginCredentials {
+  military_id: string;
+  password: string;
+}
+
+export interface AuthResponse {
+  message: string;
+  user: AuthUser;
+  token: string;
+  abilities: string[];
+}
+
+export interface AuthContextType {
+  user: AuthUser | null;
+  token: string | null;
+  abilities: string[];
+  login: (credentials: LoginCredentials) => Promise<void>;
+  logout: () => void;
+  isAuthenticated: boolean;
+  hasAbility: (ability: string) => boolean;
+  loading: boolean;
 }
 
 export interface CustodyLog {

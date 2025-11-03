@@ -18,25 +18,30 @@ class AuthController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-    public function login(LoginRequest $request): JsonResponse
+    public function login(Request $request): JsonResponse
     {
-        try {
+        $request->validate([
+            'military_id' => 'required|string',
+            'password' => 'required|string',
+        ]);
 
-            // For now, we'll use a simple authentication system
-            // TODO: Implement proper password hashing and authentication
+        try {
             $user = MilitaryUser::where('military_id', $request->military_id)
                                 ->where('is_active', true)
                                 ->first();
 
-            if (!$user) {
+            if (!$user || !Hash::check($request->password, $user->password)) {
                 return response()->json([
                     'message' => 'Credenciais inválidas'
                 ], 401);
             }
 
-            // For demo purposes, accept any password for active users
-            // TODO: Implement proper password verification
-            $token = $this->generateSimpleToken($user);
+            // Revoke existing tokens
+            $user->tokens()->delete();
+
+            // Create new token with abilities based on role
+            $abilities = $this->getAbilitiesForRole($user->user_role);
+            $token = $user->createToken('auth-token', $abilities)->plainTextToken;
 
             return response()->json([
                 'message' => 'Login realizado com sucesso',
@@ -46,8 +51,12 @@ class AuthController extends Controller
                     'rank' => $user->rank,
                     'military_id' => $user->military_id,
                     'sector_id' => $user->sector_id,
+                    'email' => $user->email,
+                    'user_role' => $user->user_role,
+                    'commission_inventories' => $user->commission_inventories,
                 ],
-                'token' => $token
+                'token' => $token,
+                'abilities' => $abilities
             ]);
 
         } catch (ValidationException $e) {
@@ -71,7 +80,8 @@ class AuthController extends Controller
      */
     public function logout(Request $request): JsonResponse
     {
-        // TODO: Implement token invalidation
+        $request->user()->currentAccessToken()->delete();
+        
         return response()->json([
             'message' => 'Logout realizado com sucesso'
         ]);
@@ -85,21 +95,50 @@ class AuthController extends Controller
      */
     public function me(Request $request): JsonResponse
     {
-        // TODO: Implement based on token validation
+        $user = $request->user();
+        
         return response()->json([
-            'message' => 'Endpoint não implementado ainda'
-        ], 501);
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'rank' => $user->rank,
+                'military_id' => $user->military_id,
+                'sector_id' => $user->sector_id,
+                'email' => $user->email,
+                'user_role' => $user->user_role,
+                'commission_inventories' => $user->commission_inventories,
+            ],
+            'abilities' => $this->getAbilitiesForRole($user->user_role)
+        ]);
     }
 
     /**
-     * Generate a simple token for demo purposes
-     * TODO: Replace with Laravel Sanctum or Passport
+     * Get abilities based on user role for Sanctum tokens
      *
-     * @param MilitaryUser $user
-     * @return string
+     * @param string $role
+     * @return array
      */
-    private function generateSimpleToken(MilitaryUser $user): string
+    private function getAbilitiesForRole(string $role): array
     {
-        return base64_encode($user->id . ':' . $user->military_id . ':' . time());
+        return match($role) {
+            'admin' => [
+                'view:all',
+                'create:all', 
+                'edit:all',
+                'delete:all'
+            ],
+            'commission' => [
+                'view:custody',
+                'view:inventory',
+                'edit:inventory',
+                'edit:profile'
+            ],
+            'user' => [
+                'view:custody',
+                'view:profile',
+                'edit:profile'
+            ],
+            default => ['view:profile']
+        };
     }
 }

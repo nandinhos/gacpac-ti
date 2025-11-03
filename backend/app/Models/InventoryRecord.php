@@ -23,6 +23,8 @@ class InventoryRecord extends Model
         'end_date' => 'date',
     ];
 
+    protected $appends = ['found_items', 'uncatalogued_items', 'pending_items', 'summary'];
+
     public function sector()
     {
         return $this->belongsTo(Sector::class);
@@ -49,11 +51,62 @@ class InventoryRecord extends Model
         return $this->inventoryAssets()->with('asset')->get()->map(function ($inventoryAsset) {
             $asset = $inventoryAsset->asset;
             if ($asset) {
-                $asset->inventoryObservation = $inventoryAsset->observation;
+                $asset->observation = $inventoryAsset->observation;
                 return $asset;
             }
             return null;
-        })->filter();
+        })->filter()->values();
+    }
+    
+    // Atributo para itens não catalogados como strings simples
+    public function getUncataloguedItemsAttribute()
+    {
+        return $this->uncataloguedItems()->get()->map(function ($item) {
+            return $item->description;
+        })->values();
+    }
+    
+    // Calcular itens pendentes (faltantes) = todos assets do setor - encontrados
+    public function getPendingItemsAttribute()
+    {
+        $foundAssetIds = $this->inventoryAssets()->pluck('asset_id')->toArray();
+        
+        $query = \App\Models\Asset::query();
+        
+        // Se tem setor específico, filtrar por setor, senão pegar todos
+        if ($this->sector_id) {
+            $query->where('sector_id', $this->sector_id);
+        }
+        
+        // Excluir os já encontrados
+        if (!empty($foundAssetIds)) {
+            $query->whereNotIn('id', $foundAssetIds);
+        }
+        
+        return $query->get();
+    }
+    
+    // Resumo do inventário
+    public function getSummaryAttribute()
+    {
+        $foundCount = $this->inventoryAssets()->count();
+        $uncataloguedCount = $this->uncataloguedItems()->count();
+        
+        // Calcular total de assets do setor
+        $totalQuery = \App\Models\Asset::query();
+        if ($this->sector_id) {
+            $totalQuery->where('sector_id', $this->sector_id);
+        }
+        $totalCount = $totalQuery->count();
+        
+        $pendingCount = $totalCount - $foundCount;
+        
+        return [
+            'total' => $totalCount,
+            'found' => $foundCount,
+            'pending' => $pendingCount,
+            'uncatalogued' => $uncataloguedCount
+        ];
     }
 
     public function reopenHistory()

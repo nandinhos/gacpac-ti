@@ -11,9 +11,19 @@ class Sector extends Model
     protected $fillable = [
         'name',
         'description',
+        'is_active',
+    ];
+
+    protected $casts = [
+        'is_active' => 'boolean',
     ];
 
     public function militaryUsers()
+    {
+        return $this->hasMany(MilitaryUser::class);
+    }
+
+    public function users()
     {
         return $this->hasMany(MilitaryUser::class);
     }

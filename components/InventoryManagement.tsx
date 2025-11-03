@@ -149,38 +149,96 @@ const InventoryManagement: React.FC<InventoryManagementProps> = ({ assets, setAs
     }
   };
 
-  const handleContinueInventory = (record: InventoryRecord) => {
-    // Se não há dados de inventário, criar baseado nos assets disponíveis
-    let pendingAssets: InventoryAsset[] = [];
-    let foundAssets: InventoryAsset[] = [];
-    
-    if (record.foundItems && record.foundItems.length > 0) {
-      // Inventário existente com dados
-      pendingAssets = (record.pendingItems || []).map(a => ({...a}));
-      foundAssets = (record.foundItems || []).map(a => ({...a}));
-    } else {
-      // Inventário novo - gerar lista baseada no setor
-      if (record.sector_id) {
-        // Inventário por setor específico
-        pendingAssets = assets.filter(a => a.sector_id === record.sector_id).map(a => ({...a}));
+  const handleContinueInventory = async (record: InventoryRecord) => {
+    try {
+      console.log("🔄 Carregando dados salvos do inventário...");
+      
+      // Carregar dados completos do backend
+      const fullRecord = await inventoryApi.getById(record.id.toString());
+      
+      let pendingAssets: InventoryAsset[] = [];
+      let foundAssets: InventoryAsset[] = [];
+      
+      // O backend retorna found_items via atributo calculado
+      if (fullRecord.found_items && fullRecord.found_items.length > 0) {
+        // Inventário existente com dados salvos
+        foundAssets = fullRecord.found_items.map(item => ({
+          ...item,
+          observation: item.observation || ''
+        }));
+        
+        // Calcular itens faltantes: todos os assets do setor menos os encontrados
+        const foundAssetIds = new Set(foundAssets.map(a => a.id));
+        if (fullRecord.sector_id) {
+          pendingAssets = assets
+            .filter(a => a.sector_id === fullRecord.sector_id && !foundAssetIds.has(a.id))
+            .map(a => ({...a, observation: ''}));
+        } else {
+          pendingAssets = assets
+            .filter(a => !foundAssetIds.has(a.id))
+            .map(a => ({...a, observation: ''}));
+        }
       } else {
-        // Inventário global - todos os assets
-        pendingAssets = assets.map(a => ({...a}));
+        // Inventário sem dados salvos - gerar lista inicial
+        if (fullRecord.sector_id) {
+          pendingAssets = assets
+            .filter(a => a.sector_id === fullRecord.sector_id)
+            .map(a => ({...a, observation: ''}));
+        } else {
+          pendingAssets = assets.map(a => ({...a, observation: ''}));
+        }
+        foundAssets = [];
       }
-      foundAssets = [];
+      
+      // Extrair descrições dos itens não catalogados
+      const uncataloguedDescriptions = fullRecord.uncatalogued_items || [];
+      
+      setActiveSession({
+        id: fullRecord.id,
+        isNew: false,
+        responsibleUserId: fullRecord.responsible_user_id || 0,
+        sectorId: fullRecord.sector_id,
+        commissionNumber: fullRecord.commission_number,
+        pending: pendingAssets,
+        found: foundAssets,
+        uncatalogued: uncataloguedDescriptions,
+        observations: fullRecord.notes || '',
+      });
+      
+      console.log("✅ Dados carregados:", {
+        found: foundAssets.length,
+        pending: pendingAssets.length,
+        uncatalogued: uncataloguedDescriptions.length,
+        foundIds: foundAssets.map(a => a.id),
+        pendingIds: pendingAssets.map(a => a.id)
+      });
+      
+    } catch (error) {
+      console.error("❌ Erro ao carregar dados do inventário:", error);
+      alert('Erro ao carregar dados salvos. Tentando continuar...');
+      
+      // Fallback: usar dados básicos do record
+      let pendingAssets: InventoryAsset[] = [];
+      if (record.sector_id) {
+        pendingAssets = assets
+          .filter(a => a.sector_id === record.sector_id)
+          .map(a => ({...a, observation: ''}));
+      } else {
+        pendingAssets = assets.map(a => ({...a, observation: ''}));
+      }
+      
+      setActiveSession({
+        id: record.id,
+        isNew: false,
+        responsibleUserId: record.responsible_user_id || 0,
+        sectorId: record.sector_id,
+        commissionNumber: record.commission_number,
+        pending: pendingAssets,
+        found: [],
+        uncatalogued: [],
+        observations: record.notes || '',
+      });
     }
-    
-    setActiveSession({
-      id: record.id,
-      isNew: false,
-      responsibleUserId: record.responsible_user_id || 0,
-      sectorId: record.sector_id,
-      commissionNumber: record.commission_number,
-      pending: pendingAssets,
-      found: foundAssets,
-      uncatalogued: record.uncataloguedItems || [],
-      observations: record.notes || '',
-    });
   };
 
   const handleScan = (codeToScan?: string) => {
@@ -462,28 +520,72 @@ const InventoryManagement: React.FC<InventoryManagementProps> = ({ assets, setAs
     });
   };
 
-  const handleMarkSelectedAsFound = () => {
+  const handleMarkSelectedAsFound = async () => {
     if (!activeSession) return;
-    setActiveSession(prev => {
-        if (!prev) return null;
-        const itemsToMove = prev.pending.filter(a => selection.pending.has(a.id));
-        const newPending = prev.pending.filter(a => !selection.pending.has(a.id));
-        const newFound = [...prev.found, ...itemsToMove].sort((a,b) => (a.qr_code || '').localeCompare(b.qr_code || ''));
-        return { ...prev, pending: newPending, found: newFound };
-    });
-    setSelection(prev => ({ ...prev, pending: new Set() }));
+    
+    try {
+      console.log("🔄 Movendo itens para 'Encontrados'...");
+      
+      // Atualizar estado local primeiro (para responsividade)
+      const itemsToMove = activeSession.pending.filter(a => selection.pending.has(a.id));
+      setActiveSession(prev => {
+          if (!prev) return null;
+          const newPending = prev.pending.filter(a => !selection.pending.has(a.id));
+          const newFound = [...prev.found, ...itemsToMove].sort((a,b) => (a.qr_code || '').localeCompare(b.qr_code || ''));
+          return { ...prev, pending: newPending, found: newFound };
+      });
+      setSelection(prev => ({ ...prev, pending: new Set() }));
+      
+      // Persistir no backend
+      const foundItems = [...activeSession.found, ...itemsToMove].map(item => ({
+        asset_id: item.id,
+        observation: item.observation || null
+      }));
+      
+      await inventoryApi.update(activeSession.id.toString(), {
+        found_items: foundItems,
+        status: 'Em Andamento'
+      });
+      
+      console.log("✅ Movimentação persistida com sucesso");
+    } catch (error) {
+      console.error("❌ Erro ao persistir movimentação:", error);
+      alert('Erro ao salvar movimentação. Tente novamente.');
+    }
   };
 
-  const handleReturnSelectedToPending = () => {
+  const handleReturnSelectedToPending = async () => {
     if (!activeSession) return;
-    setActiveSession(prev => {
-        if (!prev) return null;
-        const itemsToMove = prev.found.filter(a => selection.found.has(a.id));
-        const newFound = prev.found.filter(a => !selection.found.has(a.id));
-        const newPending = [...prev.pending, ...itemsToMove].sort((a,b) => (a.qr_code || '').localeCompare(b.qr_code || ''));
-        return { ...prev, found: newFound, pending: newPending };
-    });
-    setSelection(prev => ({ ...prev, found: new Set() }));
+    
+    try {
+      console.log("🔄 Movendo itens para 'Faltantes'...");
+      
+      // Atualizar estado local primeiro (para responsividade)
+      const itemsToMove = activeSession.found.filter(a => selection.found.has(a.id));
+      setActiveSession(prev => {
+          if (!prev) return null;
+          const newFound = prev.found.filter(a => !selection.found.has(a.id));
+          const newPending = [...prev.pending, ...itemsToMove].sort((a,b) => (a.qr_code || '').localeCompare(b.qr_code || ''));
+          return { ...prev, found: newFound, pending: newPending };
+      });
+      setSelection(prev => ({ ...prev, found: new Set() }));
+      
+      // Persistir no backend
+      const foundItems = activeSession.found.filter(a => !selection.found.has(a.id)).map(item => ({
+        asset_id: item.id,
+        observation: item.observation || null
+      }));
+      
+      await inventoryApi.update(activeSession.id.toString(), {
+        found_items: foundItems,
+        status: 'Em Andamento'
+      });
+      
+      console.log("✅ Movimentação persistida com sucesso");
+    } catch (error) {
+      console.error("❌ Erro ao persistir movimentação:", error);
+      alert('Erro ao salvar movimentação. Tente novamente.');
+    }
   };
 
   const handleRemoveSelectedUncatalogued = () => {
@@ -628,17 +730,20 @@ const InventoryManagement: React.FC<InventoryManagementProps> = ({ assets, setAs
                              record.responsible_user || 
                              record.responsibleUser ||
                              {
+                               id: record.responsible_user_id || 0,
                                name: record.responsible_user_name || 'Usuário não encontrado',
-                               rank: record.responsible_user_rank || 'N/A'
+                               rank: record.responsible_user_rank || 'N/A',
+                               military_id: '',
+                               is_active: true
                              };
                 const sector = sectors.find(s => s.id === record.sector_id);
                 
                 // Criar summary se não existir (compatibilidade com API)
                 const summary = record.summary || {
-                  total: (record.foundItems?.length || 0) + (record.pendingItems?.length || 0),
-                  found: record.foundItems?.length || 0,
-                  pending: record.pendingItems?.length || 0,
-                  uncatalogued: record.uncataloguedItems?.length || 0
+                  total: (record.found_items?.length || 0) + (record.pending_items?.length || 0),
+                  found: record.found_items?.length || 0,
+                  pending: record.pending_items?.length || 0,
+                  uncatalogued: record.uncatalogued_items?.length || 0
                 };
                 const getStatusBadge = () => {
                     switch(record.status) {
@@ -652,7 +757,7 @@ const InventoryManagement: React.FC<InventoryManagementProps> = ({ assets, setAs
                   <tr key={record.id} className="bg-white border-b hover:bg-gray-50">
                     <td className="px-6 py-4">{new Date(record.start_date).toLocaleDateString('pt-BR')}</td>
                     <td className="px-6 py-4 font-medium">{sector ? sector.name : 'Global'}</td>
-                    <td className="px-6 py-4 font-medium text-gray-900">{user ? `${user.rank} ${user.name}` : 'N/A'}</td>
+                    <td className="px-6 py-4 font-medium text-gray-900">{user && user.rank && user.name ? `${user.rank} ${user.name}` : 'N/A'}</td>
                     <td className="px-6 py-4">
                         <span title={`Encontrados: ${summary.found}, Faltantes: ${summary.pending}, Não catalogados: ${summary.uncatalogued}`}>
                             {summary.found} / {summary.total}
@@ -703,7 +808,16 @@ const InventoryManagement: React.FC<InventoryManagementProps> = ({ assets, setAs
       {viewingRecord && (
         <InventoryDetailsModal
           record={viewingRecord}
-          responsibleUser={users.find(u => u.id === viewingRecord.responsibleUserId)!}
+          responsibleUser={users.find(u => u.id === viewingRecord.responsible_user_id) || 
+                           viewingRecord.responsible_user || 
+                           viewingRecord.responsibleUser ||
+                           {
+                             id: viewingRecord.responsible_user_id || 0,
+                             name: viewingRecord.responsible_user_name || 'Usuário não encontrado',
+                             rank: viewingRecord.responsible_user_rank || 'N/A',
+                             military_id: '',
+                             is_active: true
+                           }}
           users={users}
           onClose={() => setViewingRecord(null)}
           onReopenRequest={() => handleReopenRequest(viewingRecord)}

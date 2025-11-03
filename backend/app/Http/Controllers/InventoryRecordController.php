@@ -17,7 +17,14 @@ class InventoryRecordController extends Controller
         if ($request->has('sectorId')) {
             $query->where('sector_id', $request->sectorId);
         }
-        return $query->get();
+        
+        // Carregar relacionamentos necessários
+        return $query->with([
+            'responsibleUser:id,name,rank,military_id,is_active',
+            'sector:id,name',
+            'inventoryAssets.asset:id,name,qr_code,serial_number,patrimony_id',
+            'uncataloguedItems'
+        ])->get();
     }
 
     public function store(StoreInventoryRecordRequest $request)
@@ -39,10 +46,10 @@ class InventoryRecordController extends Controller
     public function show(InventoryRecord $inventory)
     {
         return $inventory->load([
-            'inventoryAssets.asset', 
+            'inventoryAssets.asset:id,name,qr_code,serial_number,patrimony_id,manufacturer,model,category,status', 
             'uncataloguedItems',
-            'responsibleUser',
-            'sector'
+            'responsibleUser:id,name,rank,military_id,is_active',
+            'sector:id,name'
         ]);
     }
 
