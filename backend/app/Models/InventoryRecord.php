@@ -40,6 +40,11 @@ class InventoryRecord extends Model
         return $this->hasMany(InventoryAsset::class, 'inventory_id');
     }
 
+    public function assets()
+    {
+        return $this->belongsToMany(Asset::class, 'inventory_assets', 'inventory_id', 'asset_id');
+    }
+
     public function uncataloguedItems()
     {
         return $this->hasMany(UncataloguedItem::class, 'inventory_id');
@@ -111,6 +116,6 @@ class InventoryRecord extends Model
 
     public function reopenHistory()
     {
-        return $this->hasMany(ReopenHistory::class);
+        return $this->hasMany(ReopenHistory::class, 'inventory_id');
     }
 }

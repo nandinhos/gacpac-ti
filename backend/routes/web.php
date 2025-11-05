@@ -1,17 +1,13 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
+    return redirect()->route('login');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -114,13 +110,247 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Custody Management
     Route::get('/custody', function () {
-        return Inertia::render('Custody/Index');
+        $custodyLogs = \App\Models\CustodyLog::with(['user', 'assets'])->orderBy('created_at', 'desc')->get();
+        return Inertia::render('Custody/Index', ['custodyLogs' => $custodyLogs]);
     })->name('custody.index');
+
+    Route::get('/custody/create', function () {
+        $users = \App\Models\MilitaryUser::where('is_active', true)->orderBy('name')->get();
+        $assets = \App\Models\Asset::where('status', 'Disponível')->orderBy('name')->get();
+        
+        $lastCustody = \App\Models\CustodyLog::orderBy('cautela_number', 'desc')->first();
+        if ($lastCustody) {
+            $lastNumber = (int) preg_replace('/[^0-9]/', '', Str::before($lastCustody->cautela_number, '/'));
+            $nextNumber = $lastNumber + 1;
+        } else {
+            $nextNumber = 1;
+        }
+        $nextCautelaNumber = sprintf('%03d/GAC-PAC/%d', $nextNumber, date('Y'));
+
+        return Inertia::render('Custody/Create', [
+            'users' => $users,
+            'assets' => $assets,
+            'nextCautelaNumber' => $nextCautelaNumber,
+        ]);
+    })->name('custody.create');
+
+    Route::post('/custody', function (\Illuminate\Http\Request $request) {
+        $validated = $request->validate([
+            'cautelaNumber' => 'required|string|max:50|unique:custody_logs,cautela_number',
+            'userId' => 'required|exists:military_users,id',
+            'checkoutDate' => 'required|date',
+            'assetIds' => 'required|array|min:1',
+            'assetIds.*' => 'exists:assets,id',
+            'notes' => 'nullable|string',
+        ]);
+
+        $assets = \App\Models\Asset::whereIn('id', $validated['assetIds'])->get();
+        foreach ($assets as $asset) {
+            if ($asset->status !== 'Disponível') {
+                return back()->withErrors(['assetIds' => "O ativo {$asset->name} não está disponível."]);
+            }
+        }
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($validated) {
+            $custody = \App\Models\CustodyLog::create([
+                'cautela_number' => $validated['cautelaNumber'],
+                'user_id' => $validated['userId'],
+                'checkout_date' => $validated['checkoutDate'],
+                'notes' => $validated['notes'],
+            ]);
+
+            $custody->assets()->attach($validated['assetIds']);
+
+            \App\Models\Asset::whereIn('id', $validated['assetIds'])->update([
+                'status' => 'Em Uso',
+                'custodian_user_id' => $validated['userId'],
+            ]);
+        });
+
+        return redirect()->route('custody.index')->with('success', 'Cautela criada com sucesso!');
+    })->name('custody.store');
+
+    Route::get('/custody/{custody}', function (\App\Models\CustodyLog $custody) {
+        $custody->load(['user', 'assets']);
+        return Inertia::render('Custody/Show', ['log' => $custody]);
+    })->name('custody.show');
+
+    Route::put('/custody/{custody}/checkin', function (\Illuminate\Http\Request $request, \App\Models\CustodyLog $custody) {
+        $validated = $request->validate(['checkinDate' => 'required|date']);
+
+        if ($custody->checkin_date) {
+            return back()->withErrors(['checkin' => 'Esta cautela já foi devolvida.']);
+        }
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($validated, $custody) {
+            $custody->update(['checkin_date' => $validated['checkinDate']]);
+            foreach ($custody->assets as $asset) {
+                $asset->update(['status' => 'Disponível', 'custodian_user_id' => null]);
+            }
+        });
+
+        return redirect()->route('custody.index')->with('success', 'Cautela devolvida com sucesso!');
+    })->name('custody.checkin');
+
+    Route::get('/custody/reports', function () {
+        return Inertia::render('Custody/Reports', [
+            // Dados que podem ser passados para o componente React
+        ]);
+    })->name('custody.reports');
 
     // Inventory Management
     Route::get('/inventory', function () {
-        return Inertia::render('Inventory/Index');
+        $inventoryRecords = \App\Models\InventoryRecord::with(['sector', 'responsibleUser'])->orderBy('start_date', 'desc')->get();
+        return Inertia::render('Inventory/Index', ['inventoryRecords' => $inventoryRecords]);
     })->name('inventory.index');
+
+    Route::get('/inventory/create', function () {
+        $users = \App\Models\MilitaryUser::where('is_active', true)->orderBy('name')->get();
+        $sectors = \App\Models\Sector::where('is_active', true)->orderBy('name')->get();
+        return Inertia::render('Inventory/Create', ['users' => $users, 'sectors' => $sectors]);
+    })->name('inventory.create');
+
+    Route::post('/inventory', function (\Illuminate\Http\Request $request) {
+        $validated = $request->validate([
+            'sector_id' => 'required|string',
+            'responsible_user_id' => 'required|exists:military_users,id',
+            'commission_number' => 'nullable|string|max:255|unique:inventory_records',
+            'start_date' => 'required|date',
+        ]);
+
+        $inventory = \App\Models\InventoryRecord::create([
+            'sector_id' => $validated['sector_id'] === 'global' ? null : $validated['sector_id'],
+            'responsible_user_id' => $validated['responsible_user_id'],
+            'commission_number' => $validated['commission_number'],
+            'start_date' => $validated['start_date'],
+        ]);
+
+        return redirect()->route('inventory.show', $inventory)->with('success', 'Inventário iniciado com sucesso!');
+    })->name('inventory.store');
+
+    Route::get('/inventory/{inventory}', function (\App\Models\InventoryRecord $inventory) {
+        $inventory->load(['sector', 'responsibleUser']);
+
+        $allAssetsQuery = \App\Models\Asset::query();
+        if ($inventory->sector_id) {
+            $allAssetsQuery->where('sector_id', $inventory->sector_id);
+        }
+        $allAssetsInScope = $allAssetsQuery->get();
+
+        $foundAssetIds = $inventory->assets()->pluck('assets.id');
+        $pendingAssets = $allAssetsInScope->whereNotIn('id', $foundAssetIds);
+        $foundAssets = $allAssetsInScope->whereIn('id', $foundAssetIds);
+        $uncataloguedItems = $inventory->uncataloguedItems()->get();
+
+        return Inertia::render('Inventory/Show', [
+            'inventory' => $inventory,
+            'pendingAssets' => $pendingAssets,
+            'foundAssets' => $foundAssets,
+            'uncataloguedItems' => $uncataloguedItems,
+        ]);
+    })->name('inventory.show');
+
+    Route::put('/inventory/{inventory}', function (\Illuminate\Http\Request $request, \App\Models\InventoryRecord $inventory) {
+        $validated = $request->validate([
+            'status' => 'required|in:Concluído,Reaberto,Em Andamento',
+            'notes' => 'nullable|string',
+        ]);
+
+        $inventory->update([
+            'status' => $validated['status'],
+            'notes' => $validated['notes'],
+            'end_date' => $validated['status'] === 'Concluído' ? now() : null,
+        ]);
+
+        return redirect()->route('inventory.index')->with('success', 'Inventário finalizado!');
+    })->name('inventory.update');
+
+    Route::post('/inventory/{inventory}/find', function (\Illuminate\Http\Request $request, \App\Models\InventoryRecord $inventory) {
+        $validated = $request->validate(['qr_code' => 'required|string']);
+        $asset = \App\Models\Asset::where('qr_code', $validated['qr_code'])->first();
+
+        if (!$asset) {
+            return back()->withErrors(['qr_code' => 'Ativo não encontrado.']);
+        }
+
+        $inventory->assets()->syncWithoutDetaching([$asset->id]);
+
+        return redirect()->route('inventory.show', $inventory);
+    })->name('inventory.findAsset');
+
+    Route::post('/inventory/{inventory}/uncatalogued', function (\Illuminate\Http\Request $request, \App\Models\InventoryRecord $inventory) {
+        $validated = $request->validate(['description' => 'required|string']);
+        $inventory->uncataloguedItems()->create([
+            'description' => $validated['description'],
+            'found_date' => now(),
+        ]);
+        return redirect()->route('inventory.show', $inventory);
+    })->name('inventory.addUncatalogued');
+
+    Route::delete('/inventory/{inventory}/uncatalogued/{item}', function (\App\Models\InventoryRecord $inventory, \App\Models\UncataloguedItem $item) {
+        $item->delete();
+        return redirect()->route('inventory.show', $inventory);
+    })->name('inventory.removeUncatalogued');
+
+    Route::post('/inventory/{inventory}/bulk-find', function (\Illuminate\Http\Request $request, \App\Models\InventoryRecord $inventory) {
+        $validated = $request->validate([
+            'asset_ids' => 'required|array',
+            'asset_ids.*' => 'exists:assets,id',
+        ]);
+
+        $inventory->assets()->syncWithoutDetaching($validated['asset_ids']);
+
+        return redirect()->route('inventory.show', $inventory);
+    })->name('inventory.bulkFind');
+
+    Route::post('/inventory/{inventory}/bulk-remove', function (\Illuminate\Http\Request $request, \App\Models\InventoryRecord $inventory) {
+        $validated = $request->validate([
+            'asset_ids' => 'required|array',
+            'asset_ids.*' => 'exists:assets,id',
+        ]);
+
+        $inventory->assets()->detach($validated['asset_ids']);
+
+        return redirect()->route('inventory.show', $inventory);
+    })->name('inventory.bulkRemove');
+
+    Route::delete('/inventory/{inventory}', function (\Illuminate\Http\Request $request, \App\Models\InventoryRecord $inventory) {
+        $validated = $request->validate([
+            'justification' => 'required|string|min:10',
+        ]);
+
+        // Here you might want to log the justification before deleting
+        // For now, we just delete.
+        $inventory->delete();
+
+        return redirect()->route('inventory.index')->with('success', 'Inventário excluído com sucesso!');
+    })->name('inventory.destroy');
+
+    Route::put('/inventory/{inventory}/reopen', function (\Illuminate\Http\Request $request, \App\Models\InventoryRecord $inventory) {
+        $validated = $request->validate([
+            'justification' => 'required|string|min:10',
+        ]);
+
+        if ($inventory->status !== 'Concluído') {
+            return back()->withErrors(['reopen' => 'Apenas inventários concluídos podem ser reabertos.']);
+        }
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($inventory, $validated, $request) {
+            $inventory->update([
+                'status' => 'Reaberto',
+                'end_date' => null,
+            ]);
+
+            $inventory->reopenHistory()->create([
+                'reopened_by_user_id' => $request->user()->id,
+                'justification' => $validated['justification'],
+                'reopened_at' => now(),
+            ]);
+        });
+
+        return redirect()->route('inventory.index')->with('success', 'Inventário reaberto com sucesso!');
+    })->name('inventory.reopen');
+
 
     // Sectors Management
     Route::get('/sectors', function () {
@@ -283,6 +513,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         return redirect()->route('users.index')->with('success', 'Usuário excluído com sucesso!');
     })->name('users.destroy');
+
+    // Notification routes
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread-count');
+    Route::put('/notifications/{notificationId}/read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
+    Route::put('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
 
     // Profile routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

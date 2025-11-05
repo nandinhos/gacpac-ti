@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 use App\Models\InventoryRecord;
+use App\Models\MilitaryUser;
 use App\Http\Requests\StoreInventoryRecordRequest;
+use App\Notifications\InventoryAssignedNotification;
 
 class InventoryRecordController extends Controller
 {
@@ -31,6 +34,15 @@ class InventoryRecordController extends Controller
     {
         try {
             $inventory = InventoryRecord::create($request->validated());
+
+            // Notificar comissão responsável sobre inventário atribuído
+            if ($inventory->responsible_user_id) {
+                $responsibleUser = MilitaryUser::find($inventory->responsible_user_id);
+                if ($responsibleUser) {
+                    $responsibleUser->notify(new InventoryAssignedNotification($inventory));
+                }
+            }
+
             return response()->json([
                 'message' => 'Inventário criado com sucesso',
                 'data' => $inventory

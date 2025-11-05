@@ -85,6 +85,29 @@ async function fetchApiFormData<T>(endpoint: string, formData: FormData): Promis
 }
 
 // Sectors API
+// Notification API
+export const notificationsApi = {
+  async getAll(params?: { read?: boolean; type?: string; page?: number }) {
+    const response = await api.get('/notifications', { params });
+    return response.data;
+  },
+
+  async getUnreadCount() {
+    const response = await api.get('/notifications/unread-count');
+    return response.data;
+  },
+
+  async markAsRead(id: string) {
+    const response = await api.put(`/notifications/${id}/read`);
+    return response.data;
+  },
+
+  async markAllAsRead() {
+    const response = await api.put('/notifications/mark-all-read');
+    return response.data;
+  }
+};
+
 export const sectorsApi = {
   getAll: () => fetchApi<Sector[]>('/sectors'),
   getById: (id: string) => fetchApi<Sector>(`/sectors/${id}`),
@@ -177,32 +200,40 @@ export const custodyApi = {
     if (params?.userId) query.append('userId', params.userId);
     return fetchApi<CustodyLog[]>(`/custody${query.toString() ? `?${query}` : ''}`);
   },
-  getById: (id: number) => fetchApi<CustodyLog>(`/custody/${id}`),
-  create: (custody: {
-    cautela_number?: string;
-    user_id: number;
-    checkout_date: string;
-    assetIds: number[];
-    term_url?: string;
+  getById: (id: string) => fetchApi<CustodyLog>(`/custody/${id}`),
+  store: (custody: {
+    cautelaNumber: string;
+    userId: string;
+    checkoutDate: string;
+    assetIds: string[];
+    termUrl?: string;
     notes?: string;
   }) => fetchApi<CustodyLog>('/custody', {
     method: 'POST',
     body: JSON.stringify(custody),
   }),
-  checkin: (id: number, data: { checkin_date: string; signed_term_url?: string }) =>
+  checkin: (id: string, data: { checkinDate: string; signedTermUrl?: string }) =>
     fetchApi<CustodyLog>(`/custody/${id}/checkin`, {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
-  update: (id: number, custody: { notes?: string; signed_term_url?: string; term_url?: string }) =>
+  update: (id: string, custody: { notes?: string; signedTermUrl?: string; termUrl?: string }) =>
     fetchApi<CustodyLog>(`/custody/${id}`, {
       method: 'PUT',
       body: JSON.stringify(custody),
     }),
-  delete: (id: number) => fetchApi<{ message: string }>(`/custody/${id}`, {
-  method: 'DELETE',
+  delete: (id: string) => fetchApi<{ message: string }>(`/custody/${id}`, {
+    method: 'DELETE',
   }),
   getNextNumber: () => fetchApi<{ nextCautelaNumber: string }>('/custody/next-number'),
+  getReports: (params?: { type?: string; user_id?: string; start_date?: string; end_date?: string }) => {
+    const query = new URLSearchParams();
+    if (params?.type) query.append('type', params.type);
+    if (params?.user_id) query.append('user_id', params.user_id);
+    if (params?.start_date) query.append('start_date', params.start_date);
+    if (params?.end_date) query.append('end_date', params.end_date);
+    return fetchApi<{ summary: any; custodies: CustodyLog[] }>(`/custody-reports${query.toString() ? `?${query}` : ''}`);
+  },
 };
 
 // Inventory API

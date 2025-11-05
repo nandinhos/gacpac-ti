@@ -5,6 +5,62 @@ import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import { Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
+// Import React components for notifications
+import React from 'react';
+
+// Temporary notification component - will be enhanced later
+const NotificationDropdown = () => {
+    const [unreadCount, setUnreadCount] = React.useState(0);
+    const [isOpen, setIsOpen] = React.useState(false);
+
+    React.useEffect(() => {
+        // Simulate unread notifications
+        setUnreadCount(3);
+    }, []);
+
+    return (
+        <div className="relative">
+            <button
+                type="button"
+                className="relative bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                onClick={() => setIsOpen(!isOpen)}
+            >
+                <span className="sr-only">Ver notificações</span>
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM15 17H9a6 6 0 01-6-6V9a6 6 0 0110.71-4.83M9 5v2m0 4v2m0 4v2" />
+                </svg>
+                {unreadCount[0] > 0 && (
+                    <span className="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full min-w-[20px] h-5">
+                        {unreadCount[0] > 99 ? '99+' : unreadCount[0]}
+                    </span>
+                )}
+            </button>
+
+            {isOpen && (
+                <>
+                    <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
+                    <div className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg z-50">
+                        <div className="px-4 py-2 border-b border-gray-200">
+                            <h3 className="text-sm font-medium text-gray-900">Notificações</h3>
+                        </div>
+                        <div className="px-4 py-8 text-center">
+                            <svg className="mx-auto h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM15 17H9a6 6 0 01-6-6V9a6 6 0 0110.71-4.83M9 5v2m0 4v2m0 4v2" />
+                            </svg>
+                            <p className="mt-2 text-sm text-gray-500">
+                                Sistema de notificações em implementação
+                            </p>
+                            <p className="mt-1 text-xs text-gray-400">
+                                {unreadCount} notificação(ões) pendente(s)
+                            </p>
+                        </div>
+                    </div>
+                </>
+            )}
+        </div>
+    );
+};
+
 export default function SGAITILayout({ header, children }) {
     const user = usePage().props.auth.user;
 
@@ -28,7 +84,7 @@ export default function SGAITILayout({ header, children }) {
                 <div className="flex flex-col flex-grow bg-white border-r border-gray-200 pt-5 pb-4 overflow-y-auto">
                     <div className="flex items-center flex-shrink-0 px-4">
                         <ApplicationLogo className="h-8 w-auto" />
-                        <span className="ml-2 text-lg font-semibold text-gray-900">SGAITI</span>
+                        <span className="ml-2 text-lg font-semibold text-gray-900">SGTI-GAC</span>
                     </div>
                     <div className="mt-8 flex-grow flex flex-col">
                         <nav className="flex-1 px-2 space-y-1">
@@ -38,11 +94,11 @@ export default function SGAITILayout({ header, children }) {
                                     href={item.href}
                                     className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors ${
                                         route().current(item.href.replace('/api/', '').replace('.', '*')) ?
-                                        'bg-gray-100 text-gray-900' :
+                                        'bg-indigo-50 text-indigo-600' :
                                         'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                                     }`}
                                 >
-                                    <svg className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <svg className={`mr-3 h-5 w-5 ${route().current(item.href.replace('/api/', '').replace('.', '*')) ? 'text-indigo-600' : 'text-gray-400 group-hover:text-gray-500'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
                                     </svg>
                                     {item.name}
@@ -110,12 +166,7 @@ export default function SGAITILayout({ header, children }) {
                         </div>
                         <div className="ml-4 flex items-center md:ml-6">
                             {/* Notifications */}
-                            <button className="bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                <span className="sr-only">Ver notificações</span>
-                                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM15 17H9a6 6 0 01-6-6V9a6 6 0 0110.71-4.83M9 5v2m0 4v2m0 4v2" />
-                                </svg>
-                            </button>
+                            <NotificationDropdown />
 
                             {/* Profile dropdown */}
                             <div className="ml-3 relative">
@@ -186,8 +237,8 @@ export default function SGAITILayout({ header, children }) {
                         </div>
                         <div className="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
                             <div className="flex-shrink-0 flex items-center px-4">
-                                <ApplicationLogo className="h-8 w-auto" />
-                                <span className="ml-2 text-lg font-semibold text-gray-900">SGAITI</span>
+                            <ApplicationLogo className="h-8 w-auto" />
+                            <span className="ml-2 text-lg font-semibold text-gray-900">SGTI-GAC</span>
                             </div>
                             <nav className="mt-5 px-2 space-y-1">
                                 {navigation.map((item) => (
@@ -196,12 +247,12 @@ export default function SGAITILayout({ header, children }) {
                                         href={item.href}
                                         className={`group flex items-center px-2 py-2 text-base font-medium rounded-md ${
                                             route().current(item.href.replace('/api/', '').replace('.', '*')) ?
-                                            'bg-gray-100 text-gray-900' :
+                                            'bg-indigo-50 text-indigo-600' :
                                             'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                                         }`}
                                         onClick={() => setShowingNavigationDropdown(false)}
                                     >
-                                        <svg className="mr-3 h-6 w-6 text-gray-400 group-hover:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <svg className={`mr-3 h-6 w-6 ${route().current(item.href.replace('/api/', '').replace('.', '*')) ? 'text-indigo-600' : 'text-gray-400 group-hover:text-gray-500'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
                                         </svg>
                                         {item.name}

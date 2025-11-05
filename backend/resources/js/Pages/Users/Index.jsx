@@ -55,7 +55,7 @@ export default function Index({ users }) {
                 </div>
             }
         >
-            <Head title="Usuários - SGAITI" />
+            <Head title="Usuários - SGTI-GAC" />
 
             <div className="py-6">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

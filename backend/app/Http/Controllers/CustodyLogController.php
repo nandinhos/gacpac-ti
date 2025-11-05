@@ -3,13 +3,19 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
+use App\Http\Requests\StoreCustodyLogRequest;
+use App\Http\Requests\UpdateCustodyLogRequest;
+use App\Http\Requests\CheckinCustodyLogRequest;
 use App\Models\CustodyLog;
+use App\Models\MilitaryUser;
+use App\Notifications\CustodyCreatedNotification;
 
 class CustodyLogController extends Controller
 {
     public function index(Request $request)
     {
-        $query = CustodyLog::query();
+        $query = CustodyLog::with(['user', 'assets']);
         if ($request->has('active')) {
             if ($request->boolean('active')) {
                 $query->whereNull('checkin_date');
@@ -23,13 +29,51 @@ class CustodyLogController extends Controller
         return $query->get();
     }
 
-    public function store(Request $request)
+    public function store(StoreCustodyLogRequest $request)
     {
-        $custody = CustodyLog::create($request->only(['cautela_number', 'user_id', 'checkout_date', 'term_url', 'signed_term_url', 'notes']));
-        if ($request->has('assetIds')) {
-            $custody->assets()->attach($request->assetIds);
+        $validated = $request->validated();
+
+        $assets = \App\Models\Asset::whereIn('id', $validated['assetIds'])->get();
+        foreach ($assets as $asset) {
+            if ($asset->status !== 'Disponível') {
+                return response()->json([
+                    'message' => "Ativo {$asset->qr_code} não está disponível (status: {$asset->status})",
+                    'errors' => ['assetIds' => ["Ativo {$asset->qr_code} não está disponível."]]
+                ], 422);
+            }
         }
-        return $custody;
+
+        try {
+            $custody = \Illuminate\Support\Facades\DB::transaction(function () use ($validated) {
+                $custodyData = collect($validated)->only((new CustodyLog)->getFillable())->toArray();
+                $custody = CustodyLog::create($custodyData);
+
+                $custody->assets()->attach($validated['assetIds']);
+
+                // Update asset statuses
+                \App\Models\Asset::whereIn('id', $validated['assetIds'])->update([
+                    'status' => 'Em Uso',
+                    'custodian_user_id' => $validated['user_id']
+                ]);
+
+                return $custody;
+            });
+
+            // Notification
+            $adminUsers = MilitaryUser::whereIn('user_role', ['admin', 'commission'])->get();
+            Notification::send($adminUsers, new CustodyCreatedNotification($custody));
+
+            return response()->json([
+                'message' => 'Cautela criada com sucesso',
+                'data' => $custody->load('assets', 'user')
+            ], 201);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Erro ao criar cautela.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function show(CustodyLog $custody)
@@ -37,10 +81,11 @@ class CustodyLogController extends Controller
         return $custody->load('assets');
     }
 
-    public function update(Request $request, CustodyLog $custody)
+    public function update(UpdateCustodyLogRequest $request, CustodyLog $custody)
     {
-        $custody->update($request->all());
-        return $custody;
+        $validatedData = collect($request->validated())->only((new CustodyLog)->getFillable())->toArray();
+        $custody->update($validatedData);
+        return $custody->load(['user', 'assets']);
     }
 
     public function destroy(CustodyLog $custody)
@@ -49,13 +94,37 @@ class CustodyLogController extends Controller
         return response()->json(['message' => 'Deleted']);
     }
 
-    public function checkin($id, Request $request)
+    public function checkin(CheckinCustodyLogRequest $request, CustodyLog $custody)
     {
-        $custody = CustodyLog::findOrFail($id);
-        $custody->checkin_date = $request->input('checkin_date');
-        $custody->signed_term_url = $request->input('signed_term_url');
-        $custody->save();
-        return $custody;
+        try {
+            \Illuminate\Support\Facades\DB::transaction(function () use ($request, $custody) {
+                $validatedData = $request->validated();
+
+                $custody->update([
+                    'checkin_date' => $validatedData['checkin_date'],
+                    'signed_term_url' => $validatedData['signed_term_url'] ?? $custody->signed_term_url,
+                ]);
+
+                // Update asset statuses
+                foreach ($custody->assets as $asset) {
+                    $asset->update([
+                        'status' => 'Disponível',
+                        'custodian_user_id' => null
+                    ]);
+                }
+            });
+
+            return response()->json([
+                'message' => 'Cautela devolvida com sucesso',
+                'data' => $custody->load('assets', 'user')
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Erro ao devolver cautela.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function getNextNumber()
@@ -68,5 +137,50 @@ class CustodyLogController extends Controller
             $nextNumber = 1;
         }
         return ['nextCautelaNumber' => sprintf('%03d/GAC-PAC/2024', $nextNumber)];
+    }
+
+    public function reports(Request $request)
+    {
+        $type = $request->get('type', 'active'); // active, completed, all, user
+
+        $query = CustodyLog::with(['user', 'assets']);
+
+        switch ($type) {
+            case 'active':
+                $query->whereNull('checkin_date');
+                break;
+            case 'completed':
+                $query->whereNotNull('checkin_date');
+                break;
+            case 'user':
+                if ($request->has('user_id')) {
+                    $query->where('user_id', $request->user_id);
+                }
+                break;
+        }
+
+        if ($request->has('start_date')) {
+            $query->where('checkout_date', '>=', $request->start_date);
+        }
+
+        if ($request->has('end_date')) {
+            $query->where('checkout_date', '<=', $request->end_date);
+        }
+
+        $custodies = $query->orderBy('checkout_date', 'desc')->get();
+
+        $summary = [
+            'total_custodies' => $custodies->count(),
+            'active_custodies' => $custodies->whereNull('checkin_date')->count(),
+            'completed_custodies' => $custodies->whereNotNull('checkin_date')->count(),
+            'total_assets' => $custodies->sum(function ($custody) {
+                return $custody->assets->count();
+            })
+        ];
+
+        return response()->json([
+            'summary' => $summary,
+            'custodies' => $custodies
+        ]);
     }
 }

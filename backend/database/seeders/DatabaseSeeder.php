@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             MilitaryUserSeeder::class,
             AssetSeeder::class,
             CustodyLogSeeder::class,
+            InventorySeeder::class,
         ]);
     }
 }

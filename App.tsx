@@ -1,18 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Sidebar from './components/Sidebar';
-import Dashboard from './components/Dashboard';
-import AssetManagement from './components/AssetManagement';
-import SectorManagement from './components/SectorManagement';
-import UserManagement from './components/UserManagement';
-import CustodyManagement from './components/CustodyManagement';
-import CreateCustody from './components/CreateCustody';
-import InventoryManagement from './components/InventoryManagement';
-import SectorAssetManager from './components/SectorAssetsModal';
-import PrintLabels from './components/PrintLabels';
 import LoginScreen from './components/LoginScreen';
-import UserProfile from './components/UserProfile';
 import ProtectedRoute from './components/ProtectedRoute';
+
+// Lazy load heavy components for better performance
+const Dashboard = React.lazy(() => import('./components/Dashboard'));
+const AssetManagement = React.lazy(() => import('./components/AssetManagement'));
+const SectorManagement = React.lazy(() => import('./components/SectorManagement'));
+const UserManagement = React.lazy(() => import('./components/UserManagement'));
+const CustodyManagement = React.lazy(() => import('./components/CustodyManagement'));
+const CreateCustody = React.lazy(() => import('./components/CreateCustody'));
+const InventoryManagement = React.lazy(() => import('./components/InventoryManagement'));
+const SectorAssetManager = React.lazy(() => import('./components/SectorAssetsModal'));
+const PrintLabels = React.lazy(() => import('./components/PrintLabels'));
+const UserProfile = React.lazy(() => import('./components/UserProfile'));
 import { AuthProvider, useAuth } from './components/AuthContext';
+import { NotificationProvider } from './components/NotificationContext';
 import { Asset, Sector, MilitaryUser, CustodyLog, InventoryRecord, AssetStatus } from './types';
 import { sectorsApi, usersApi, assetsApi, custodyApi, inventoryApi } from './services/api';
 
@@ -222,30 +225,34 @@ const AuthenticatedApp: React.FC = () => {
       case 'assets':
         return (
           <ProtectedRoute requiredAbility="edit:all">
-            <AssetManagement
-              assets={assets}
-              setAssets={setAssets}
-              sectors={sectors}
-              users={users}
-              onDataChange={reloadAssets}
-              initialStatusFilter={initialAssetStatusFilter}
-            />
+            <Suspense fallback={<div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div></div>}>
+              <AssetManagement
+                assets={assets}
+                setAssets={setAssets}
+                sectors={sectors}
+                users={users}
+                onDataChange={reloadAssets}
+                initialStatusFilter={initialAssetStatusFilter}
+              />
+            </Suspense>
           </ProtectedRoute>
         );
       case 'sectors':
         return (
           <ProtectedRoute requiredAbility="edit:all">
-            <SectorManagement
-              sectors={sectors}
-              setSectors={setSectors}
-              assets={assets}
-              users={users}
-              onManageSector={(sector) => {
-                setManagingSector(sector);
-                setActiveView('manageSectorAssets');
-              }}
-              onDataChange={reloadSectors}
-            />
+            <Suspense fallback={<div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div></div>}>
+              <SectorManagement
+                sectors={sectors}
+                setSectors={setSectors}
+                assets={assets}
+                users={users}
+                onManageSector={(sector) => {
+                  setManagingSector(sector);
+                  setActiveView('manageSectorAssets');
+                }}
+                onDataChange={reloadSectors}
+              />
+            </Suspense>
           </ProtectedRoute>
         );
       case 'manageSectorAssets':
@@ -255,89 +262,105 @@ const AuthenticatedApp: React.FC = () => {
         }
         return (
           <ProtectedRoute requiredAbility="edit:all">
-            <SectorAssetManager
-              sector={managingSector}
-              assets={assets}
-              setAssets={setAssets}
-              users={users}
-              allSectors={sectors}
-              custodyLogs={custodyLogs}
-              onBack={() => setActiveView('sectors')}
-              onDataChange={reloadAssets}
-            />
+            <Suspense fallback={<div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div></div>}>
+              <SectorAssetManager
+                sector={managingSector}
+                assets={assets}
+                setAssets={setAssets}
+                users={users}
+                allSectors={sectors}
+                custodyLogs={custodyLogs}
+                onBack={() => setActiveView('sectors')}
+                onDataChange={reloadAssets}
+              />
+            </Suspense>
           </ProtectedRoute>
         );
       case 'users':
         return (
           <ProtectedRoute requiredAbility="edit:all">
-            <UserManagement
-              users={users}
-              setUsers={setUsers}
-              sectors={sectors}
-              assets={assets}
-              setAssets={setAssets}
-              custodyLogs={custodyLogs}
-              setCustodyLogs={setCustodyLogs}
-              onDataChange={reloadUsers}
-            />
+            <Suspense fallback={<div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div></div>}>
+              <UserManagement
+                users={users}
+                setUsers={setUsers}
+                sectors={sectors}
+                assets={assets}
+                setAssets={setAssets}
+                custodyLogs={custodyLogs}
+                setCustodyLogs={setCustodyLogs}
+                onDataChange={reloadUsers}
+              />
+            </Suspense>
           </ProtectedRoute>
         );
       case 'custody':
         return (
           <ProtectedRoute requiredAbility="view:custody">
-            <CustodyManagement
-              custodyLogs={custodyLogs}
-              setCustodyLogs={setCustodyLogs}
-              assets={assets}
-              setAssets={setAssets}
-              users={users}
-              onDataChange={() => {
-                reloadCustody();
-                reloadAssets();
-              }}
-              onCreateCustody={() => setActiveView('createCustody')}
-            />
+            <Suspense fallback={<div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div></div>}>
+              <CustodyManagement
+                custodyLogs={custodyLogs}
+                setCustodyLogs={setCustodyLogs}
+                assets={assets}
+                setAssets={setAssets}
+                users={users}
+                onDataChange={() => {
+                  reloadCustody();
+                  reloadAssets();
+                }}
+                onCreateCustody={() => setActiveView('createCustody')}
+              />
+            </Suspense>
           </ProtectedRoute>
         );
       case 'createCustody':
         return (
           <ProtectedRoute requiredAbility="edit:all">
-            <CreateCustody
-              users={users}
-              assets={assets}
-              onCustodyCreated={() => {
-                reloadCustody();
-                reloadAssets();
-              }}
-              onBack={() => setActiveView('custody')}
-            />
+            <Suspense fallback={<div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div></div>}>
+              <CreateCustody
+                users={users}
+                assets={assets}
+                onCustodyCreated={() => {
+                  reloadCustody();
+                  reloadAssets();
+                }}
+                onBack={() => setActiveView('custody')}
+              />
+            </Suspense>
           </ProtectedRoute>
         );
       case 'inventory':
         return (
           <ProtectedRoute requiredAbility="view:inventory">
-            <InventoryManagement
-              assets={assets}
-              setAssets={setAssets}
-              users={users}
-              sectors={sectors}
-              inventoryRecords={inventoryRecords}
-              setInventoryRecords={setInventoryRecords}
-              onDataChange={() => {
-                reloadInventory();
-                reloadAssets();
-              }}
-            />
+            <Suspense fallback={<div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div></div>}>
+              <InventoryManagement
+                assets={assets}
+                setAssets={setAssets}
+                users={users}
+                sectors={sectors}
+                inventoryRecords={inventoryRecords}
+                setInventoryRecords={setInventoryRecords}
+                onDataChange={() => {
+                  reloadInventory();
+                  reloadAssets();
+                }}
+              />
+            </Suspense>
           </ProtectedRoute>
         );
       case 'printLabels':
         return (
           <ProtectedRoute requiredAbility="edit:all">
-            <PrintLabels assets={assets} />
+            <Suspense fallback={<div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div></div>}>
+              <PrintLabels assets={assets} />
+            </Suspense>
           </ProtectedRoute>
         );
       case 'profile':
-        return <UserProfile />;
+        return (
+          <Suspense fallback={<div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div></div>}>
+            <UserProfile />
+          </Suspense>
+        );
       default:
         return <Dashboard assets={assets} users={users} sectors={sectors} logs={custodyLogs} />;
     }
@@ -380,7 +403,9 @@ const AuthenticatedApp: React.FC = () => {
 const App: React.FC = () => {
   return (
     <AuthProvider>
-      <AuthenticatedApp />
+      <NotificationProvider>
+        <AuthenticatedApp />
+      </NotificationProvider>
     </AuthProvider>
   );
 };

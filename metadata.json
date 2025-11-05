@@ -1,5 +1,5 @@
 {
-  "name": "SGAITI-UM - Sistema de Gestão de Ativos de TI",
+  "name": "SGTI-GAC - Sistema de Gestão de TI do GAC-PAC",
   "description": "Um sistema abrangente para gerenciamento de inventário e controle de ativos de TI para unidades militares, utilizando QR codes para agilizar os processos. Inclui módulos para gestão de ativos, setores, militares, cautelas e inventário.",
   "requestFramePermissions": [
     "camera"

@@ -31,7 +31,7 @@ export default function Index({ sectors }) {
                 </div>
             }
         >
-            <Head title="Setores - SGAITI" />
+            <Head title="Setores - SGTI-GAC" />
 
             <div className="py-6">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

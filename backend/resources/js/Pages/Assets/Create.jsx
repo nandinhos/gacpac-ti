@@ -45,7 +45,7 @@ export default function Create({ sectors }) {
                 </div>
             }
         >
-            <Head title="Novo Ativo - SGAITI" />
+            <Head title="Novo Ativo - SGTI-GAC" />
 
             <div className="py-6">
                 <div className="max-w-md mx-auto px-4 sm:px-6 lg:px-8">

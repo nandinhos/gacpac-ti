@@ -1,5 +1,5 @@
 import SGAITILayout from '@/Layouts/SGAITILayout';
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 
 export default function Dashboard({ stats = {} }) {
     const defaultStats = {
@@ -81,7 +81,7 @@ export default function Dashboard({ stats = {} }) {
         <SGAITILayout
             header={
                 <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    Dashboard - SGAITI
+                    Dashboard - SGTI-GAC
                 </h2>
             }
         >
@@ -180,8 +180,8 @@ export default function Dashboard({ stats = {} }) {
                                     Ações Rápidas
                                 </h3>
                                 <div className="grid grid-cols-2 gap-4">
-                                    <a
-                                        href="#"
+                                    <Link
+                                        href={route('assets.create')}
                                         className="relative block w-full bg-white rounded-lg p-4 border-2 border-dashed border-gray-300 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                                     >
                                         <div className="flex items-center justify-center">
@@ -190,9 +190,9 @@ export default function Dashboard({ stats = {} }) {
                                             </svg>
                                             <span className="ml-2 text-sm font-medium text-gray-900">Novo Ativo</span>
                                         </div>
-                                    </a>
-                                    <a
-                                        href="#"
+                                    </Link>
+                                    <Link
+                                        href={route('custody.create')}
                                         className="relative block w-full bg-white rounded-lg p-4 border-2 border-dashed border-gray-300 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                                     >
                                         <div className="flex items-center justify-center">
@@ -201,9 +201,9 @@ export default function Dashboard({ stats = {} }) {
                                             </svg>
                                             <span className="ml-2 text-sm font-medium text-gray-900">Nova Cautela</span>
                                         </div>
-                                    </a>
-                                    <a
-                                        href="#"
+                                    </Link>
+                                    <Link
+                                        href={route('inventory.index')}
                                         className="relative block w-full bg-white rounded-lg p-4 border-2 border-dashed border-gray-300 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                                     >
                                         <div className="flex items-center justify-center">
@@ -212,9 +212,9 @@ export default function Dashboard({ stats = {} }) {
                                             </svg>
                                             <span className="ml-2 text-sm font-medium text-gray-900">Inventário</span>
                                         </div>
-                                    </a>
-                                    <a
-                                        href="#"
+                                    </Link>
+                                    <Link
+                                        href={route('reports.index')}
                                         className="relative block w-full bg-white rounded-lg p-4 border-2 border-dashed border-gray-300 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                                     >
                                         <div className="flex items-center justify-center">
@@ -223,7 +223,7 @@ export default function Dashboard({ stats = {} }) {
                                             </svg>
                                             <span className="ml-2 text-sm font-medium text-gray-900">Relatórios</span>
                                         </div>
-                                    </a>
+                                    </Link>
                                 </div>
                             </div>
                         </div>

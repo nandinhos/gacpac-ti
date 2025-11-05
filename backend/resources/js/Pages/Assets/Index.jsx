@@ -112,7 +112,7 @@ export default function Index({ assets }) {
                 </div>
             }
         >
-            <Head title="Ativos - SGAITI" />
+            <Head title="Ativos - SGTI-GAC" />
 
             <div className="py-6">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

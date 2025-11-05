@@ -3,9 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Notification;
 use App\Models\Asset;
+use App\Models\MilitaryUser;
 use App\Http\Requests\StoreAssetRequest;
 use App\Http\Requests\UpdateAssetRequest;
+use App\Notifications\AssetCreatedNotification;
 
 class AssetController extends Controller
 {
@@ -29,7 +33,7 @@ class AssetController extends Controller
                       ->orWhere('patrimony_id', 'like', "%{$search}%");
             });
         }
-        return $query->get();
+        return $query->with(['sector', 'custodian'])->get();
     }
 
     public function store(Request $request)
@@ -68,7 +72,7 @@ class AssetController extends Controller
             if (!isset($data['qr_code'])) {
                 $lastAsset = Asset::orderBy('id', 'desc')->first();
                 $nextNumber = $lastAsset ? ($lastAsset->id + 1) : 1;
-                $data['qr_code'] = 'SGAITI-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+                $data['qr_code'] = 'SGTI-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
             }
             
             if (!isset($data['name'])) {
@@ -80,6 +84,14 @@ class AssetController extends Controller
             }
             
             $asset = Asset::create($data);
+
+            // Limpar cache do dashboard após criação
+            Cache::forget('dashboard_stats');
+
+            // Notificar almoxarifado/admin sobre novo ativo
+            $adminUsers = MilitaryUser::whereIn('user_role', ['admin', 'commission'])->get();
+            Notification::send($adminUsers, new AssetCreatedNotification($asset));
+
             return response()->json([
                 'message' => 'Ativo criado com sucesso',
                 'data' => $asset
@@ -94,13 +106,10 @@ class AssetController extends Controller
 
     public function show(Asset $asset)
     {
-        // Simular fotos usando cache ou arquivo temporário
-        $cacheKey = "asset_{$asset->id}_photos";
-        $photos = cache()->get($cacheKey, []);
-        
-        $asset->photos = $photos;
-        
-        return $asset;
+    // Carregar relações com eager loading
+    $asset->load(['sector', 'custodian', 'photos', 'maintenanceRecords']);
+
+    return $asset;
     }
 
     public function update(Request $request, Asset $asset)
@@ -148,7 +157,10 @@ class AssetController extends Controller
             
             $asset->update($data);
             $asset->refresh();
-            
+
+            // Limpar cache do dashboard após atualização
+            Cache::forget('dashboard_stats');
+
             return response()->json([
                 'message' => 'Ativo atualizado com sucesso',
                 'data' => $asset
@@ -196,6 +208,10 @@ class AssetController extends Controller
     public function destroy(Asset $asset)
     {
         $asset->delete();
+
+        // Limpar cache do dashboard após exclusão
+        Cache::forget('dashboard_stats');
+
         return response()->json(['message' => 'Deleted']);
     }
 

@@ -17,17 +17,22 @@ class AssetFactory extends Factory
      */
     public function definition(): array
     {
+        $type = $this->faker->randomElement([
+            'COMPUTADOR', 'NOTEBOOK', 'MONITOR', 'TECLADO', 'MOUSE', 
+            'IMPRESSORA', 'SCANNER', 'ROTEADOR', 'SWITCH', 'SERVIDOR',
+            'TELEFONE', 'CELULAR', 'TABLET', 'PROJETOR', 'CAMERA',
+            'HD_EXTERNO', 'PENDRIVE', 'OUTROS'
+        ]);
+        $brand = $this->faker->randomElement(['Dell', 'HP', 'Lenovo', 'Acer', 'Samsung', 'LG']);
+
         return [
-            'brand' => $this->faker->randomElement(['Dell', 'HP', 'Lenovo', 'Acer', 'Samsung', 'LG']),
+            'qr_code' => 'SGTI-' . str_pad($this->faker->unique()->numberBetween(1, 9999), 4, '0', STR_PAD_LEFT),
+            'name' => $type . ' ' . $brand,
+            'brand' => $brand,
             'model' => $this->faker->bothify('??##??'),
             'serial_number' => $this->faker->unique()->bothify('???########'),
             'patrimony_number' => $this->faker->unique()->bothify('PAT####'),
-            'type' => $this->faker->randomElement([
-                'COMPUTADOR', 'NOTEBOOK', 'MONITOR', 'TECLADO', 'MOUSE', 
-                'IMPRESSORA', 'SCANNER', 'ROTEADOR', 'SWITCH', 'SERVIDOR',
-                'TELEFONE', 'CELULAR', 'TABLET', 'PROJETOR', 'CAMERA',
-                'HD_EXTERNO', 'PENDRIVE', 'OUTROS'
-            ]),
+            'type' => $type,
             'category' => $this->faker->randomElement([
                 'COMPUTACAO', 'PERIFERICOS', 'REDE', 'COMUNICACAO', 
                 'AUDIOVISUAL', 'ARMAZENAMENTO', 'OUTROS'
