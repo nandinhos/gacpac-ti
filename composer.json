@@ -1,5 +1,5 @@
 {
     "require-dev": {
-        "laravel/boost": "^1.6"
+        "laravel/boost": "^1.7"
     }
 }
