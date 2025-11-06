@@ -1,8 +1,9 @@
 import SGAITILayout from '@/Layouts/SGAITILayout';
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import { useState } from 'react';
+import ConfirmationModal from '@/Components/ConfirmationModal';
 
-const AssetList = ({ title, assets, onSelectAll, onSelect, selection, showCheckboxes }) => (
+const AssetList = ({ title, assets = [], onSelectAll, onSelect, selection, showCheckboxes }) => (
     <div className="bg-white shadow-sm rounded-lg p-4">
         <h3 className={`font-bold text-lg mb-2 ${title === 'Pendentes' ? 'text-red-600' : 'text-green-600'}`}>{title} ({assets.length})</h3>
         {showCheckboxes && (
@@ -28,14 +29,44 @@ const AssetList = ({ title, assets, onSelectAll, onSelect, selection, showCheckb
     </div>
 );
 
-const UncataloguedList = ({ items, onAddItem, onRemoveItem }) => {
+const UncataloguedList = ({ items = [], onAddItem, onRemoveItem, onEditItem }) => {
     const [newItem, setNewItem] = useState('');
+    const [editingItem, setEditingItem] = useState(null);
+    const [editText, setEditText] = useState('');
+    const [showDeleteModal, setShowDeleteModal] = useState(null);
 
     const handleAddItem = () => {
         if (newItem.trim()) {
             onAddItem(newItem.trim());
             setNewItem('');
         }
+    };
+
+    const handleEditStart = (item) => {
+        setEditingItem(item.id);
+        setEditText(item.description);
+    };
+
+    const handleEditSave = (item) => {
+        if (editText.trim() && editText !== item.description) {
+            onEditItem(item.id, editText.trim());
+        }
+        setEditingItem(null);
+        setEditText('');
+    };
+
+    const handleEditCancel = () => {
+        setEditingItem(null);
+        setEditText('');
+    };
+
+    const handleDeleteClick = (item) => {
+        setShowDeleteModal(item);
+    };
+
+    const handleDeleteConfirm = () => {
+        onRemoveItem(showDeleteModal.id);
+        setShowDeleteModal(null);
     };
 
     return (
@@ -45,11 +76,100 @@ const UncataloguedList = ({ items, onAddItem, onRemoveItem }) => {
                 <ul className="divide-y divide-gray-200">
                     {items.map((item, index) => (
                         <li key={index} className="py-2 px-1 flex justify-between items-center">
-                            <p>{item.description}</p>
-                            <button onClick={() => onRemoveItem(item.id)} className="text-red-500 hover:text-red-700">Remover</button>
+                            <div className="flex-grow">
+                                {editingItem === item.id ? (
+                                    <input
+                                        type="text"
+                                        value={editText}
+                                        onChange={(e) => setEditText(e.target.value)}
+                                        className="w-full border-gray-300 rounded-md shadow-sm"
+                                        onKeyPress={(e) => e.key === 'Enter' && handleEditSave(item)}
+                                        autoFocus
+                                    />
+                                ) : (
+                                    <p>{typeof item === 'string' ? item : item.description}</p>
+                                )}
+                            </div>
+                            <div className="flex items-center space-x-2 ml-2">
+                                {editingItem === item.id ? (
+                                    <>
+                                        <button 
+                                            onClick={() => handleEditSave(item)}
+                                            className="text-green-600 hover:text-green-800"
+                                            title="Salvar"
+                                        >
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                            </svg>
+                                        </button>
+                                        <button 
+                                            onClick={handleEditCancel}
+                                            className="text-gray-600 hover:text-gray-800"
+                                            title="Cancelar"
+                                        >
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    </>
+                                ) : (
+                                    <>
+                                        <button 
+                                            onClick={() => handleEditStart(item)}
+                                            className="text-blue-600 hover:text-blue-800"
+                                            title="Editar"
+                                        >
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
+                                        </button>
+                                        <button 
+                                            onClick={() => handleDeleteClick(item)}
+                                            className="text-red-600 hover:text-red-800"
+                                            title="Excluir"
+                                        >
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                    </>
+                                )}
+                            </div>
                         </li>
                     ))}
                 </ul>
+
+                {/* Modal de Confirmação de Exclusão */}
+                {showDeleteModal && (
+                    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+                        <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                            <div className="mt-3 text-center">
+                                <h3 className="text-lg font-medium text-gray-900">Confirmar Exclusão</h3>
+                                <div className="mt-2 px-7 py-3">
+                                    <p className="text-sm text-gray-500">
+                                        Tem certeza que deseja excluir o item:<br />
+                                        <strong>"{showDeleteModal.description}"</strong>?
+                                    </p>
+                                    <p className="text-xs text-red-600 mt-2">Esta ação não pode ser desfeita.</p>
+                                </div>
+                                <div className="flex justify-center space-x-4 pt-2">
+                                    <button
+                                        onClick={() => setShowDeleteModal(null)}
+                                        className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400"
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button
+                                        onClick={handleDeleteConfirm}
+                                        className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                                    >
+                                        Excluir
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
             <div className="mt-2 pt-2 border-t">
                 <div className="flex items-center">
@@ -67,10 +187,11 @@ const UncataloguedList = ({ items, onAddItem, onRemoveItem }) => {
     );
 };
 
-export default function Show({ inventory, pendingAssets, foundAssets, uncataloguedItems }) {
+export default function Show({ inventory, pendingAssets = [], foundAssets = [], uncataloguedItems = [] }) {
     const [qrCode, setQrCode] = useState('');
     const [selectedPending, setSelectedPending] = useState([]);
     const [selectedFound, setSelectedFound] = useState([]);
+    const [showFinishModal, setShowFinishModal] = useState(false);
 
     const { data, setData, post, processing, errors } = useForm({
         notes: inventory.notes || '',
@@ -100,13 +221,23 @@ export default function Show({ inventory, pendingAssets, foundAssets, uncatalogu
         });
     };
 
+    const handleEditUncatalogued = (itemId, newDescription) => {
+        router.put(route('inventory.editUncatalogued', { inventory: inventory.id, item: itemId }), {
+            description: newDescription,
+        }, { 
+            preserveScroll: true 
+        });
+    };
+
     const handleFinishInventory = () => {
-        if (confirm('Tem certeza que deseja concluir este inventário?')) {
-            router.put(route('inventory.update', { inventory: inventory.id }), {
-                status: 'Concluído',
-                notes: data.notes,
-            });
-        }
+        setShowFinishModal(true);
+    };
+
+    const handleConfirmFinish = async () => {
+        router.put(route('inventory.update', { inventory: inventory.id }), {
+            status: 'Concluído',
+            notes: data.notes,
+        });
     };
 
     const handleSelectPending = (assetId) => {
@@ -218,7 +349,12 @@ export default function Show({ inventory, pendingAssets, foundAssets, uncatalogu
                             </button>
                         </div>
                         <div className="md:col-span-1">
-                            <UncataloguedList items={uncataloguedItems} onAddItem={handleAddUncatalogued} onRemoveItem={handleRemoveUncatalogued} />
+                            <UncataloguedList 
+                                items={uncataloguedItems} 
+                                onAddItem={handleAddUncatalogued} 
+                                onRemoveItem={handleRemoveUncatalogued}
+                                onEditItem={handleEditUncatalogued}
+                            />
                         </div>
                     </div>
 
@@ -241,6 +377,21 @@ export default function Show({ inventory, pendingAssets, foundAssets, uncatalogu
                     </div>
                 </div>
             </div>
+            
+            <ConfirmationModal 
+                isOpen={showFinishModal} 
+                onClose={() => setShowFinishModal(false)} 
+                onConfirm={handleConfirmFinish} 
+                title="Concluir Inventário"
+                message="Tem certeza que deseja concluir este inventário? Esta ação marcará o inventário como finalizado."
+                confirmText="Concluir"
+                type="success"
+                icon={
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                }
+            />
         </SGAITILayout>
     );
 }

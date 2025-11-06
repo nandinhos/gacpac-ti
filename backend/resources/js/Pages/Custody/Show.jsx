@@ -1,16 +1,22 @@
 import SGAITILayout from '@/Layouts/SGAITILayout';
 import { Head, Link, router } from '@inertiajs/react';
+import { useState } from 'react';
+import ConfirmationModal from '@/Components/ConfirmationModal';
 
 export default function Show({ log }) {
+    const [showDischargeModal, setShowDischargeModal] = useState(false);
 
     const handleDischarge = () => {
-        if (confirm(`Tem certeza que deseja dar baixa na cautela ${log.cautela_number}? Os ativos serão retornados ao almoxarifado.`)) {
-            router.put(route('custody.checkin', log.id), {
-                checkinDate: new Date().toISOString().split('T')[0]
-            }, {
-                preserveScroll: true,
-            });
-        }
+        setShowDischargeModal(true);
+    };
+
+    const handleConfirmDischarge = (justification) => {
+        router.put(route('custody.checkin', log.id), {
+            checkinDate: new Date().toISOString().split('T')[0],
+            justification: justification
+        }, {
+            preserveScroll: true,
+        });
     };
 
     const status = log.checkin_date ? 'Concluída' : 'Ativa';
@@ -96,13 +102,31 @@ export default function Show({ log }) {
                         {!log.checkin_date && (
                             <div className="p-6 bg-gray-50 text-right">
                                 <button onClick={handleDischarge} className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition">
-                                    Dar Baixa (Check-in)
+                                    Dar Baixa (Check-Out)
                                 </button>
                             </div>
                         )}
                     </div>
                 </div>
             </div>
+            
+            <ConfirmationModal 
+                isOpen={showDischargeModal} 
+                onClose={() => setShowDischargeModal(false)} 
+                onConfirm={handleConfirmDischarge} 
+                title="Dar Baixa na Cautela"
+                message={`Tem certeza que deseja dar baixa na cautela ${log.cautela_number}? Os ativos serão retornados ao almoxarifado.`}
+                confirmText="Dar Baixa (Check-Out)"
+                type="warning"
+                requireJustification={true}
+                justificationLabel="Motivo da baixa"
+                justificationPlaceholder="Ex: Devolução programada, transferência, fim de uso, etc."
+                icon={
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                }
+            />
         </SGAITILayout>
     );
 }

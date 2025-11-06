@@ -1,43 +1,9 @@
 import SGAITILayout from '@/Layouts/SGAITILayout';
 import { Head, Link, router } from '@inertiajs/react';
 import { useState } from 'react';
+import ConfirmationModal from '@/Components/ConfirmationModal';
 
-const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message, justificationLabel, justificationPlaceholder, confirmButtonText, confirmButtonClass }) => {
-    const [justification, setJustification] = useState('');
-
-    const handleSubmit = () => {
-        if (justification.trim()) {
-            onConfirm(justification);
-            setJustification('');
-        } else {
-            alert('Por favor, insira uma justificativa.');
-        }
-    };
-
-    if (!isOpen) return null;
-
-    return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
-                <h3 className="text-lg font-bold mb-4">{title}</h3>
-                <p className="mb-4">{message}</p>
-                <textarea
-                    value={justification}
-                    onChange={(e) => setJustification(e.target.value)}
-                    placeholder={justificationPlaceholder}
-                    rows={3}
-                    className="w-full p-2 border border-gray-300 rounded-md mb-4"
-                ></textarea>
-                <div className="flex justify-end space-x-2">
-                    <button onClick={onClose} className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Cancelar</button>
-                    <button onClick={handleSubmit} className={`px-4 py-2 text-white rounded-md ${confirmButtonClass}`}>{confirmButtonText}</button>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-export default function Index({ inventoryRecords }) {
+export default function Index({ inventoryRecords = [] }) {
     const [modalState, setModalState] = useState({ isOpen: false, type: null, inventory: null });
 
     const getStatusBadge = (status) => {
@@ -156,11 +122,32 @@ export default function Index({ inventoryRecords }) {
                 isOpen={modalState.isOpen} 
                 onClose={closeModal} 
                 onConfirm={handleConfirm} 
-                title={modalState.type === 'delete' ? 'Confirmar Exclusão' : 'Confirmar Reabertura'}
-                message={modalState.type === 'delete' ? 'Tem certeza que deseja excluir este registro?' : 'Tem certeza que deseja reabrir este inventário?'}
-                justificationPlaceholder={modalState.type === 'delete' ? 'Justificativa para a exclusão...' : 'Justificativa para a reabertura...'}
-                confirmButtonText={modalState.type === 'delete' ? 'Excluir' : 'Reabrir'}
-                confirmButtonClass={modalState.type === 'delete' ? 'bg-red-600 hover:bg-red-700' : 'bg-yellow-600 hover:bg-yellow-700'}
+                title={modalState.type === 'delete' ? 'Excluir Inventário' : 'Reabrir Inventário'}
+                message={
+                    modalState.type === 'delete' 
+                        ? `Tem certeza que deseja excluir permanentemente o inventário "${modalState.inventory?.commission_number}"? Esta ação não pode ser desfeita.`
+                        : `Tem certeza que deseja reabrir o inventário "${modalState.inventory?.commission_number}"? Você poderá fazer alterações novamente.`
+                }
+                confirmText={modalState.type === 'delete' ? 'Excluir' : 'Reabrir'}
+                type={modalState.type === 'delete' ? 'danger' : 'warning'}
+                requireJustification={true}
+                justificationLabel={
+                    modalState.type === 'delete' 
+                        ? 'Justificativa para exclusão'
+                        : 'Justificativa para reabertura'
+                }
+                justificationPlaceholder={
+                    modalState.type === 'delete'
+                        ? 'Ex: Erro na criação, duplicação, correção de dados, etc.'
+                        : 'Ex: Contagem inicial incompleta, necessidade de incluir novos itens, etc.'
+                }
+                icon={
+                    modalState.type === 'reopen' ? (
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h5M20 20v-5h-5M4 20h5v-5M20 4h-5v5" />
+                        </svg>
+                    ) : undefined
+                }
             />
         </SGAITILayout>
     );

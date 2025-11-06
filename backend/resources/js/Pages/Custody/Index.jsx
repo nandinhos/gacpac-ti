@@ -1,19 +1,37 @@
 import SGAITILayout from '@/Layouts/SGAITILayout';
 import { Head, Link, router } from '@inertiajs/react';
 import { useState, useMemo } from 'react';
+import ConfirmationModal from '@/Components/ConfirmationModal';
 
 export default function Index({ custodyLogs, users }) {
 
     const [searchTerm, setSearchTerm] = useState('');
+    const [modalState, setModalState] = useState({ isOpen: false, type: null, log: null });
 
-    const handleDischarge = (log) => {
-        if (confirm(`Tem certeza que deseja dar baixa na cautela ${log.cautela_number}? Os ativos serão retornados ao almoxarifado.`)) {
-            router.put(route('custody.checkin', log.id), {
-                checkinDate: new Date().toISOString().split('T')[0]
+    const openModal = (type, log) => {
+        setModalState({ isOpen: true, type, log });
+    };
+
+    const closeModal = () => {
+        setModalState({ isOpen: false, type: null, log: null });
+    };
+
+    const handleConfirm = (justification) => {
+        if (!modalState.log) return;
+
+        if (modalState.type === 'discharge') {
+            router.put(route('custody.checkin', modalState.log.id), {
+                checkinDate: new Date().toISOString().split('T')[0],
+                justification: justification
             }, {
                 preserveScroll: true,
             });
         }
+        closeModal();
+    };
+
+    const handleDischarge = (log) => {
+        openModal('discharge', log);
     };
 
     const filteredLogs = useMemo(() => {
@@ -111,6 +129,24 @@ export default function Index({ custodyLogs, users }) {
                     </div>
                 </div>
             </div>
+            
+            <ConfirmationModal 
+                isOpen={modalState.isOpen} 
+                onClose={closeModal} 
+                onConfirm={handleConfirm} 
+                title="Dar Baixa na Cautela"
+                message={`Tem certeza que deseja dar baixa na cautela ${modalState.log?.cautela_number}? Os ativos serão retornados ao almoxarifado.`}
+                confirmText="Dar Baixa"
+                type="warning"
+                requireJustification={true}
+                justificationLabel="Motivo da baixa"
+                justificationPlaceholder="Ex: Devolução programada, transferência, fim de uso, etc."
+                icon={
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                }
+            />
         </SGAITILayout>
     );
 }
