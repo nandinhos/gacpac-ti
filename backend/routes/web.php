@@ -198,6 +198,137 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ]);
     })->name('custody.reports');
 
+    // Rota para impressão/PDF da cautela
+    Route::get('/custody/{custody}/print', function (\App\Models\CustodyLog $custody) {
+        $custody->load(['user.sector', 'assets']);
+        return Inertia::render('Custody/PrintCautela', ['custodyLog' => $custody]);
+    })->name('custody.print');
+
+    // Rota para upload do documento assinado
+    Route::post('/custody/{custody}/upload-signed-document', function (\Illuminate\Http\Request $request, \App\Models\CustodyLog $custody) {
+        // Log básico que deve sempre aparecer
+        error_log('UPLOAD TESTE: Rota chamada para custody ID: ' . $custody->id);
+        \Log::info('Início do upload de documento para custody ID: ' . $custody->id);
+        
+        $validated = $request->validate([
+            'signed_document' => 'required|file|mimes:pdf,jpeg,jpg,png|max:10240', // 10MB max
+            'justification' => 'required|string|max:500'
+        ]);
+
+        \Log::info('Validação passou, arquivo: ' . $request->file('signed_document')->getClientOriginalName());
+
+        // Armazenar o arquivo
+        $file = $request->file('signed_document');
+        
+        // Limpar o número da cautela para nome de arquivo seguro
+        $cleanCautelaNumber = preg_replace('/[^A-Za-z0-9\-_]/', '_', $custody->cautela_number);
+        $extension = $file->getClientOriginalExtension();
+        $filename = 'cautela_' . $cleanCautelaNumber . '_signed_' . time() . '.' . $extension;
+        
+        \Log::info('Nome do arquivo será: ' . $filename);
+        
+        // Salvar o arquivo
+        $path = $file->storeAs('signed_documents', $filename, 'public');
+        
+        if (!$path) {
+            \Log::error('Falha ao salvar arquivo no storage');
+            return back()->withErrors(['upload' => 'Falha ao salvar arquivo']);
+        }
+
+        \Log::info('Arquivo salvo em: ' . $path);
+
+        // Atualizar o registro
+        $updateResult = $custody->update([
+            'signed_document_url' => $path,
+            'signed_document_uploaded_at' => now(),
+            'signed_document_justification' => $validated['justification']
+        ]);
+
+        \Log::info('Resultado da atualização do banco: ' . ($updateResult ? 'TRUE' : 'FALSE'));
+
+        // Verificar se é requisição AJAX
+        if ($request->ajax() || $request->wantsJson()) {
+            error_log('UPLOAD TESTE: Retornando JSON response');
+            return response()->json([
+                'message' => 'Documento enviado com sucesso!',
+                'signed_document_url' => $path
+            ]);
+        }
+        
+        // Para requisições Inertia, redirecionar de volta com mensagem de sucesso
+        return redirect()->back()->with('success', 'Documento enviado com sucesso!');
+    })->name('custody.upload-signed-document');
+
+    // Rota para servir arquivos de documento assinado
+    Route::get('/custody/{custody}/signed-document', function (\App\Models\CustodyLog $custody) {
+        if (!$custody->signed_document_url) {
+            abort(404, 'Documento não encontrado');
+        }
+
+        // O caminho já está no formato correto (signed_documents/filename.ext)
+        $fullPath = storage_path('app/public/' . $custody->signed_document_url);
+
+        if (!file_exists($fullPath)) {
+            abort(404, 'Arquivo não encontrado no servidor');
+        }
+
+        // Determinar o tipo MIME
+        $mimeType = mime_content_type($fullPath);
+        $filename = basename($fullPath);
+
+        return response()->file($fullPath, [
+            'Content-Type' => $mimeType,
+            'Content-Disposition' => 'inline; filename="' . $filename . '"'
+        ]);
+    })->name('custody.signed-document');
+
+    // Rota para download do documento assinado
+    Route::get('/custody/{custody}/signed-document/download', function (\App\Models\CustodyLog $custody) {
+        if (!$custody->signed_document_url) {
+            abort(404, 'Documento não encontrado');
+        }
+
+        // O caminho já está no formato correto (signed_documents/filename.ext)
+        $fullPath = storage_path('app/public/' . $custody->signed_document_url);
+
+        if (!file_exists($fullPath)) {
+            abort(404, 'Arquivo não encontrado no servidor');
+        }
+
+        // Nome amigável para download
+        $extension = pathinfo($fullPath, PATHINFO_EXTENSION);
+        $downloadName = 'Cautela_' . $custody->cautela_number . '_Assinada.' . $extension;
+
+        return response()->download($fullPath, $downloadName);
+    })->name('custody.signed-document-download');
+
+    // Rota para remover documento assinado
+    Route::delete('/custody/{custody}/remove-signed-document', function (\Illuminate\Http\Request $request, \App\Models\CustodyLog $custody) {
+        $validated = $request->validate([
+            'justification' => 'required|string|max:500'
+        ]);
+
+        try {
+            // Remover arquivo físico se existir
+            if ($custody->signed_document_url) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($custody->signed_document_url);
+            }
+
+            // Limpar dados do banco
+            $custody->update([
+                'signed_document_url' => null,
+                'signed_document_uploaded_at' => null,
+                'signed_document_justification' => null,
+                'signed_document_removed_at' => now(),
+                'signed_document_removal_justification' => $validated['justification']
+            ]);
+
+            return redirect()->back()->with('success', 'Documento removido com sucesso!');
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Erro ao remover documento: ' . $e->getMessage()], 500);
+        }
+    })->name('custody.remove-signed-document');
+
     // Inventory Management
     Route::get('/inventory', function () {
         $inventoryRecords = \App\Models\InventoryRecord::with(['sector', 'responsibleUser'])->orderBy('start_date', 'desc')->get();
