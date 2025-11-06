@@ -9,13 +9,14 @@ import PhotoGalleryModal from './PhotoGalleryModal';
 import QrScannerModal from './QrScannerModal';
 import AssetMaintenanceModal from './AssetMaintenanceModal';
 import AssetDetailsModal from './AssetDetailsModal';
+import ConfirmationModal from './ConfirmationModal';
 
 const AssetRow: React.FC<{
   asset: Asset,
   sectors: Sector[],
   users: MilitaryUser[],
   onEdit: (asset: Asset) => void,
-  onDelete: (id: number) => void,
+  onDelete: (asset: Asset) => void,
   onViewPhotos: (photos: AssetPhoto[]) => void,
   onViewMaintenance: (asset: Asset) => void,
   onViewDetails: (asset: Asset) => void
@@ -88,7 +89,7 @@ const AssetRow: React.FC<{
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.586a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
             </button>
             <button 
-                onClick={() => onDelete(asset.id)}
+                onClick={() => onDelete(asset)}
                 className="p-2 text-gray-400 rounded-full hover:bg-gray-100 hover:text-red-600 focus:outline-none"
                 title="Excluir Ativo"
             >
@@ -270,6 +271,16 @@ const AssetManagement: React.FC<{
   const [viewingMaintenanceAsset, setViewingMaintenanceAsset] = useState<Asset | null>(null);
   const [viewingAsset, setViewingAsset] = useState<Asset | null>(null);
 
+  // Estados para modais de confirmação
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    type: 'delete';
+    data?: any;
+  }>({
+    isOpen: false,
+    type: 'delete'
+  });
+
   useEffect(() => {
     if (initialStatusFilter) {
       setStatusFilter(initialStatusFilter);
@@ -286,17 +297,42 @@ const AssetManagement: React.FC<{
     setIsFormOpen(true);
   };
 
-  const handleDelete = async (id: number) => {
-    if (window.confirm('Tem certeza que deseja excluir este ativo?')) {
-      try {
-        await assetsApi.delete(String(id));
-        setAssets(assets.filter(a => a.id !== id));
-        onDataChange(); // Recarregar dados da API
-      } catch (error) {
-        console.error('Erro ao excluir ativo:', error);
-        alert('Erro ao excluir ativo. Tente novamente.');
-      }
+  const handleDelete = (asset: Asset) => {
+    setConfirmModal({
+      isOpen: true,
+      type: 'delete',
+      data: asset
+    });
+  };
+
+  const handleConfirmDelete = async (justification?: string) => {
+    const asset = confirmModal.data;
+    if (!asset) return;
+
+    try {
+      await assetsApi.delete(String(asset.id));
+      setAssets(assets.filter(a => a.id !== asset.id));
+      onDataChange(); // Recarregar dados da API
+      alert('Ativo excluído com sucesso!');
+    } catch (error) {
+      console.error('Erro ao excluir ativo:', error);
+      throw error; // Para ser tratado pelo modal
     }
+  };
+
+  const handleConfirmAction = async (justification?: string) => {
+    switch (confirmModal.type) {
+      case 'delete':
+        await handleConfirmDelete(justification);
+        break;
+    }
+  };
+
+  const closeConfirmModal = () => {
+    setConfirmModal({
+      isOpen: false,
+      type: 'delete'
+    });
   };
 
   const handleSave = async (asset: Asset) => {
@@ -507,6 +543,20 @@ const AssetManagement: React.FC<{
                 onUpdateAsset={handleUpdateAsset}
             />
         )}
+
+      {/* Modal de Confirmação */}
+      <ConfirmationModal
+        isOpen={confirmModal.isOpen}
+        onClose={closeConfirmModal}
+        onConfirm={handleConfirmAction}
+        title="Excluir Ativo"
+        message={`Tem certeza que deseja excluir permanentemente o ativo "${confirmModal.data?.name}"? Esta ação não pode ser desfeita.`}
+        confirmText="Excluir"
+        type="danger"
+        requireJustification={true}
+        justificationLabel="Justificativa para exclusão"
+        justificationPlaceholder="Ex: Ativo danificado, obsoleto, transferido, etc."
+      />
     </div>
   );
 };

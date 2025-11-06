@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { MilitaryUser, Sector, Asset, CustodyLog, AssetStatus } from '../types';
 import UserDetailsModal from './UserDetailsModal';
 import CustodyDetailsModal from './CustodyDetailsModal';
+import ConfirmationModal from './ConfirmationModal';
 
 const UserForm: React.FC<{
   user: Partial<MilitaryUser> | null;
@@ -96,6 +97,16 @@ const UserManagement: React.FC<{
   const [statusFilter, setStatusFilter] = useState('all'); // 'all', 'active', 'inactive'
   const [sectorFilter, setSectorFilter] = useState('all'); // 'all' or a sector ID
 
+  // Estados para modais de confirmação
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    type: 'delete' | 'discharge';
+    data?: any;
+  }>({
+    isOpen: false,
+    type: 'delete'
+  });
+
   const handleAdd = () => {
     setEditingUser(null);
     setIsFormOpen(true);
@@ -106,9 +117,24 @@ const UserManagement: React.FC<{
     setIsFormOpen(true);
   };
 
-  const handleDelete = (id: string) => {
-    if (window.confirm('Tem certeza que deseja excluir este militar?')) {
-      setUsers(users.filter(u => u.id !== id));
+  const handleDelete = (user: MilitaryUser) => {
+    setConfirmModal({
+      isOpen: true,
+      type: 'delete',
+      data: user
+    });
+  };
+
+  const handleConfirmDelete = async (justification?: string) => {
+    const user = confirmModal.data;
+    if (!user) return;
+
+    try {
+      setUsers(users.filter(u => u.id !== user.id));
+      alert('Militar excluído com sucesso!');
+    } catch (error) {
+      console.error('Erro ao excluir militar:', error);
+      throw error; // Para ser tratado pelo modal
     }
   };
 
@@ -156,25 +182,59 @@ const UserManagement: React.FC<{
     const logToDischarge = custodyLogs.find(l => l.id === logId);
     if (!logToDischarge) return;
 
-    if (window.confirm('Tem certeza que deseja dar baixa nesta cautela? Os ativos serão retornados ao almoxarifado.')) {
-        setCustodyLogs(prev => prev.map(log => log.id === logId ? { ...log, checkin_date: new Date().toISOString() } : log));
-        
-        const updatedAssets = assets.map(asset => {
-            if (logToDischarge.assetIds?.includes(asset.id)) {
-                return { ...asset, status: AssetStatus.Available, custodian_user_id: undefined };
-            }
-            return asset;
-        });
-        setAssets(updatedAssets);
+    setConfirmModal({
+      isOpen: true,
+      type: 'discharge',
+      data: logToDischarge
+    });
+  };
 
-        // Also update the log being viewed in the modal
-        setViewingLog(prev => prev ? { ...prev, checkin_date: new Date().toISOString() } : null);
+  const handleConfirmDischarge = async (justification?: string) => {
+    const log = confirmModal.data;
+    if (!log) return;
+
+    try {
+      setCustodyLogs(prev => prev.map(custodyLog => custodyLog.id === log.id ? { ...custodyLog, checkin_date: new Date().toISOString() } : custodyLog));
+      
+      const updatedAssets = assets.map(asset => {
+          if (log.assetIds?.includes(asset.id)) {
+              return { ...asset, status: AssetStatus.Available, custodian_user_id: undefined };
+          }
+          return asset;
+      });
+      setAssets(updatedAssets);
+
+      // Also update the log being viewed in the modal
+      setViewingLog(prev => prev ? { ...prev, checkin_date: new Date().toISOString() } : null);
+      alert('Baixa realizada com sucesso!');
+    } catch (error) {
+      console.error('Erro ao dar baixa na cautela:', error);
+      throw error; // Para ser tratado pelo modal
     }
   };
 
   const handleUploadSignedTerm = (logId: string, fileUrl: string) => {
     setCustodyLogs(prev => prev.map(log => log.id === logId ? { ...log, signed_term_url: fileUrl } : log));
     setViewingLog(prev => prev ? { ...prev, signed_term_url: fileUrl } : null);
+  };
+
+  // Função principal para lidar com confirmações
+  const handleConfirmAction = async (justification?: string) => {
+    switch (confirmModal.type) {
+      case 'delete':
+        await handleConfirmDelete(justification);
+        break;
+      case 'discharge':
+        await handleConfirmDischarge(justification);
+        break;
+    }
+  };
+
+  const closeConfirmModal = () => {
+    setConfirmModal({
+      isOpen: false,
+      type: 'delete'
+    });
   };
 
   const userForLog = viewingLog ? users.find(u => u.id === viewingLog.user_id) : null;
@@ -261,7 +321,7 @@ const UserManagement: React.FC<{
                               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.586a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                           </button>
                           <button 
-                              onClick={() => handleDelete(user.id)}
+                              onClick={() => handleDelete(user)}
                               className="p-2 text-gray-400 rounded-full hover:bg-gray-100 hover:text-red-600 focus:outline-none"
                               title="Excluir Militar"
                           >
@@ -307,6 +367,39 @@ const UserManagement: React.FC<{
           onUploadSignedTerm={handleUploadSignedTerm}
         />
       )}
+
+      {/* Modal de Confirmação */}
+      <ConfirmationModal
+        isOpen={confirmModal.isOpen}
+        onClose={closeConfirmModal}
+        onConfirm={handleConfirmAction}
+        title={
+          confirmModal.type === 'delete' ? 'Excluir Militar' :
+          'Dar Baixa na Cautela'
+        }
+        message={
+          confirmModal.type === 'delete' 
+            ? `Tem certeza que deseja excluir permanentemente o militar "${confirmModal.data?.name}"? Esta ação não pode ser desfeita.`
+            : `Tem certeza que deseja dar baixa na cautela ${confirmModal.data?.cautela_number}? Os ativos serão retornados ao almoxarifado.`
+        }
+        confirmText={
+          confirmModal.type === 'delete' ? 'Excluir' : 'Dar Baixa'
+        }
+        type={
+          confirmModal.type === 'delete' ? 'danger' : 'warning'
+        }
+        requireJustification={true}
+        justificationLabel={
+          confirmModal.type === 'delete' 
+            ? 'Justificativa para exclusão'
+            : 'Motivo da baixa'
+        }
+        justificationPlaceholder={
+          confirmModal.type === 'delete'
+            ? 'Ex: Transferência, desligamento, correção de dados, etc.'
+            : 'Ex: Devolução programada, transferência, fim de uso, etc.'
+        }
+      />
     </div>
   );
 };

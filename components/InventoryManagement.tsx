@@ -3,7 +3,7 @@ import { Asset, AssetStatus, MilitaryUser, InventoryRecord, InventoryAsset, Sect
 import { inventoryApi } from '../services/api';
 import QrScannerModal from './QrScannerModal';
 import InventoryDetailsModal from './InventoryDetailsModal';
-import ReopenInventoryModal from './ReopenInventoryModal';
+import ConfirmationModal from './ConfirmationModal';
 
 type ActiveInventorySession = {
   id: number;
@@ -103,11 +103,20 @@ const InventoryManagement: React.FC<InventoryManagementProps> = ({ assets, setAs
   const [activeSession, setActiveSession] = useState<ActiveInventorySession | null>(null);
   const [isStartModalOpen, setIsStartModalOpen] = useState(false);
   const [viewingRecord, setViewingRecord] = useState<InventoryRecord | null>(null);
-  const [reopeningRecord, setReopeningRecord] = useState<InventoryRecord | null>(null);
   const [scannedCode, setScannedCode] = useState('');
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [manualUncatalogued, setManualUncatalogued] = useState<string>('');
   const [sectorFilter, setSectorFilter] = useState<string>('all');
+
+  // Estados para modais de confirmação
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    type: 'finish' | 'reopen' | 'delete' | 'discard';
+    data?: any;
+  }>({
+    isOpen: false,
+    type: 'finish'
+  });
 
   const [editingAsset, setEditingAsset] = useState<InventoryAsset | null>(null);
   const [observingAsset, setObservingAsset] = useState<InventoryAsset | null>(null);
@@ -346,9 +355,17 @@ const InventoryManagement: React.FC<InventoryManagementProps> = ({ assets, setAs
     }
   };
 
-  const handleFinishInventory = async () => {
+  const handleFinishInventory = () => {
     if (!activeSession) return;
-    if (!window.confirm("Tem certeza que deseja concluir este inventário?")) return;
+    setConfirmModal({
+      isOpen: true,
+      type: 'finish',
+      data: activeSession
+    });
+  };
+
+  const handleConfirmFinishInventory = async () => {
+    if (!activeSession) return;
 
     try {
       // Preparar dados para conclusão
@@ -392,56 +409,69 @@ const InventoryManagement: React.FC<InventoryManagementProps> = ({ assets, setAs
       alert('Inventário concluído com sucesso!');
     } catch (error) {
       console.error('Erro ao concluir inventário:', error);
-      alert('Erro ao concluir inventário. Tente novamente.');
+      throw error; // Para ser tratado pelo modal
     }
   };
 
   const handleDiscardAndExit = () => {
     if (!activeSession) return;
-    if (window.confirm("Tem certeza que deseja sair? O progresso não salvo nesta sessão será perdido.")) {
-      if (activeSession.isNew) {
-        setInventoryRecords(prev => prev.filter(rec => rec.id !== activeSession.id));
-      }
-      setActiveSession(null);
+    setConfirmModal({
+      isOpen: true,
+      type: 'discard',
+      data: activeSession
+    });
+  };
+
+  const handleConfirmDiscardAndExit = async () => {
+    if (!activeSession) return;
+    
+    if (activeSession.isNew) {
+      setInventoryRecords(prev => prev.filter(rec => rec.id !== activeSession.id));
     }
+    setActiveSession(null);
   };
 
   const handleReopenRequest = (record: InventoryRecord) => {
     setViewingRecord(null);
-    setReopeningRecord(record);
+    setConfirmModal({
+      isOpen: true,
+      type: 'reopen',
+      data: record
+    });
   };
 
-  const handleConfirmReopen = (justification: string) => {
-    if (!reopeningRecord) return;
-    const reopenedByUserId = 1; // Assuming user ID 1 for now
+  const handleConfirmReopen = async (justification?: string) => {
+    const record = confirmModal.data;
+    if (!record || !justification) return;
 
-    let reopenedRecordForSession: InventoryRecord | null = null;
+    try {
+      // Usar a API existente para reabertura
+      await inventoryApi.reopen(record.id.toString(), {
+        userId: '1', // TODO: usar ID do usuário logado
+        justification: justification
+      });
 
-    setInventoryRecords(prev => prev.map(rec => {
-        if (rec.id === reopeningRecord.id) {
-            reopenedRecordForSession = {
-                ...rec,
-                status: 'Reaberto',
-                completionDate: undefined, // Clear completion date on reopen
-                reopenHistory: [
-                    ...(rec.reopenHistory || []),
-                    {
-                        reopenDate: new Date().toISOString(),
-                        reopenedByUserId: reopenedByUserId,
-                        justification: justification,
-                    }
-                ]
-            };
-            return reopenedRecordForSession;
-        }
-        return rec;
-    }));
-
-    if (reopenedRecordForSession) {
-        handleContinueInventory(reopenedRecordForSession);
+      // Após reabertura bem-sucedida, continuar com o inventário reaberto
+      alert('Inventário reaberto com sucesso!');
+      
+      // Atualizar o status local e continuar o inventário
+      const reopenedRecord = {
+        ...record,
+        status: 'Reaberto' as any,
+        end_date: undefined
+      };
+      
+      setInventoryRecords(prev => prev.map(rec => 
+        rec.id === record.id ? reopenedRecord : rec
+      ));
+      
+      // Continuar o inventário
+      handleContinueInventory(reopenedRecord);
+      
+    } catch (error) {
+      console.error('Erro ao reabrir inventário:', error);
+      throw error; // Para ser tratado pelo modal
     }
-
-    setReopeningRecord(null);
   };
 
     const handleSaveAsset = (updatedAsset: Asset) => {
@@ -474,17 +504,51 @@ const InventoryManagement: React.FC<InventoryManagementProps> = ({ assets, setAs
         setObservingAsset(null);
     };
 
-    const handleDeleteRecord = async (recordId: number) => {
-        if (window.confirm("Tem certeza que deseja apagar permanentemente este registro de inventário? Esta ação não pode ser desfeita.")) {
-          try {
-            await inventoryApi.delete(recordId.toString());
-            setInventoryRecords(prev => prev.filter(rec => rec.id !== recordId));
-            alert('Inventário excluído com sucesso!');
-          } catch (error) {
-            console.error('Erro ao excluir inventário:', error);
-            alert('Erro ao excluir inventário. Tente novamente.');
-          }
+    const handleDeleteRecord = (record: InventoryRecord) => {
+        setConfirmModal({
+          isOpen: true,
+          type: 'delete',
+          data: record
+        });
+    };
+
+    const handleConfirmDeleteRecord = async (justification?: string) => {
+        const record = confirmModal.data;
+        if (!record) return;
+
+        try {
+          await inventoryApi.delete(record.id.toString());
+          setInventoryRecords(prev => prev.filter(rec => rec.id !== record.id));
+          alert('Inventário excluído com sucesso!');
+        } catch (error) {
+          console.error('Erro ao excluir inventário:', error);
+          throw error; // Para ser tratado pelo modal
         }
+    };
+
+    // Função principal para lidar com confirmações
+    const handleConfirmAction = async (justification?: string) => {
+      switch (confirmModal.type) {
+        case 'finish':
+          await handleConfirmFinishInventory();
+          break;
+        case 'reopen':
+          await handleConfirmReopen(justification);
+          break;
+        case 'delete':
+          await handleConfirmDeleteRecord(justification);
+          break;
+        case 'discard':
+          await handleConfirmDiscardAndExit();
+          break;
+      }
+    };
+
+    const closeConfirmModal = () => {
+      setConfirmModal({
+        isOpen: false,
+        type: 'finish'
+      });
     };
 
   // --- Bulk Actions Handlers ---
@@ -787,7 +851,7 @@ const InventoryManagement: React.FC<InventoryManagementProps> = ({ assets, setAs
                             </>
                            )}
                            <button
-                                onClick={() => handleDeleteRecord(record.id)}
+                                onClick={() => handleDeleteRecord(record)}
                                 className="p-2 text-gray-400 rounded-full hover:bg-gray-100 hover:text-red-600"
                                 title="Apagar Inventário"
                             >
@@ -824,12 +888,56 @@ const InventoryManagement: React.FC<InventoryManagementProps> = ({ assets, setAs
         />
       )}
 
-      {reopeningRecord && (
-        <ReopenInventoryModal
-            onConfirm={handleConfirmReopen}
-            onCancel={() => setReopeningRecord(null)}
-        />
-      )}
+      {/* Modal de Confirmação Universal */}
+      <ConfirmationModal
+        isOpen={confirmModal.isOpen}
+        onClose={closeConfirmModal}
+        onConfirm={handleConfirmAction}
+        title={
+          confirmModal.type === 'finish' ? 'Concluir Inventário' :
+          confirmModal.type === 'reopen' ? 'Reabrir Inventário' :
+          confirmModal.type === 'delete' ? 'Excluir Inventário' :
+          'Descartar Progresso'
+        }
+        message={
+          confirmModal.type === 'finish' ? 'Tem certeza que deseja concluir este inventário? Esta ação marcará o inventário como finalizado.' :
+          confirmModal.type === 'reopen' ? 'Tem certeza que deseja reabrir este inventário? Você poderá fazer alterações novamente.' :
+          confirmModal.type === 'delete' ? 'Tem certeza que deseja excluir permanentemente este registro de inventário? Esta ação não pode ser desfeita.' :
+          'Tem certeza que deseja sair? O progresso não salvo nesta sessão será perdido.'
+        }
+        confirmText={
+          confirmModal.type === 'finish' ? 'Concluir' :
+          confirmModal.type === 'reopen' ? 'Reabrir' :
+          confirmModal.type === 'delete' ? 'Excluir' :
+          'Descartar'
+        }
+        type={
+          confirmModal.type === 'finish' ? 'success' :
+          confirmModal.type === 'reopen' ? 'warning' :
+          confirmModal.type === 'delete' ? 'danger' :
+          'warning'
+        }
+        requireJustification={confirmModal.type === 'reopen' || confirmModal.type === 'delete'}
+        justificationLabel={
+          confirmModal.type === 'reopen' ? 'Justificativa para reabertura' :
+          'Justificativa para exclusão'
+        }
+        justificationPlaceholder={
+          confirmModal.type === 'reopen' ? 'Ex: Contagem inicial incompleta, necessidade de incluir novos itens, etc.' :
+          'Ex: Erro na criação, duplicação, correção de dados, etc.'
+        }
+        icon={
+          confirmModal.type === 'finish' ? (
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          ) : confirmModal.type === 'reopen' ? (
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h5M20 20v-5h-5M4 20h5v-5M20 4h-5v5" />
+            </svg>
+          ) : undefined
+        }
+      />
     </div>
   );
 };

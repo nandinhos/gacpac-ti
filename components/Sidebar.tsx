@@ -1,6 +1,7 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from './AuthContext';
+import ConfirmationModal from './ConfirmationModal';
 
 interface SidebarProps {
   setActiveView: (view: string) => void;
@@ -32,11 +33,14 @@ const NavItem: React.FC<{
 
 const Sidebar: React.FC<SidebarProps> = ({ setActiveView, activeView }) => {
   const { user, logout, hasAbility } = useAuth();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const handleLogout = () => {
-    if (window.confirm('Deseja realmente sair do sistema?')) {
-      logout();
-    }
+    setShowLogoutModal(true);
+  };
+
+  const handleConfirmLogout = async () => {
+    logout();
   };
 
   return (
@@ -146,6 +150,23 @@ const Sidebar: React.FC<SidebarProps> = ({ setActiveView, activeView }) => {
           <p>Desenvolvido para excelência.</p>
         </div>
       </div>
+
+      {/* Modal de Confirmação de Logout */}
+      <ConfirmationModal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={handleConfirmLogout}
+        title="Sair do Sistema"
+        message="Tem certeza que deseja sair do sistema? Você precisará fazer login novamente para acessar."
+        confirmText="Sair"
+        cancelText="Cancelar"
+        type="warning"
+        icon={
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+          </svg>
+        }
+      />
     </aside>
   );
 };

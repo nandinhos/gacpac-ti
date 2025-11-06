@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { CustodyLog, MilitaryUser, Asset, AssetStatus } from '../types';
 import QrScannerModal from './QrScannerModal';
 import CustodyDetailsModal from './CustodyDetailsModal';
+import ConfirmationModal from './ConfirmationModal';
 import { custodyApi } from '../services/api';
 
 // A interface para os dados do formulário foi simplificada
@@ -130,6 +131,16 @@ const CustodyManagement: React.FC<{
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [viewingLog, setViewingLog] = useState<CustodyLog | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+
+  // Estados para modais de confirmação
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    type: 'discharge';
+    data?: any;
+  }>({
+    isOpen: false,
+    type: 'discharge'
+  });
   
   const handleSave = async (formData: CustodyFormData) => {
     try {
@@ -153,19 +164,41 @@ const CustodyManagement: React.FC<{
     }
   };
 
-  const handleDischarge = async (logId: string) => {
-    const logToDischarge = custodyLogs.find(l => l.id === logId);
-    if (!logToDischarge) return;
+  const handleDischarge = (log: CustodyLog) => {
+    setConfirmModal({
+      isOpen: true,
+      type: 'discharge',
+      data: log
+    });
+  };
 
-    if (window.confirm(`Tem certeza que deseja dar baixa na cautela ${logToDischarge.cautela_number}? Os ativos serão retornados ao almoxarifado.`)) {
-        try {
-            await custodyApi.checkin(logId, { checkinDate: new Date().toISOString().split('T')[0] });
-            onDataChange(); // Recarrega do backend
-        } catch (error) {
-            console.error('Erro ao dar baixa na cautela:', error);
-            alert('Erro ao dar baixa na cautela. Tente novamente.');
-        }
+  const handleConfirmDischarge = async (justification?: string) => {
+    const log = confirmModal.data;
+    if (!log) return;
+
+    try {
+      await custodyApi.checkin(log.id, { checkinDate: new Date().toISOString().split('T')[0] });
+      onDataChange(); // Recarrega do backend
+      alert('Baixa realizada com sucesso!');
+    } catch (error) {
+      console.error('Erro ao dar baixa na cautela:', error);
+      throw error; // Para ser tratado pelo modal
     }
+  };
+
+  const handleConfirmAction = async (justification?: string) => {
+    switch (confirmModal.type) {
+      case 'discharge':
+        await handleConfirmDischarge(justification);
+        break;
+    }
+  };
+
+  const closeConfirmModal = () => {
+    setConfirmModal({
+      isOpen: false,
+      type: 'discharge'
+    });
   };
 
   const handleUploadSignedTerm = async (logId: string, fileUrl: string) => {
@@ -253,7 +286,7 @@ const CustodyManagement: React.FC<{
                             </button>
                             {!log.checkin_date && (
                                 <button
-                                    onClick={() => handleDischarge(log.id)}
+                                    onClick={() => handleDischarge(log)}
                                     className="p-2 text-gray-400 rounded-full hover:bg-gray-100 hover:text-green-600 focus:outline-none"
                                     title="Dar Baixa na Cautela"
                                 >
@@ -284,10 +317,32 @@ const CustodyManagement: React.FC<{
           user={viewingLog.user!}
           assetsInLog={viewingLog.assets || []}
           onClose={() => setViewingLog(null)}
-          onDischarge={handleDischarge}
+          onDischarge={(logId: string) => {
+            const log = custodyLogs.find(l => l.id === logId);
+            if (log) handleDischarge(log);
+          }}
           onUploadSignedTerm={handleUploadSignedTerm}
         />
       )}
+
+      {/* Modal de Confirmação */}
+      <ConfirmationModal
+        isOpen={confirmModal.isOpen}
+        onClose={closeConfirmModal}
+        onConfirm={handleConfirmAction}
+        title="Dar Baixa na Cautela"
+        message={`Tem certeza que deseja dar baixa na cautela ${confirmModal.data?.cautela_number}? Os ativos serão retornados ao almoxarifado.`}
+        confirmText="Dar Baixa"
+        type="warning"
+        requireJustification={true}
+        justificationLabel="Motivo da baixa"
+        justificationPlaceholder="Ex: Devolução programada, transferência, fim de uso, etc."
+        icon={
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+          </svg>
+        }
+      />
     </div>
   );
 };
