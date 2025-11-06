@@ -12,7 +12,7 @@ services:
     ports:
       - "${MYSQL_HOST_PORT:-53106}:3306"
     volumes:
-    - mysql_data:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
     networks:
       - sgaiti-network
     healthcheck:
@@ -39,45 +39,34 @@ services:
     networks:
       - sgaiti-network
 
-  # Backend API
-  backend:
+  # Laravel + Inertia Application
+  sgaiti:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: sgaiti-backend
+    container_name: sgaiti-app
     restart: always
     ports:
-      - "${BACKEND_HOST_PORT:-5050}:5050"
+      - "${APP_HOST_PORT:-8000}:8000"
     depends_on:
       mysql:
         condition: service_healthy
     volumes:
       - ./backend:/app
-      - uploads:/app/uploads
-    networks:
-      - sgaiti-network
-
-  # Frontend (Nginx serving built React app)
-  frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile.frontend
-      args:
-        VITE_API_URL: ${VITE_API_URL:-http://localhost:5050/api}
-    container_name: sgaiti-frontend
-    restart: always
+      - storage_data:/app/storage
     environment:
-      VITE_API_URL: ${VITE_API_URL:-http://localhost:5050/api}
-    ports:
-      - "${FRONTEND_HOST_PORT:-58100}:80"
-    depends_on:
-      - backend
+      - DB_CONNECTION=mysql
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=${MYSQL_DATABASE:-sgaiti_db}
+      - DB_USERNAME=${MYSQL_USER:-sgaiti_user}
+      - DB_PASSWORD=${MYSQL_PASSWORD:-sgaiti_pass}
     networks:
       - sgaiti-network
 
 volumes:
   mysql_data:
-  uploads:
+  storage_data:
 
 networks:
   sgaiti-network:

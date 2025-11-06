@@ -63,11 +63,15 @@ class InventoryRecord extends Model
         })->filter()->values();
     }
     
-    // Atributo para itens não catalogados como strings simples
+    // Atributo para itens não catalogados - retornar objetos completos
     public function getUncataloguedItemsAttribute()
     {
         return $this->uncataloguedItems()->get()->map(function ($item) {
-            return $item->description;
+            return [
+                'id' => $item->id,
+                'description' => $item->description,
+                'created_at' => $item->created_at,
+            ];
         })->values();
     }
     

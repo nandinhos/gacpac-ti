@@ -229,26 +229,96 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('inventory.store');
 
     Route::get('/inventory/{inventory}', function (\App\Models\InventoryRecord $inventory) {
+        // Se o inventário está concluído, mostrar resumo
+        if ($inventory->status === 'Concluído') {
+            return redirect()->route('inventory.summary', $inventory);
+        }
+        
+        // Se está em andamento, mostrar página de edição
         $inventory->load(['sector', 'responsibleUser']);
 
+        // Buscar todos os assets do escopo
         $allAssetsQuery = \App\Models\Asset::query();
         if ($inventory->sector_id) {
             $allAssetsQuery->where('sector_id', $inventory->sector_id);
         }
         $allAssetsInScope = $allAssetsQuery->get();
 
-        $foundAssetIds = $inventory->assets()->pluck('assets.id');
-        $pendingAssets = $allAssetsInScope->whereNotIn('id', $foundAssetIds);
-        $foundAssets = $allAssetsInScope->whereIn('id', $foundAssetIds);
+        // Buscar assets já encontrados neste inventário
+        $foundAssetIds = $inventory->inventoryAssets()->pluck('asset_id')->toArray();
+        
+        // Separar pendentes e encontrados
+        $pendingAssets = $allAssetsInScope->whereNotIn('id', $foundAssetIds)->values();
+        $foundAssets = $allAssetsInScope->whereIn('id', $foundAssetIds)->values();
+        
+        // Buscar itens não catalogados
         $uncataloguedItems = $inventory->uncataloguedItems()->get();
 
         return Inertia::render('Inventory/Show', [
             'inventory' => $inventory,
-            'pendingAssets' => $pendingAssets,
-            'foundAssets' => $foundAssets,
-            'uncataloguedItems' => $uncataloguedItems,
+            'pendingAssets' => $pendingAssets->toArray(),
+            'foundAssets' => $foundAssets->toArray(),
+            'uncataloguedItems' => $uncataloguedItems->toArray(),
         ]);
     })->name('inventory.show');
+
+    // Rota para resumo de inventários concluídos
+    Route::get('/inventory/{inventory}/summary', function (\App\Models\InventoryRecord $inventory) {
+        $inventory->load(['sector', 'responsibleUser']);
+
+        // Buscar todos os assets do escopo
+        $allAssetsQuery = \App\Models\Asset::query();
+        if ($inventory->sector_id) {
+            $allAssetsQuery->where('sector_id', $inventory->sector_id);
+        }
+        $allAssetsInScope = $allAssetsQuery->get();
+
+        // Buscar assets já encontrados neste inventário
+        $foundAssetIds = $inventory->inventoryAssets()->pluck('asset_id')->toArray();
+        
+        // Separar pendentes e encontrados
+        $pendingAssets = $allAssetsInScope->whereNotIn('id', $foundAssetIds)->values();
+        $foundAssets = $allAssetsInScope->whereIn('id', $foundAssetIds)->values();
+        
+        // Buscar itens não catalogados
+        $uncataloguedItems = $inventory->uncataloguedItems()->get();
+
+        return Inertia::render('Inventory/Summary', [
+            'inventory' => $inventory,
+            'pendingAssets' => $pendingAssets->toArray(),
+            'foundAssets' => $foundAssets->toArray(),
+            'uncataloguedItems' => $uncataloguedItems->toArray(),
+        ]);
+    })->name('inventory.summary');
+
+    // Rota para gerar relatório de impressão
+    Route::get('/inventory/{inventory}/print', function (\App\Models\InventoryRecord $inventory) {
+        $inventory->load(['sector', 'responsibleUser']);
+
+        // Buscar todos os assets do escopo
+        $allAssetsQuery = \App\Models\Asset::query();
+        if ($inventory->sector_id) {
+            $allAssetsQuery->where('sector_id', $inventory->sector_id);
+        }
+        $allAssetsInScope = $allAssetsQuery->get();
+
+        // Buscar assets já encontrados neste inventário
+        $foundAssetIds = $inventory->inventoryAssets()->pluck('asset_id')->toArray();
+        
+        // Separar pendentes e encontrados
+        $pendingAssets = $allAssetsInScope->whereNotIn('id', $foundAssetIds)->values();
+        $foundAssets = $allAssetsInScope->whereIn('id', $foundAssetIds)->values();
+        
+        // Buscar itens não catalogados
+        $uncataloguedItems = $inventory->uncataloguedItems()->get();
+
+        return Inertia::render('Inventory/PrintReport', [
+            'inventory' => $inventory,
+            'pendingAssets' => $pendingAssets->toArray(),
+            'foundAssets' => $foundAssets->toArray(),
+            'uncataloguedItems' => $uncataloguedItems->toArray(),
+        ]);
+    })->name('inventory.printReport');
 
     Route::put('/inventory/{inventory}', function (\Illuminate\Http\Request $request, \App\Models\InventoryRecord $inventory) {
         $validated = $request->validate([
@@ -291,6 +361,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         $item->delete();
         return redirect()->route('inventory.show', $inventory);
     })->name('inventory.removeUncatalogued');
+
+    Route::put('/inventory/{inventory}/uncatalogued/{item}', function (\Illuminate\Http\Request $request, \App\Models\InventoryRecord $inventory, \App\Models\UncataloguedItem $item) {
+        $validated = $request->validate(['description' => 'required|string']);
+        $item->update(['description' => $validated['description']]);
+        return redirect()->route('inventory.show', $inventory);
+    })->name('inventory.editUncatalogued');
 
     Route::post('/inventory/{inventory}/bulk-find', function (\Illuminate\Http\Request $request, \App\Models\InventoryRecord $inventory) {
         $validated = $request->validate([
@@ -348,19 +424,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ]);
         });
 
-        return redirect()->route('inventory.index')->with('success', 'Inventário reaberto com sucesso!');
+        return redirect()->route('inventory.show', $inventory)->with('success', 'Inventário reaberto com sucesso! Agora você pode fazer edições.');
     })->name('inventory.reopen');
 
-
-    // Sectors Management
-    Route::get('/sectors', function () {
-        return Inertia::render('Sectors/Index');
-    })->name('sectors.index');
-
-    // Users Management
-    Route::get('/users', function () {
-        return Inertia::render('Users/Index');
-    })->name('users.index');
 
     // Reports
     Route::get('/reports', function () {
@@ -426,7 +492,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return redirect()->route('sectors.index')->with('success', 'Setor excluído com sucesso!');
     })->name('sectors.destroy');
 
-    // Users Management
+    // Users Management  
     Route::get('/users', function () {
         $users = \App\Models\MilitaryUser::with('sector')
             ->orderBy('name')

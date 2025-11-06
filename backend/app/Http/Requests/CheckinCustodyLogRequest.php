@@ -22,7 +22,7 @@ class CheckinCustodyLogRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'checkinDate.required' => 'A data de devolução (check-in) é obrigatória.',
+            'checkinDate.required' => 'A data de devolução (check-out) é obrigatória.',
         ];
     }
 

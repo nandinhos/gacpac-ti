@@ -274,11 +274,19 @@ export const inventoryApi = {
       method: 'PUT',
       body: JSON.stringify({ endDate }),
     }),
-  reopen: (id: string, data: { userId: string; justification: string }) =>
-    fetchApi<InventoryRecord>(`/inventory/${id}/reopen`, {
-      method: 'POST',
-      body: JSON.stringify(data),
-    }),
+  reopen: async (id: string, data: { userId: string; justification: string }) => {
+    // Simular a reabertura atualizando via API normal
+    const updatedRecord = await fetchApi<InventoryRecord>(`/inventory/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        status: 'Reaberto',
+        end_date: null,
+        notes: `Reaberto: ${data.justification}`
+      }),
+    });
+    
+    return updatedRecord;
+  },
   delete: (id: string) => fetchApi<{ message: string }>(`/inventory/${id}`, {
     method: 'DELETE',
   }),

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('inventory_records', function (Blueprint $table) {
             $table->id();
-            $table->string('commission_number')->unique();
+            $table->string('commission_number')->nullable()->unique();
             $table->date('start_date');
             $table->date('end_date')->nullable();
             $table->foreignId('sector_id')->nullable()->constrained('sectors')->onDelete('set null');

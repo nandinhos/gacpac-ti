@@ -1,31 +1,33 @@
-# AGENTS.md - SGAITI-UM Development Guide
+# AGENTS.md - SGAITI-UM Development Guide (Laravel + Inertia)
 
 ## Build/Lint/Test Commands
-- **Frontend**: `npm run dev` (dev), `npm run build` (build), `npm run preview` (preview)
-- **Backend**: `cd backend && npm run dev` (dev), `npm start` (prod), `npm run seed` (seed data)
+- **Development**: `cd backend && composer run dev` (runs Laravel serve + Vite + Queue + Logs)
+- **Build**: `cd backend && npm run build` (build Vite assets)
+- **Tests**: `cd backend && php artisan test` (PHPUnit tests)
+- **Database**: `cd backend && php artisan migrate` (run migrations), `php artisan db:seed` (seed data)
 - **Docker**: `docker-compose up -d` (start all), `docker-compose down` (stop), `docker-compose logs -f` (logs)
-- **No tests implemented** - Jest planned for unit tests, Cypress for E2E
 
 ## Architecture Overview
-- **Frontend**: React 19 + TypeScript SPA with Vite, Tailwind CSS, prop-drilling state management
-- **Backend**: Node.js + Express API with MySQL 8.0, REST endpoints at `/api`
-- **Database**: MySQL with entities: sectors, users, assets, custody_logs, inventory_records
-- **Docker**: Full-stack orchestration with separate containers for frontend, backend, database
-- **Path alias**: `@/` maps to project root for imports
+- **Frontend**: Inertia.js + React 18 + TypeScript with Laravel Vite, Tailwind CSS
+- **Backend**: Laravel 12 + Sanctum Auth + MySQL 8.0, Inertia responses
+- **Database**: MySQL with entities: sectors, military_users, assets, custody_logs, inventory_records
+- **Docker**: Laravel + MySQL + phpMyAdmin orchestration
+- **Path alias**: Laravel standard paths, Inertia page components in `resources/js/Pages/`
 
 ## Code Style Guidelines
-- **Imports**: Use `@/` alias (e.g., `import { Asset } from '@/types'`)
-- **Types**: Centralized in `types.ts`, enums use Portuguese for military context
+- **Controllers**: Laravel controllers in `app/Http/Controllers/`, return Inertia responses
+- **Models**: Eloquent models in `app/Models/`, relationships and business logic
+- **Views**: Inertia pages in `resources/js/Pages/`, React components with TypeScript
+- **Routes**: Web routes in `routes/web.php`, API routes in `routes/api.php`
 - **Language**: Portuguese for UI/military terms, English for code/comments
-- **State**: All state managed in App.tsx, passed down as props
-- **Components**: Views in `components/`, services in `services/`, backend routes in `backend/routes/`
-- **Naming**: camelCase for variables, PascalCase for components/types, snake_case for DB fields
-- **Error handling**: Try-catch blocks, console.error for logging, user-friendly Portuguese messages
+- **Naming**: camelCase for variables, PascalCase for components, snake_case for DB fields
+- **Error handling**: Laravel exceptions, validation rules, user-friendly Portuguese messages
 
 ## Melhores Práticas
-- **CORS Configuration**: Sempre expanda as origens permitidas no `backend/server.js` para incluir endereços locais como `http://127.0.0.1:8100` durante o desenvolvimento, para evitar erros de CORS ao testar com diferentes portas.
-- **Tailwind CSS Setup**: Use instalação local do Tailwind CSS, não CDN. Configure `postcss.config.js` com sintaxe ES module (`export default`). Adicione diretivas `@tailwind` em `src/index.css`. Atualize `tailwind.config.js` com caminhos corretos dos arquivos (e.g., `./src/**/*.{js,ts,jsx,tsx}`). Remova referências ao CDN no `index.html`.
-- **Image Upload Handling**: No backend, garanta conversão correta de Buffer para Base64 para armazenamento e exibição de imagens. No frontend, chame `onDataChange()` após atualizações de detalhes/fotos para forçar o recarregamento dos dados e refletir mudanças imediatamente.
-- **API URLs in Production**: No `docker-compose.yml`, use `http://localhost:5050/api` como URL da API no build do frontend para produção, garantindo que o container acesse o backend corretamente via porta exposta.
-- **Seed Data**: Mantenha dados de teste no `backend/scripts/seed.js` para facilitar o desenvolvimento e testes, incluindo registros de cautelas (`custody_logs` e `custody_assets`).
-- **Desenvolvimento Iterativo**: Para mudanças rápidas no código, copie os arquivos alterados diretamente para o container em execução usando `docker cp` (evite rebuilds desnecessários). Rebuilde assets localmente com `npm run build` e copie a pasta `dist` para `/usr/share/nginx/html` no frontend. Para backend, copie arquivos individuais (e.g., `docker cp ./backend/routes/custody.js sgaiti-backend:/app/routes/custody.js`) e aproveite o hot-reload do nodemon.
+- **Laravel Environment**: Configure `.env` com variáveis do banco MySQL no Docker. Use `php artisan key:generate` para gerar APP_KEY.
+- **Inertia.js Setup**: Assets do frontend são compilados pelo Vite Laravel. Configure `vite.config.js` para React e Inertia. Use `npm run dev` durante desenvolvimento.
+- **Database**: Execute `php artisan migrate` para criar tabelas. Use `php artisan db:seed` para popular dados de teste.
+- **Authentication**: Sistema usa Laravel Sanctum para autenticação de usuários militares com roles (admin, commission, user).
+- **File Uploads**: Use Laravel Storage para upload de imagens de assets. Configuração em `config/filesystems.php`.
+- **Desenvolvimento Docker**: Use `docker-compose up -d` para ambiente completo. Laravel roda na porta 8000, MySQL na 53106, phpMyAdmin na 58090.
+- **Testing**: Execute `php artisan test` para rodar testes PHPUnit. Factories disponíveis para todos os models principais.

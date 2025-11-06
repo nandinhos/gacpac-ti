@@ -1,5 +1,66 @@
 # 🔍 LIÇÕES APRENDIDAS - ERROS COMUNS E SOLUÇÕES
 
+> **🔄 Atualizado:** 2025-11-06 - Incluídos erros Docker + Laravel + Inertia
+
+## 🚨 **ERROS CRÍTICOS DOCKER + LARAVEL** (NOVOS)
+
+### **1. Configuração Database Host/Port Incorreta**
+
+#### ❌ **Erro:**
+```
+SQLSTATE[HY000] [2002] getaddrinfo for mysql failed: Name does not resolve
+SQLSTATE[HY000] [2002] Connection refused
+```
+
+#### 🎯 **Causa:**
+Misturar configurações local e Docker no mesmo .env
+
+#### ✅ **Solução:**
+```bash
+# DESENVOLVIMENTO LOCAL
+DB_HOST=127.0.0.1
+DB_PORT=53106
+
+# CONTAINER DOCKER  
+DB_HOST=mysql
+DB_PORT=3306
+
+# Script automático
+./scripts/switch-env.sh local   # Para desenvolvimento
+./scripts/switch-env.sh docker  # Para testes Docker
+```
+
+### **2. Permissões Storage Laravel**
+
+#### ❌ **Erro:**
+```
+file_put_contents(storage/framework/views/...): Permission denied
+```
+
+#### ✅ **Solução:**
+```bash
+# Opção 1: Cache temporário
+VIEW_COMPILED_PATH=/tmp/laravel_views
+
+# Opção 2: Logs stderr
+LOG_CHANNEL=stderr
+```
+
+### **3. Commission Number Constraint**
+
+#### ❌ **Erro:**
+```
+SQLSTATE[23000]: Column 'commission_number' cannot be null
+```
+
+#### ✅ **Solução:**
+```php
+// Migration corrigida
+$table->string('commission_number')->nullable()->unique();
+```
+
+---
+
 ## 🚨 ERROS CRÍTICOS IDENTIFICADOS
 
 ### **1. INCONSISTÊNCIAS EM RELACIONAMENTOS E CHAVES ESTRANGEIRAS**
