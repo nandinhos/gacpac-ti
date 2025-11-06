@@ -1,16 +1,8 @@
 // components/AssetDetailsModal.tsx
-import React, { useState, useCallback } from 'react';
-import { Asset, Sector, MilitaryUser } from '../types';
-
-interface PhotoCarouselProps {
-  photos: string[];
-  onAddPhotos: (newPhotos: string[]) => void;
-  onDeletePhoto: (index: number) => void;
-}
-
 import React, { useState, useCallback, useEffect } from 'react';
 import { Asset, Sector, MilitaryUser, AssetPhoto } from '../types';
 import { assetsApi } from '../services/api';
+import ConfirmationModal from './ConfirmationModal';
 
 interface PhotoCarouselProps {
   assetId: string;
@@ -21,6 +13,7 @@ interface PhotoCarouselProps {
 const PhotoCarousel: React.FC<PhotoCarouselProps> = ({ assetId, photos, onPhotoChange }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   
   // Garantir que photos seja sempre um array
   const safePhotos = photos || [];
@@ -76,19 +69,22 @@ const PhotoCarousel: React.FC<PhotoCarouselProps> = ({ assetId, photos, onPhotoC
     }
   };
   
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (safePhotos.length === 0) return;
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
     const photoToDelete = safePhotos[currentIndex];
-    if (window.confirm('Tem certeza que deseja excluir esta foto?')) {
-        try {
-            await assetsApi.deletePhoto(assetId, photoToDelete.id);
-            onPhotoChange();
-        } catch (error) {
-            console.error("Erro ao excluir foto:", error);
-            alert("Falha ao excluir foto.");
-        }
+    try {
+        await assetsApi.deletePhoto(assetId, photoToDelete.id);
+        onPhotoChange();
+        alert("Foto excluída com sucesso!");
+    } catch (error) {
+        console.error("Erro ao excluir foto:", error);
+        throw error; // Para ser tratado pelo modal
     }
-  }
+  };
 
   return (
     <div className="w-full">
@@ -143,6 +139,20 @@ const PhotoCarousel: React.FC<PhotoCarouselProps> = ({ assetId, photos, onPhotoC
               disabled={isUploading}
             />
         </div>
+
+        {/* Modal de Confirmação para Exclusão de Foto */}
+        <ConfirmationModal
+          isOpen={showDeleteModal}
+          onClose={() => setShowDeleteModal(false)}
+          onConfirm={handleConfirmDelete}
+          title="Excluir Foto"
+          message={`Tem certeza que deseja excluir esta foto? Esta ação não pode ser desfeita.`}
+          confirmText="Excluir"
+          type="danger"
+          requireJustification={true}
+          justificationLabel="Motivo da exclusão"
+          justificationPlaceholder="Ex: Foto incorreta, duplicada, sem qualidade, etc."
+        />
     </div>
   );
 };

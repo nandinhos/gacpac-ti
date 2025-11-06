@@ -1,7 +1,29 @@
 import SGAITILayout from '@/Layouts/SGAITILayout';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
+import { useState } from 'react';
+import ConfirmationModal from '@/Components/ConfirmationModal';
 
 export default function Index({ users }) {
+    const [modalState, setModalState] = useState({ isOpen: false, type: null, user: null });
+
+    const openModal = (type, user) => {
+        setModalState({ isOpen: true, type, user });
+    };
+
+    const closeModal = () => {
+        setModalState({ isOpen: false, type: null, user: null });
+    };
+
+    const handleConfirm = (justification) => {
+        if (!modalState.user) return;
+
+        if (modalState.type === 'delete') {
+            router.delete(route('users.destroy', modalState.user.id), { 
+                data: { justification } 
+            });
+        }
+        closeModal();
+    };
     const getRoleLabel = (role) => {
         switch (role) {
             case 'ADMIN':
@@ -55,7 +77,7 @@ export default function Index({ users }) {
                 </div>
             }
         >
-            <Head title="Usuários - SGAITI" />
+            <Head title="Usuários - SGTI-GAC" />
 
             <div className="py-6">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -340,11 +362,7 @@ export default function Index({ users }) {
                                                             <button
                                                                 className="inline-flex items-center p-2 text-red-600 hover:text-red-900 hover:bg-red-50 rounded-md transition-colors"
                                                                 title="Excluir usuário"
-                                                                onClick={() => {
-                                                                    if (confirm('Tem certeza que deseja excluir este usuário?')) {
-                                                                        // Implementar exclusão
-                                                                    }
-                                                                }}
+                                                                onClick={() => openModal('delete', user)}
                                                             >
                                                                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -385,6 +403,19 @@ export default function Index({ users }) {
                     </div>
                 </div>
             </div>
+            
+            <ConfirmationModal 
+                isOpen={modalState.isOpen} 
+                onClose={closeModal} 
+                onConfirm={handleConfirm} 
+                title="Excluir Usuário"
+                message={`Tem certeza que deseja excluir permanentemente o usuário "${modalState.user?.name}"? Esta ação não pode ser desfeita.`}
+                confirmText="Excluir"
+                type="danger"
+                requireJustification={true}
+                justificationLabel="Justificativa para exclusão"
+                justificationPlaceholder="Ex: Transferência, desligamento, correção de dados, etc."
+            />
         </SGAITILayout>
     );
 }

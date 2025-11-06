@@ -2,8 +2,9 @@
 
 namespace Tests\Feature\Auth;
 
-use App\Models\User;
+use App\Models\MilitaryUser as User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class AuthenticationTest extends TestCase
@@ -12,7 +13,9 @@ class AuthenticationTest extends TestCase
 
     public function test_login_screen_can_be_rendered(): void
     {
-        $response = $this->get('/login');
+        // This test is for web routes, but the app is an API.
+        // We can check if the API is alive instead.
+        $response = $this->get('/api/health');
 
         $response->assertStatus(200);
     }
@@ -21,34 +24,34 @@ class AuthenticationTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->post('/login', [
-            'email' => $user->email,
+        $response = $this->postJson('/api/login', [
+            'military_id' => $user->military_id,
             'password' => 'password',
         ]);
 
-        $this->assertAuthenticated();
-        $response->assertRedirect(route('dashboard', absolute: false));
+        $response->assertStatus(200)
+                 ->assertJsonStructure(['user', 'token', 'abilities']);
     }
 
     public function test_users_can_not_authenticate_with_invalid_password(): void
     {
         $user = User::factory()->create();
 
-        $this->post('/login', [
-            'email' => $user->email,
+        $response = $this->postJson('/api/login', [
+            'military_id' => $user->military_id,
             'password' => 'wrong-password',
         ]);
 
-        $this->assertGuest();
+        $response->assertStatus(401);
     }
 
     public function test_users_can_logout(): void
     {
         $user = User::factory()->create();
+        Sanctum::actingAs($user);
 
-        $response = $this->actingAs($user)->post('/logout');
+        $response = $this->postJson('/api/logout');
 
-        $this->assertGuest();
-        $response->assertRedirect('/');
+        $response->assertStatus(200);
     }
 }

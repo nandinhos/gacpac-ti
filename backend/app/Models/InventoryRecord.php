@@ -40,6 +40,11 @@ class InventoryRecord extends Model
         return $this->hasMany(InventoryAsset::class, 'inventory_id');
     }
 
+    public function assets()
+    {
+        return $this->belongsToMany(Asset::class, 'inventory_assets', 'inventory_id', 'asset_id');
+    }
+
     public function uncataloguedItems()
     {
         return $this->hasMany(UncataloguedItem::class, 'inventory_id');
@@ -58,11 +63,15 @@ class InventoryRecord extends Model
         })->filter()->values();
     }
     
-    // Atributo para itens não catalogados como strings simples
+    // Atributo para itens não catalogados - retornar objetos completos
     public function getUncataloguedItemsAttribute()
     {
         return $this->uncataloguedItems()->get()->map(function ($item) {
-            return $item->description;
+            return [
+                'id' => $item->id,
+                'description' => $item->description,
+                'created_at' => $item->created_at,
+            ];
         })->values();
     }
     
@@ -111,6 +120,6 @@ class InventoryRecord extends Model
 
     public function reopenHistory()
     {
-        return $this->hasMany(ReopenHistory::class);
+        return $this->hasMany(ReopenHistory::class, 'inventory_id');
     }
 }

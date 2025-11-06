@@ -1,6 +1,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { Sector, Asset, MilitaryUser } from '../types';
+import ConfirmationModal from './ConfirmationModal';
 
 const SectorForm: React.FC<{
   sector: Partial<Sector> | null;
@@ -76,6 +77,16 @@ const SectorManagement: React.FC<{
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingSector, setEditingSector] = useState<Partial<Sector> | null>(null);
 
+  // Estados para modais de confirmação
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    type: 'delete';
+    data?: any;
+  }>({
+    isOpen: false,
+    type: 'delete'
+  });
+
   const handleAdd = () => {
     setEditingSector(null);
     setIsFormOpen(true);
@@ -86,9 +97,24 @@ const SectorManagement: React.FC<{
     setIsFormOpen(true);
   };
 
-  const handleDelete = (id: number) => {
-    if (window.confirm('Tem certeza que deseja excluir este setor?')) {
-      setSectors(sectors.filter(s => s.id !== id));
+  const handleDelete = (sector: Sector) => {
+    setConfirmModal({
+      isOpen: true,
+      type: 'delete',
+      data: sector
+    });
+  };
+
+  const handleConfirmDelete = async (justification?: string) => {
+    const sector = confirmModal.data;
+    if (!sector) return;
+
+    try {
+      setSectors(sectors.filter(s => s.id !== sector.id));
+      alert('Setor excluído com sucesso!');
+    } catch (error) {
+      console.error('Erro ao excluir setor:', error);
+      throw error; // Para ser tratado pelo modal
     }
   };
 
@@ -100,6 +126,22 @@ const SectorManagement: React.FC<{
     }
     setIsFormOpen(false);
     setEditingSector(null);
+  };
+
+  // Função principal para lidar com confirmações
+  const handleConfirmAction = async (justification?: string) => {
+    switch (confirmModal.type) {
+      case 'delete':
+        await handleConfirmDelete(justification);
+        break;
+    }
+  };
+
+  const closeConfirmModal = () => {
+    setConfirmModal({
+      isOpen: false,
+      type: 'delete'
+    });
   };
   
   const lastSectorId = useMemo(() => sectors.reduce((max, s) => s.id > max ? s.id : max, 0), [sectors]);
@@ -155,7 +197,7 @@ const SectorManagement: React.FC<{
                               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.586a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                           </button>
                           <button 
-                              onClick={() => handleDelete(sector.id)}
+                              onClick={() => handleDelete(sector)}
                               className="p-2 text-gray-500 rounded-lg hover:bg-rose-100 hover:text-rose-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 transition-colors"
                               title="Excluir Setor"
                           >
@@ -179,6 +221,20 @@ const SectorManagement: React.FC<{
           lastSectorId={lastSectorId}
         />
       )}
+
+      {/* Modal de Confirmação */}
+      <ConfirmationModal
+        isOpen={confirmModal.isOpen}
+        onClose={closeConfirmModal}
+        onConfirm={handleConfirmAction}
+        title="Excluir Setor"
+        message={`Tem certeza que deseja excluir permanentemente o setor "${confirmModal.data?.name}"? Esta ação não pode ser desfeita.`}
+        confirmText="Excluir"
+        type="danger"
+        requireJustification={true}
+        justificationLabel="Justificativa para exclusão"
+        justificationPlaceholder="Ex: Setor extinto, reorganização, correção de dados, etc."
+      />
     </div>
   );
 };

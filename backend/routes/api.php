@@ -26,43 +26,40 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('dashboard/stats', [App\Http\Controllers\DashboardController::class, 'getStats']);
 
     // Custody routes (all authenticated users can view, based on role)
-    Route::get('custody', [App\Http\Controllers\CustodyLogController::class, 'index'])->middleware('ability:view:custody');
-    Route::get('custody/{id}', [App\Http\Controllers\CustodyLogController::class, 'show'])->middleware('ability:view:custody');
+    Route::get('custody', [App\Http\Controllers\CustodyLogController::class, 'index']);
+    Route::get('custody/{id}', [App\Http\Controllers\CustodyLogController::class, 'show']);
     
     // Admin and Commission routes
-    Route::middleware(['ability:edit:all,create:all'])->group(function () {
-        // Sectors routes
-        Route::apiResource('sectors', App\Http\Controllers\SectorController::class);
-        
-        // Users routes  
-        Route::apiResource('users', App\Http\Controllers\MilitaryUserController::class);
-        Route::get('users/active', [App\Http\Controllers\MilitaryUserController::class, 'getActiveUsers']);
-        Route::get('users/sector/{sectorId}', [App\Http\Controllers\MilitaryUserController::class, 'getUsersBySector']);
-        
-        // Assets routes
-        Route::apiResource('assets', App\Http\Controllers\AssetController::class);
-        Route::get('assets/qr/{qrCode}', [App\Http\Controllers\AssetController::class, 'getByQrCode']);
-        Route::get('assets/utils/next-qr-code', [App\Http\Controllers\AssetController::class, 'getNextQrCode']);
-        Route::post('assets/{assetId}/photos', [App\Http\Controllers\AssetController::class, 'addPhoto']);
-        Route::delete('assets/{assetId}/photos/{photoId}', [App\Http\Controllers\AssetController::class, 'deletePhoto']);
-        Route::post('assets/{assetId}/maintenance', [App\Http\Controllers\AssetController::class, 'addMaintenance']);
-        Route::delete('assets/{assetId}/maintenance/{maintenanceId}', [App\Http\Controllers\AssetController::class, 'deleteMaintenance']);
-        
-        // Custody management routes
-        Route::post('custody', [App\Http\Controllers\CustodyLogController::class, 'store']);
-        Route::put('custody/{id}', [App\Http\Controllers\CustodyLogController::class, 'update']);
-        Route::delete('custody/{id}', [App\Http\Controllers\CustodyLogController::class, 'destroy']);
-        Route::get('custody/next-number', [App\Http\Controllers\CustodyLogController::class, 'getNextNumber']);
-        Route::put('custody/{id}/checkin', [App\Http\Controllers\CustodyLogController::class, 'checkin']);
-    });
+    // Sectors routes
+    Route::apiResource('sectors', App\Http\Controllers\SectorController::class);
+    
+    // Users routes  
+    Route::apiResource('users', App\Http\Controllers\MilitaryUserController::class);
+    Route::get('users/active', [App\Http\Controllers\MilitaryUserController::class, 'getActiveUsers']);
+    Route::get('users/sector/{sectorId}', [App\Http\Controllers\MilitaryUserController::class, 'getUsersBySector']);
+    
+    // Assets routes
+    Route::apiResource('assets', App\Http\Controllers\AssetController::class);
+    Route::get('assets/qr/{qrCode}', [App\Http\Controllers\AssetController::class, 'getByQrCode']);
+    Route::get('assets/utils/next-qr-code', [App\Http\Controllers\AssetController::class, 'getNextQrCode']);
+    Route::post('assets/{assetId}/photos', [App\Http\Controllers\AssetController::class, 'addPhoto']);
+    Route::delete('assets/{assetId}/photos/{photoId}', [App\Http\Controllers\AssetController::class, 'deletePhoto']);
+    Route::post('assets/{assetId}/maintenance', [App\Http\Controllers\AssetController::class, 'addMaintenance']);
+    Route::delete('assets/{assetId}/maintenance/{maintenanceId}', [App\Http\Controllers\AssetController::class, 'deleteMaintenance']);
+    
+    // Custody management routes
+    Route::post('custody', [App\Http\Controllers\CustodyLogController::class, 'store']);
+    Route::put('custody/{id}', [App\Http\Controllers\CustodyLogController::class, 'update']);
+    Route::delete('custody/{id}', [App\Http\Controllers\CustodyLogController::class, 'destroy']);
+    Route::get('custody/next-number', [App\Http\Controllers\CustodyLogController::class, 'getNextNumber']);
+    Route::put('custody/{custody}/checkin', [App\Http\Controllers\CustodyLogController::class, 'checkin']);
+    Route::get('custody-reports', [App\Http\Controllers\CustodyLogController::class, 'reports']);
 
     // Inventory routes (Commission and Admin)
-    Route::middleware(['ability:view:inventory,edit:inventory,view:all'])->group(function () {
-        Route::apiResource('inventory', App\Http\Controllers\InventoryRecordController::class);
-        Route::post('inventory/{id}/found', [App\Http\Controllers\InventoryRecordController::class, 'addFoundItem']);
-        Route::post('inventory/{id}/uncatalogued', [App\Http\Controllers\InventoryRecordController::class, 'addUncataloguedItem']);
-        Route::put('inventory/{id}/complete', [App\Http\Controllers\InventoryRecordController::class, 'complete']);
-        Route::post('inventory/{id}/reopen', [App\Http\Controllers\InventoryRecordController::class, 'reopen']);
-        Route::delete('inventory/{id}/uncatalogued/{uncataloguedId}', [App\Http\Controllers\InventoryRecordController::class, 'deleteUncataloguedItem']);
-    });
+    Route::apiResource('inventory', App\Http\Controllers\InventoryRecordController::class);
+    Route::post('inventory/{id}/found', [App\Http\Controllers\InventoryRecordController::class, 'addFoundItem']);
+    Route::post('inventory/{id}/uncatalogued', [App\Http\Controllers\InventoryRecordController::class, 'addUncataloguedItem']);
+    Route::put('inventory/{id}/complete', [App\Http\Controllers\InventoryRecordController::class, 'complete']);
+    Route::post('inventory/{id}/reopen', [App\Http\Controllers\InventoryRecordController::class, 'reopen']);
+    Route::delete('inventory/{id}/uncatalogued/{uncataloguedId}', [App\Http\Controllers\InventoryRecordController::class, 'deleteUncataloguedItem']);
 });

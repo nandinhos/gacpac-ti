@@ -1,6 +1,6 @@
-# SGAITI-UM - Sistema de Gestão de Ativos de TI
+# SGTI-GAC - Sistema de Gestão de TI do GAC-PAC
 
-**Sistema de Gestão de Ativos de TI para Unidades Militares da Força Aérea Brasileira**
+**Sistema de Gestão de TI do GAC-PAC para Unidades Militares da Força Aérea Brasileira**
 
 Sistema completo para gerenciamento de ativos de TI, controle de cautelas, inventários e manutenção de equipamentos, desenvolvido especificamente para as necessidades operacionais das unidades militares da FAB.
 

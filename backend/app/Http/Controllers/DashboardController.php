@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use App\Models\Asset;
 use App\Models\MilitaryUser;
 use App\Models\Sector;
@@ -11,13 +12,22 @@ use App\Models\InventoryRecord;
 
 class DashboardController extends Controller
 {
+    /**
+     * Limpar cache do dashboard quando dados são modificados
+     */
+    private function clearDashboardCache()
+    {
+        Cache::forget('dashboard_stats');
+    }
+
     public function getStats()
     {
-        $assets = Asset::all();
-        $users = MilitaryUser::all();
-        $sectors = Sector::all();
-        $custodyLogs = CustodyLog::all();
-        $inventoryRecords = InventoryRecord::all();
+        return Cache::remember('dashboard_stats', 300, function () { // Cache por 5 minutos
+            $assets = Asset::all();
+            $users = MilitaryUser::all();
+            $sectors = Sector::all();
+            $custodyLogs = CustodyLog::all();
+            $inventoryRecords = InventoryRecord::all();
 
         $totalAssets = $assets->count();
         $assetsByStatus = $assets->groupBy('status')->map->count();
@@ -83,6 +93,7 @@ class DashboardController extends Controller
                 'assets' => $recentAssets->values(),
                 'custody' => $recentCustody->values(),
             ],
-        ]);
+            ]);
+                });
     }
 }
