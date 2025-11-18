@@ -9,6 +9,8 @@ use App\Models\MilitaryUser;
 use App\Http\Requests\StoreInventoryRecordRequest;
 use App\Notifications\InventoryAssignedNotification;
 
+use Illuminate\Support\Facades\Auth;
+
 class InventoryRecordController extends Controller
 {
     public function index(Request $request)
@@ -157,15 +159,31 @@ class InventoryRecordController extends Controller
         return $inventory;
     }
 
-    public function reopen($id, Request $request)
+    public function reopen(Request $request, $id)
     {
         $inventory = InventoryRecord::findOrFail($id);
+        if ($inventory->status !== 'Concluído') {
+            return response()->json(['error' => 'Apenas inventários concluídos podem ser reabertos.'], 422);
+        }
+
+        $request->validate([
+            'justification' => 'required|string|max:1000',
+        ]);
+
         $inventory->status = 'Reaberto';
-        $inventory->end_date = null; // Remover data de conclusão
+        $inventory->end_date = null;
         $inventory->save();
+
+        // Registrar o histórico da reabertura
+        $inventory->reopenHistory()->create([
+            'reopened_by_user_id' => Auth::id(),
+            'justification' => $request->justification,
+            'reopened_at' => now(),
+        ]);
+
         return response()->json([
-            'message' => 'Inventário reaberto com sucesso',
-            'data' => $inventory
+            'message' => 'Inventário reaberto com sucesso!',
+            'data' => $inventory,
         ]);
     }
 

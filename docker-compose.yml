@@ -7,8 +7,8 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-sgaiti_root_pass}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-sgaiti_db}
-      MYSQL_USER: ${MYSQL_USER:-sgaiti_user}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-sgaiti_pass}
+      MYSQL_USER: ${MYSQL_USER:-new_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-new_pass}
     ports:
       - "${MYSQL_HOST_PORT:-53106}:3306"
     volumes:
@@ -28,8 +28,8 @@ services:
     environment:
       PMA_HOST: mysql
       PMA_PORT: 3306
-      PMA_USER: ${MYSQL_USER:-sgaiti_user}
-      PMA_PASSWORD: ${MYSQL_PASSWORD:-sgaiti_pass}
+      PMA_USER: ${MYSQL_USER:-new_user}
+      PMA_PASSWORD: ${MYSQL_PASSWORD:-new_pass}
       UPLOAD_LIMIT: 50M
     ports:
       - "${PHPMYADMIN_HOST_PORT:-58090}:80"
@@ -47,7 +47,7 @@ services:
     container_name: sgaiti-app
     restart: always
     ports:
-      - "${APP_HOST_PORT:-8000}:8000"
+      - "${APP_HOST_PORT:-55050}:8000"
     depends_on:
       mysql:
         condition: service_healthy
@@ -59,8 +59,8 @@ services:
       - DB_HOST=mysql
       - DB_PORT=3306
       - DB_DATABASE=${MYSQL_DATABASE:-sgaiti_db}
-      - DB_USERNAME=${MYSQL_USER:-sgaiti_user}
-      - DB_PASSWORD=${MYSQL_PASSWORD:-sgaiti_pass}
+      - DB_USERNAME=${MYSQL_USER:-new_user}
+      - DB_PASSWORD=${MYSQL_PASSWORD:-new_pass}
     networks:
       - sgaiti-network
 

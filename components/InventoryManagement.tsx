@@ -440,14 +440,24 @@ const InventoryManagement: React.FC<InventoryManagementProps> = ({ assets, setAs
     });
   };
 
+import { useAuth } from './AuthContext';
+
+// ... (rest of the imports)
+
+const InventoryManagement: React.FC<InventoryManagementProps> = ({ assets, setAssets, users, sectors, inventoryRecords, setInventoryRecords }) => {
+  const { user } = useAuth();
+  // ... (rest of the component state)
+
+  // ... (rest of the component logic)
+
   const handleConfirmReopen = async (justification?: string) => {
     const record = confirmModal.data;
-    if (!record || !justification) return;
+    if (!record || !justification || !user) return;
 
     try {
       // Usar a API existente para reabertura
       await inventoryApi.reopen(record.id.toString(), {
-        userId: '1', // TODO: usar ID do usuário logado
+        userId: user.id.toString(),
         justification: justification
       });
 
@@ -473,6 +483,9 @@ const InventoryManagement: React.FC<InventoryManagementProps> = ({ assets, setAs
       throw error; // Para ser tratado pelo modal
     }
   };
+
+  // ... (rest of the component)
+};
 
     const handleSaveAsset = (updatedAsset: Asset) => {
         // Update the global assets list

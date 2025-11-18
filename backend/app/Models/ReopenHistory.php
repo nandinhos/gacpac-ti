@@ -2,21 +2,22 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ReopenHistory extends Model
 {
-    protected $table = 'reopen_history';
+    use HasFactory;
+
+    public $timestamps = false;
+
+    protected $table = 'inventory_reopen_histories';
 
     protected $fillable = [
         'inventory_id',
         'reopened_by_user_id',
-        'reopened_at',
         'justification',
-    ];
-
-    protected $casts = [
-        'reopened_at' => 'datetime',
+        'reopened_at',
     ];
 
     public function inventory()
@@ -24,7 +25,7 @@ class ReopenHistory extends Model
         return $this->belongsTo(InventoryRecord::class, 'inventory_id');
     }
 
-    public function reopenedBy()
+    public function user()
     {
         return $this->belongsTo(MilitaryUser::class, 'reopened_by_user_id');
     }
