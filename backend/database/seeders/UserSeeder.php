@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\MilitaryUser;
 use Illuminate\Support\Facades\Hash;
-use Faker\Generator as Faker;
 
 class UserSeeder extends Seeder
 {
@@ -14,7 +13,7 @@ class UserSeeder extends Seeder
      *
      * @return void
      */
-    public function run(Faker $faker)
+    public function run()
     {
         MilitaryUser::create([
             'name' => 'Admin User',
@@ -26,16 +25,6 @@ class UserSeeder extends Seeder
             'user_role' => 'admin',
         ]);
 
-        for ($i = 0; $i < 10; $i++) {
-            MilitaryUser::create([
-                'name' => 'User ' . $i,
-                'email' => 'user' . $i . '@example.com',
-                'password' => Hash::make('password'),
-                'rank' => 'Soldado',
-                'military_id' => $faker->unique()->numerify('########'),
-                'is_active' => true,
-                'user_role' => 'user',
-            ]);
-        }
+        MilitaryUser::factory()->count(10)->create();
     }
 }
