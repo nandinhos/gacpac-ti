@@ -59,6 +59,6 @@ COPY docker/nginx.conf /etc/nginx/sites-available/default
 # Copy supervisor configuration
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-EXPOSE 8000
+EXPOSE 5050
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

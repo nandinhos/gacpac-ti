@@ -175,4 +175,88 @@ php artisan route:clear
 
 ---
 
-**💡 Seguindo estas práticas, evitaremos 90% dos erros recorrentes!**
+## 🔧 **NOVOS PROBLEMAS IDENTIFICADOS (Deploy 2024)**
+
+### **Erro: Vite Manifest Not Found**
+```
+Vite manifest not found at: /app/public/build/manifest.json
+```
+
+**Solução:**
+```bash
+# 1. Verificar se assets foram compilados
+docker-compose exec sgaiti ls -la /app/public/build/
+
+# 2. Instalar dependências e compilar
+docker-compose exec sgaiti npm install
+docker-compose exec sgaiti npm run build
+```
+
+### **Erro: Conflitos de Nomes de Rotas API**
+```
+Unable to prepare route [sectors] for serialization. Uses Closure.
+```
+
+**Solução - Prefixar rotas da API:**
+```php
+// routes/api.php
+Route::apiResource('sectors', SectorController::class)->names([
+    'index' => 'api.sectors.index',
+    'store' => 'api.sectors.store',
+    'show' => 'api.sectors.show',
+    'update' => 'api.sectors.update',
+    'destroy' => 'api.sectors.destroy'
+]);
+```
+
+### **Erro: Configurações .env Conflitantes**
+```
+# Dois arquivos .env com senhas diferentes
+/.env                  # Docker Compose
+/backend/.env          # Laravel
+```
+
+**Solução:**
+```bash
+# Sincronizar senhas entre os dois arquivos
+# /.env
+MYSQL_PASSWORD=senha_correta
+
+# /backend/.env  
+DB_PASSWORD=senha_correta
+
+# Reiniciar containers após mudança
+docker-compose down && docker-compose up -d
+```
+
+### **Problema: Nginx 502 Bad Gateway**
+```
+# Erro de conexão PHP-FPM
+```
+
+**Solução:**
+```nginx
+# backend/docker/nginx.conf
+# Usar TCP em vez de socket Unix
+fastcgi_pass 127.0.0.1:9000;
+
+# Configurar porta correta
+listen 5050;
+```
+
+### **Problema: Estrutura Laravel Incompleta**
+```
+# Diretórios storage não existem
+```
+
+**Solução:**
+```bash
+# Criar estrutura completa
+mkdir -p backend/storage/framework/{cache/data,sessions,views}
+mkdir -p backend/storage/{app/public,logs}  
+mkdir -p backend/bootstrap/cache
+```
+
+---
+
+**💡 Com essas atualizações, cobrimos 95% dos problemas encontrados no desenvolvimento Docker + Laravel!**
