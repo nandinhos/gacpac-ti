@@ -26,11 +26,11 @@ export default function Index({ users }) {
     };
     const getRoleLabel = (role) => {
         switch (role) {
-            case 'ADMIN':
+            case 'admin':
                 return 'Administrador';
-            case 'COMMISSION':
+            case 'commission':
                 return 'Comissão';
-            case 'USER':
+            case 'user':
             default:
                 return 'Usuário';
         }
@@ -38,11 +38,11 @@ export default function Index({ users }) {
 
     const getRoleColor = (role) => {
         switch (role) {
-            case 'ADMIN':
+            case 'admin':
                 return 'bg-red-100 text-red-800';
-            case 'COMMISSION':
+            case 'commission':
                 return 'bg-blue-100 text-blue-800';
-            case 'USER':
+            case 'user':
             default:
                 return 'bg-green-100 text-green-800';
         }
@@ -147,7 +147,7 @@ export default function Index({ users }) {
                                                 Administradores
                                             </dt>
                                             <dd className="text-lg font-medium text-gray-900">
-                                                {users.filter(user => user.user_role === 'ADMIN').length}
+                                                {users.filter(user => user.user_role === 'admin').length}
                                             </dd>
                                         </dl>
                                     </div>
@@ -171,7 +171,7 @@ export default function Index({ users }) {
                                                 Comissão
                                             </dt>
                                             <dd className="text-lg font-medium text-gray-900">
-                                                {users.filter(user => user.user_role === 'COMMISSION').length}
+                                                {users.filter(user => user.user_role === 'commission').length}
                                             </dd>
                                         </dl>
                                     </div>
@@ -207,9 +207,9 @@ export default function Index({ users }) {
                                     </div>
                                     <select className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                                         <option value="">Todos os papéis</option>
-                                        <option value="ADMIN">Administrador</option>
-                                        <option value="COMMISSION">Comissão</option>
-                                        <option value="USER">Usuário</option>
+                                        <option value="admin">Administrador</option>
+                                        <option value="commission">Comissão</option>
+                                        <option value="user">Usuário</option>
                                     </select>
                                 </div>
                             </div>

@@ -8,7 +8,7 @@ set -euo pipefail
 
 # Defaults (can be overridden by env or .env)
 DEFAULT_MYSQL_HOST_PORT=53106
-DEFAULT_BACKEND_HOST_PORT=55050
+DEFAULT_APP_HOST_PORT=55050
 DEFAULT_FRONTEND_HOST_PORT=58100
 
 project_root_dir="$(cd "$(dirname "$0")" && pwd)"
@@ -52,17 +52,17 @@ fi
 
 # Compute ports
 MYSQL_HOST_PORT=${MYSQL_HOST_PORT:-$DEFAULT_MYSQL_HOST_PORT}
-BACKEND_HOST_PORT=${BACKEND_HOST_PORT:-$DEFAULT_BACKEND_HOST_PORT}
+APP_HOST_PORT=${APP_HOST_PORT:-$DEFAULT_APP_HOST_PORT}
 FRONTEND_HOST_PORT=${FRONTEND_HOST_PORT:-$DEFAULT_FRONTEND_HOST_PORT}
 
 MYSQL_HOST_PORT=$(find_free_port "$MYSQL_HOST_PORT")
-BACKEND_HOST_PORT=$(find_free_port "$BACKEND_HOST_PORT")
+APP_HOST_PORT=$(find_free_port "$APP_HOST_PORT")
 FRONTEND_HOST_PORT=$(find_free_port "$FRONTEND_HOST_PORT")
 
-echo "[deploy] Ports selected: MYSQL=$MYSQL_HOST_PORT BACKEND=$BACKEND_HOST_PORT FRONTEND=$FRONTEND_HOST_PORT"
+echo "[deploy] Ports selected: MYSQL=$MYSQL_HOST_PORT APP=$APP_HOST_PORT FRONTEND=$FRONTEND_HOST_PORT"
 
-# Prepare VITE_API_URL consistent with backend host port
-VITE_API_URL=${VITE_API_URL:-"http://localhost:${BACKEND_HOST_PORT}/api"}
+# Prepare VITE_API_URL consistent with app host port
+VITE_API_URL=${VITE_API_URL:-"http://localhost:${APP_HOST_PORT}/api"}
 
 # Write .env if missing or update ports
 if [ ! -f .env ]; then
@@ -86,7 +86,7 @@ update_env_var() {
 }
 
 update_env_var MYSQL_HOST_PORT "$MYSQL_HOST_PORT"
-update_env_var BACKEND_HOST_PORT "$BACKEND_HOST_PORT"
+update_env_var APP_HOST_PORT "$APP_HOST_PORT"
 update_env_var FRONTEND_HOST_PORT "$FRONTEND_HOST_PORT"
 update_env_var VITE_API_URL "$VITE_API_URL"
 
@@ -106,5 +106,5 @@ $compose_cmd up -d
 
 echo "[deploy] Stack is up"
 echo "[deploy] Frontend: http://localhost:${FRONTEND_HOST_PORT}"
-echo "[deploy] Backend API: http://localhost:${BACKEND_HOST_PORT}/api"
+echo "[deploy] Backend API: http://localhost:${APP_HOST_PORT}/api"
 echo "[deploy] phpMyAdmin: http://localhost:${PHPMYADMIN_HOST_PORT:-58090}"

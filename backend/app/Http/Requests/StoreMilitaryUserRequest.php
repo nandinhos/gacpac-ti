@@ -32,8 +32,8 @@ class StoreMilitaryUserRequest extends FormRequest
             ])],
             'military_id' => ['required', 'string', 'max:20', 'unique:military_users,military_id', 'regex:/^[A-Z0-9\-]+$/'],
             'sector_id' => ['required', 'integer', 'exists:sectors,id'],
-            'role' => ['required', 'string', Rule::in([
-                'ADMIN', 'OPERATOR', 'VIEWER'
+            'user_role' => ['required', 'string', Rule::in([
+                'user', 'commission', 'admin'
             ])],
             'email' => ['nullable', 'email', 'max:100', 'unique:military_users,email'],
             'phone' => ['nullable', 'string', 'max:20', 'regex:/^[\d\(\)\-\s\+]+$/'],

@@ -9,14 +9,14 @@ export default function Edit({ user, sectors }) {
         sector_id: user.sector_id || '',
         email: user.email || '',
         phone: user.phone || '',
-        user_role: user.user_role || 'USER',
+        user_role: (user.user_role || 'user').toLowerCase(),
         is_active: user.is_active || false,
     });
 
     const userRoles = [
-        { value: 'USER', label: 'Usuário', description: 'Usuário padrão com permissões básicas' },
-        { value: 'COMMISSION', label: 'Comissão', description: 'Membro da comissão de inventário' },
-        { value: 'ADMIN', label: 'Administrador', description: 'Acesso completo ao sistema' },
+        { value: 'user', label: 'Usuário', description: 'Usuário padrão com permissões básicas' },
+        { value: 'commission', label: 'Comissão', description: 'Membro da comissão de inventário' },
+        { value: 'admin', label: 'Administrador', description: 'Acesso completo ao sistema' },
     ];
 
     const ranks = [

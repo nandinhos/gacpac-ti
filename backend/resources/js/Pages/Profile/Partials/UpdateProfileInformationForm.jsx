@@ -16,6 +16,8 @@ export default function UpdateProfileInformation({
         useForm({
             name: user.name,
             email: user.email,
+            user_role: user.user_role,
+            is_active: user.is_active,
         });
 
     const submit = (e) => {
@@ -67,6 +69,26 @@ export default function UpdateProfileInformation({
                     />
 
                     <InputError className="mt-2" message={errors.email} />
+                </div>
+
+                <div>
+                    <InputLabel htmlFor="user_role" value="Papel" />
+                    <TextInput
+                        id="user_role"
+                        className="mt-1 block w-full"
+                        value={getRoleLabel(data.user_role)}
+                        readOnly
+                    />
+                </div>
+
+                <div>
+                    <InputLabel htmlFor="is_active" value="Status" />
+                    <TextInput
+                        id="is_active"
+                        className="mt-1 block w-full"
+                        value={data.is_active ? 'Ativo' : 'Inativo'}
+                        readOnly
+                    />
                 </div>
 
                 {mustVerifyEmail && user.email_verified_at === null && (

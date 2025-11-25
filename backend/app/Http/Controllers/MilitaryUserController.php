@@ -23,7 +23,11 @@ class MilitaryUserController extends Controller
     public function store(StoreMilitaryUserRequest $request)
     {
         try {
-            $user = MilitaryUser::create($request->validated());
+            $validated = $request->validated();
+            if (isset($validated['user_role'])) {
+                $validated['user_role'] = strtolower($validated['user_role']);
+            }
+            $user = MilitaryUser::create($validated);
             return response()->json([
                 'message' => 'Usuário criado com sucesso',
                 'data' => $user
@@ -43,7 +47,11 @@ class MilitaryUserController extends Controller
 
     public function update(Request $request, MilitaryUser $user)
     {
-        $user->update($request->all());
+        $payload = $request->all();
+        if (isset($payload['user_role'])) {
+            $payload['user_role'] = strtolower($payload['user_role']);
+        }
+        $user->update($payload);
         return $user;
     }
 

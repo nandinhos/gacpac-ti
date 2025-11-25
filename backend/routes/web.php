@@ -651,12 +651,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
             'email' => 'nullable|email|max:255|unique:military_users',
             'password' => 'required|string|min:8|confirmed',
             'phone' => 'nullable|string|max:20',
-            'user_role' => 'required|in:USER,ADMIN,COMMISSION',
+            'user_role' => 'required|in:user,admin,commission',
             'is_active' => 'boolean',
         ]);
 
         $validated['password'] = bcrypt($validated['password']);
-        $validated['commission_inventories'] = $validated['user_role'] === 'COMMISSION' ? [] : null;
+        $validated['commission_inventories'] = $validated['user_role'] === 'commission' ? [] : null;
 
         $user = \App\Models\MilitaryUser::create($validated);
 
@@ -689,7 +689,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             'sector_id' => 'required|exists:sectors,id',
             'email' => 'nullable|email|max:255|unique:military_users,email,' . $user->id,
             'phone' => 'nullable|string|max:20',
-            'user_role' => 'required|in:USER,ADMIN,COMMISSION',
+            'user_role' => 'required|in:user,admin,commission',
             'is_active' => 'boolean',
         ]);
 
@@ -698,7 +698,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             $validated['password'] = bcrypt($request->password);
         }
 
-        $validated['commission_inventories'] = $validated['user_role'] === 'COMMISSION' ? ($user->commission_inventories ?? []) : null;
+        $validated['commission_inventories'] = $validated['user_role'] === 'commission' ? ($user->commission_inventories ?? []) : null;
 
         $user->update($validated);
 
