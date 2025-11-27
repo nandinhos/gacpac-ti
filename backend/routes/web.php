@@ -11,9 +11,16 @@ Route::get('/', function () {
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    // Dashboard
+    // Dashboard (apenas para admin)
     Route::get('/dashboard', function () {
-        // Buscar estatísticas dos assets
+        $user = auth()->user();
+        
+        // Redirecionar comissão e usuários para cautelas
+        if ($user->user_role !== 'admin') {
+            return redirect()->route('custody.index');
+        }
+        
+        // Buscar estatísticas dos assets (apenas para admin)
         $totalAssets = \App\Models\Asset::count();
         $activeCustody = \App\Models\CustodyLog::whereNull('checkin_date')->count();
         $pendingInventory = 0; // TODO: implementar lógica de inventário
