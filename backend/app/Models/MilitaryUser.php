@@ -52,4 +52,34 @@ class MilitaryUser extends Authenticatable
     {
         return $this->hasMany(InventoryRecord::class, 'responsible_user_id');
     }
+
+    // Helper methods para verificação de perfil
+    public function isAdmin(): bool
+    {
+        return $this->user_role === 'admin';
+    }
+
+    public function isCommission(): bool
+    {
+        return $this->user_role === 'commission';
+    }
+
+    public function isUser(): bool
+    {
+        return $this->user_role === 'user';
+    }
+
+    public function hasAccessToInventory(int $inventoryId): bool
+    {
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        if ($this->isCommission()) {
+            $commissionInventories = $this->commission_inventories ?? [];
+            return in_array($inventoryId, $commissionInventories);
+        }
+
+        return false;
+    }
 }

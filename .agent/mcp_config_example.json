@@ -1,0 +1,17 @@
+{
+    "mcpServers": {
+        "laravel-boost": {
+            "command": "docker",
+            "args": [
+                "exec",
+                "-i",
+                "sgaiti-app",
+                "php",
+                "artisan",
+                "boost:mcp"
+            ],
+            "cwd": "/home/gacpac/projects/gacpac-ti/backend",
+            "env": {}
+        }
+    }
+}

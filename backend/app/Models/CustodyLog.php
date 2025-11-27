@@ -32,4 +32,29 @@ class CustodyLog extends Model
     {
         return $this->belongsToMany(Asset::class, 'custody_assets');
     }
+
+    /**
+     * Scope para filtrar cautelas baseado no perfil do usuário
+     */
+    public function scopeForUser($query, MilitaryUser $user)
+    {
+        // Admin vê todas
+        if ($user->isAdmin()) {
+            return $query;
+        }
+
+        // Usuário vê apenas suas próprias cautelas
+        if ($user->isUser()) {
+            return $query->where('user_id', $user->id);
+        }
+
+        // Comissão vê suas próprias cautelas
+        // TODO: Adicionar lógica para ver cautelas relacionadas aos inventários da comissão
+        if ($user->isCommission()) {
+            return $query->where('user_id', $user->id);
+        }
+
+        // Se não for nenhum dos perfis, não retorna nada
+        return $query->whereRaw('1 = 0');
+    }
 }

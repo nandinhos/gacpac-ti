@@ -15,7 +15,11 @@ class CustodyLogController extends Controller
 {
     public function index(Request $request)
     {
-        $query = CustodyLog::with(['user', 'assets']);
+        $this->authorize('viewAny', CustodyLog::class);
+
+        $user = $request->user();
+        $query = CustodyLog::with(['user', 'assets'])->forUser($user);
+        
         if ($request->has('active')) {
             if ($request->boolean('active')) {
                 $query->whereNull('checkin_date');
@@ -31,6 +35,8 @@ class CustodyLogController extends Controller
 
     public function store(StoreCustodyLogRequest $request)
     {
+        $this->authorize('create', CustodyLog::class);
+
         $validated = $request->validated();
 
         $assets = \App\Models\Asset::whereIn('id', $validated['assetIds'])->get();
@@ -78,11 +84,14 @@ class CustodyLogController extends Controller
 
     public function show(CustodyLog $custody)
     {
+        $this->authorize('view', $custody);
         return $custody->load('assets');
     }
 
     public function update(UpdateCustodyLogRequest $request, CustodyLog $custody)
     {
+        $this->authorize('update', $custody);
+        
         $validatedData = collect($request->validated())->only((new CustodyLog)->getFillable())->toArray();
         $custody->update($validatedData);
         return $custody->load(['user', 'assets']);
@@ -90,12 +99,16 @@ class CustodyLogController extends Controller
 
     public function destroy(CustodyLog $custody)
     {
+        $this->authorize('delete', $custody);
+        
         $custody->delete();
         return response()->json(['message' => 'Deleted']);
     }
 
     public function checkin(CheckinCustodyLogRequest $request, CustodyLog $custody)
     {
+        $this->authorize('update', $custody);
+        
         try {
             \Illuminate\Support\Facades\DB::transaction(function () use ($request, $custody) {
                 $validatedData = $request->validated();
@@ -141,9 +154,12 @@ class CustodyLogController extends Controller
 
     public function reports(Request $request)
     {
+        $this->authorize('viewAny', CustodyLog::class);
+
+        $user = $request->user();
         $type = $request->get('type', 'active'); // active, completed, all, user
 
-        $query = CustodyLog::with(['user', 'assets']);
+        $query = CustodyLog::with(['user', 'assets'])->forUser($user);
 
         switch ($type) {
             case 'active':

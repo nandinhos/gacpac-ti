@@ -15,7 +15,11 @@ class InventoryRecordController extends Controller
 {
     public function index(Request $request)
     {
-        $query = InventoryRecord::query();
+        $this->authorize('viewAny', InventoryRecord::class);
+
+        $user = $request->user();
+        $query = InventoryRecord::query()->forUser($user);
+        
         if ($request->has('status')) {
             $query->where('status', $request->status);
         }
@@ -34,6 +38,8 @@ class InventoryRecordController extends Controller
 
     public function store(StoreInventoryRecordRequest $request)
     {
+        $this->authorize('create', InventoryRecord::class);
+        
         try {
             $inventory = InventoryRecord::create($request->validated());
 
@@ -59,6 +65,8 @@ class InventoryRecordController extends Controller
 
     public function show(InventoryRecord $inventory)
     {
+        $this->authorize('view', $inventory);
+        
         return $inventory->load([
             'inventoryAssets.asset:id,name,qr_code,serial_number,patrimony_id,manufacturer,model,category,status', 
             'uncataloguedItems',
@@ -69,6 +77,8 @@ class InventoryRecordController extends Controller
 
     public function update(Request $request, InventoryRecord $inventory)
     {
+        $this->authorize('update', $inventory);
+        
         try {
             // Validar dados básicos
             $data = $request->validate([
@@ -132,6 +142,8 @@ class InventoryRecordController extends Controller
 
     public function destroy(InventoryRecord $inventory)
     {
+        $this->authorize('delete', $inventory);
+        
         $inventory->delete();
         return response()->json(['message' => 'Deleted']);
     }
@@ -139,6 +151,8 @@ class InventoryRecordController extends Controller
     public function addFoundItem($id, Request $request)
     {
         $inventory = InventoryRecord::findOrFail($id);
+        $this->authorize('update', $inventory);
+        
         $inventory->inventoryAssets()->create($request->all());
         return $inventory->load('inventoryAssets');
     }
@@ -146,6 +160,8 @@ class InventoryRecordController extends Controller
     public function addUncataloguedItem($id, Request $request)
     {
         $inventory = InventoryRecord::findOrFail($id);
+        $this->authorize('update', $inventory);
+        
         $inventory->uncataloguedItems()->create($request->all());
         return $inventory->load('uncataloguedItems');
     }
@@ -153,6 +169,8 @@ class InventoryRecordController extends Controller
     public function complete($id, Request $request)
     {
         $inventory = InventoryRecord::findOrFail($id);
+        $this->authorize('update', $inventory);
+        
         $inventory->status = 'completed';
         $inventory->end_date = $request->input('endDate');
         $inventory->save();
@@ -162,6 +180,8 @@ class InventoryRecordController extends Controller
     public function reopen(Request $request, $id)
     {
         $inventory = InventoryRecord::findOrFail($id);
+        $this->authorize('reopen', $inventory);
+        
         if ($inventory->status !== 'Concluído') {
             return response()->json(['error' => 'Apenas inventários concluídos podem ser reabertos.'], 422);
         }
@@ -190,6 +210,8 @@ class InventoryRecordController extends Controller
     public function deleteUncataloguedItem($id, $uncataloguedId)
     {
         $inventory = InventoryRecord::findOrFail($id);
+        $this->authorize('update', $inventory);
+        
         $inventory->uncataloguedItems()->where('id', $uncataloguedId)->delete();
         return response()->json(['message' => 'Deleted']);
     }

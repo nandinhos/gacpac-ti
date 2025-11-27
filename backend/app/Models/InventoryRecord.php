@@ -122,4 +122,27 @@ class InventoryRecord extends Model
     {
         return $this->hasMany(ReopenHistory::class, 'inventory_id');
     }
+
+    /**
+     * Scope para filtrar inventários baseado no perfil do usuário
+     */
+    public function scopeForUser($query, MilitaryUser $user)
+    {
+        // Admin vê todos os inventários
+        if ($user->isAdmin()) {
+            return $query;
+        }
+
+        // Comissão vê apenas inventários vinculados
+        if ($user->isCommission()) {
+            $commissionInventories = $user->commission_inventories ?? [];
+            if (empty($commissionInventories)) {
+                return $query->whereRaw('1 = 0');
+            }
+            return $query->whereIn('id', $commissionInventories);
+        }
+
+        // Usuários regulares não têm acesso a inventários
+        return $query->whereRaw('1 = 0');
+    }
 }
