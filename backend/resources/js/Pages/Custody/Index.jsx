@@ -1,9 +1,11 @@
 import SGAITILayout from '@/Layouts/SGAITILayout';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useState, useMemo } from 'react';
 import ConfirmationModal from '@/Components/ConfirmationModal';
 
 export default function Index({ custodyLogs, users }) {
+    const { auth } = usePage().props;
+    const user = auth.user;
 
     const [searchTerm, setSearchTerm] = useState('');
     const [modalState, setModalState] = useState({ isOpen: false, type: null, log: null });
@@ -59,12 +61,14 @@ export default function Index({ custodyLogs, users }) {
                     <h2 className="text-xl font-semibold leading-tight text-gray-800">
                         Gestão de Cautelas
                     </h2>
-                    <Link
-                        href={route('custody.create')}
-                        className="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-900 focus:outline-none focus:border-blue-900 focus:ring ring-blue-300 disabled:opacity-25 transition ease-in-out duration-150"
-                    >
-                        Criar Cautela
-                    </Link>
+                    {user.user_role === 'admin' && (
+                        <Link
+                            href={route('custody.create')}
+                            className="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-900 focus:outline-none focus:border-blue-900 focus:ring ring-blue-300 disabled:opacity-25 transition ease-in-out duration-150"
+                        >
+                            Criar Cautela
+                        </Link>
+                    )}
                 </div>
             }
         >
@@ -129,11 +133,11 @@ export default function Index({ custodyLogs, users }) {
                     </div>
                 </div>
             </div>
-            
-            <ConfirmationModal 
-                isOpen={modalState.isOpen} 
-                onClose={closeModal} 
-                onConfirm={handleConfirm} 
+
+            <ConfirmationModal
+                isOpen={modalState.isOpen}
+                onClose={closeModal}
+                onConfirm={handleConfirm}
                 title="Dar Baixa na Cautela"
                 message={`Tem certeza que deseja dar baixa na cautela ${modalState.log?.cautela_number}? Os ativos serão retornados ao almoxarifado.`}
                 confirmText="Dar Baixa"

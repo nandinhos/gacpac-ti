@@ -26,6 +26,15 @@ export default function UpdateProfileInformation({
         patch(route('profile.update'));
     };
 
+    const getRoleLabel = (role) => {
+        const roleLabels = {
+            'admin': 'Administrador',
+            'commission': 'Comissão',
+            'user': 'Usuário'
+        };
+        return roleLabels[role] || role;
+    };
+
     return (
         <section className={className}>
             <header>

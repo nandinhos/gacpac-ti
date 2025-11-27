@@ -47,8 +47,8 @@ class CustodyLogPolicy
      */
     public function create(MilitaryUser $militaryUser): bool
     {
-        // Admin e comissão podem criar cautelas
-        return in_array($militaryUser->user_role, ['admin', 'commission']);
+        // Apenas admin pode criar cautelas
+        return $militaryUser->user_role === 'admin';
     }
 
     /**
@@ -56,17 +56,8 @@ class CustodyLogPolicy
      */
     public function update(MilitaryUser $militaryUser, CustodyLog $custodyLog): bool
     {
-        // Admin pode atualizar qualquer cautela
-        if ($militaryUser->user_role === 'admin') {
-            return true;
-        }
-
-        // Comissão pode atualizar cautelas que criou ou que estão sob sua responsabilidade
-        if ($militaryUser->user_role === 'commission') {
-            return $custodyLog->user_id === $militaryUser->id;
-        }
-
-        return false;
+        // Apenas admin pode atualizar cautelas
+        return $militaryUser->user_role === 'admin';
     }
 
     /**

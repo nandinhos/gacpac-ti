@@ -117,11 +117,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Custody Management
     Route::get('/custody', function () {
-        $custodyLogs = \App\Models\CustodyLog::with(['user', 'assets'])->orderBy('created_at', 'desc')->get();
+        $user = auth()->user();
+        $custodyLogs = \App\Models\CustodyLog::with(['user', 'assets'])
+            ->forUser($user)
+            ->orderBy('created_at', 'desc')
+            ->get();
         return Inertia::render('Custody/Index', ['custodyLogs' => $custodyLogs]);
     })->name('custody.index');
 
     Route::get('/custody/create', function () {
+        // Apenas admin pode criar cautelas
+        $user = auth()->user();
+        if ($user->user_role !== 'admin') {
+            abort(403, 'Você não tem permissão para criar cautelas.');
+        }
+        
         $users = \App\Models\MilitaryUser::where('is_active', true)->orderBy('name')->get();
         $assets = \App\Models\Asset::where('status', 'Disponível')->orderBy('name')->get();
         
@@ -338,7 +348,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Inventory Management
     Route::get('/inventory', function () {
-        $inventoryRecords = \App\Models\InventoryRecord::with(['sector', 'responsibleUser'])->orderBy('start_date', 'desc')->get();
+        $user = auth()->user();
+        $inventoryRecords = \App\Models\InventoryRecord::with(['sector', 'responsibleUser'])
+            ->forUser($user)
+            ->orderBy('start_date', 'desc')
+            ->get();
         return Inertia::render('Inventory/Index', ['inventoryRecords' => $inventoryRecords]);
     })->name('inventory.index');
 
