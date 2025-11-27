@@ -86,7 +86,7 @@ export default function UpdateProfileInformation({
                         id="user_role"
                         className="mt-1 block w-full"
                         value={getRoleLabel(data.user_role)}
-                        readOnly
+                        disabled
                     />
                 </div>
 
@@ -96,7 +96,7 @@ export default function UpdateProfileInformation({
                         id="is_active"
                         className="mt-1 block w-full"
                         value={data.is_active ? 'Ativo' : 'Inativo'}
-                        readOnly
+                        disabled
                     />
                 </div>
 
