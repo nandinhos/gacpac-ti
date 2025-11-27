@@ -15,12 +15,19 @@ class CustodyLog extends Model
         'checkin_date',
         'term_url',
         'signed_term_url',
+        'signed_document_url',
+        'signed_document_uploaded_at',
+        'signed_document_justification',
+        'signed_document_removed_at',
+        'signed_document_removal_justification',
         'notes',
     ];
 
     protected $casts = [
         'checkout_date' => 'datetime',
         'checkin_date' => 'datetime',
+        'signed_document_uploaded_at' => 'datetime',
+        'signed_document_removed_at' => 'datetime',
     ];
 
     public function user()

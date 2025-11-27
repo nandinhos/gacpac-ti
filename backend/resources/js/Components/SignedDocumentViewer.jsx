@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { router } from '@inertiajs/react';
 import ConfirmationModal from './ConfirmationModal';
 
-const SignedDocumentViewer = ({ custodyLog, onDocumentUploaded, onDocumentRemoved }) => {
+const SignedDocumentViewer = ({ custodyLog, onDocumentUploaded, onDocumentRemoved, canManage = false }) => {
     const [showUploadModal, setShowUploadModal] = useState(false);
     const [showRemoveModal, setShowRemoveModal] = useState(false);
     const [uploading, setUploading] = useState(false);
@@ -13,7 +13,7 @@ const SignedDocumentViewer = ({ custodyLog, onDocumentUploaded, onDocumentRemove
         const file = event.target.files[0];
         if (file) {
             console.log('Validando arquivo:', file.name, file.type, file.size);
-            
+
             // Validar tipo de arquivo
             const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
             if (!allowedTypes.includes(file.type)) {
@@ -33,7 +33,7 @@ const SignedDocumentViewer = ({ custodyLog, onDocumentUploaded, onDocumentRemove
         }
     };
 
-    const handleConfirmUpload = async (justification) => {
+    const handleConfirmUpload = (justification) => {
         if (!selectedFile) return;
 
         console.log('Iniciando upload...', {
@@ -44,44 +44,28 @@ const SignedDocumentViewer = ({ custodyLog, onDocumentUploaded, onDocumentRemove
         });
 
         setUploading(true);
-        
-        try {
-            const formData = new FormData();
-            formData.append('signed_document', selectedFile);
-            formData.append('justification', justification);
 
-            console.log('Enviando requisição fetch...');
-
-            const response = await fetch(`/custody/${custodyLog.id}/upload-signed-document`, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json',
-                },
-            });
-
-            console.log('Resposta recebida:', response.status, response.statusText);
-
-            if (response.ok) {
+        router.post(`/custody/${custodyLog.id}/upload-signed-document`, {
+            signed_document: selectedFile,
+            justification: justification
+        }, {
+            forceFormData: true,
+            onSuccess: () => {
                 console.log('Upload bem-sucedido!');
-                alert('Documento enviado com sucesso!');
+                // alert('Documento enviado com sucesso!'); // Feedback visual já virá do flash message ou atualização da UI
                 setSelectedFile(null);
                 setShowUploadModal(false);
                 onDocumentUploaded();
-            } else {
-                const errorText = await response.text();
-                console.error('Erro na resposta:', errorText);
-                alert('Erro ao enviar documento: ' + response.statusText);
+            },
+            onError: (errors) => {
+                console.error('Erro no upload:', errors);
+                alert('Erro ao enviar documento: ' + (errors.upload || Object.values(errors).join(', ')));
+            },
+            onFinish: () => {
+                console.log('Upload finalizado');
+                setUploading(false);
             }
-        } catch (error) {
-            console.error('Erro no upload:', error);
-            alert('Erro ao enviar documento. Tente novamente.');
-        } finally {
-            console.log('Upload finalizado');
-            setUploading(false);
-        }
+        });
     };
 
     const handleConfirmRemove = async (justification) => {
@@ -101,9 +85,9 @@ const SignedDocumentViewer = ({ custodyLog, onDocumentUploaded, onDocumentRemove
 
     const getFileIcon = (filename) => {
         if (!filename) return null;
-        
+
         const extension = filename.split('.').pop()?.toLowerCase();
-        
+
         if (extension === 'pdf') {
             return (
                 <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -149,8 +133,8 @@ const SignedDocumentViewer = ({ custodyLog, onDocumentUploaded, onDocumentRemove
                                         </h4>
                                         <p className="text-sm text-green-700 mt-1">
                                             Cautela assinada e enviada em {' '}
-                                            {custodyLog.signed_document_uploaded_at ? 
-                                                new Date(custodyLog.signed_document_uploaded_at).toLocaleString('pt-BR') : 
+                                            {custodyLog.signed_document_uploaded_at ?
+                                                new Date(custodyLog.signed_document_uploaded_at).toLocaleString('pt-BR') :
                                                 'Data não disponível'
                                             }
                                         </p>
@@ -161,7 +145,7 @@ const SignedDocumentViewer = ({ custodyLog, onDocumentUploaded, onDocumentRemove
                                         )}
                                     </div>
                                 </div>
-                                
+
                                 <div className="flex items-center space-x-2">
                                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                         <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -199,15 +183,17 @@ const SignedDocumentViewer = ({ custodyLog, onDocumentUploaded, onDocumentRemove
                                 Download
                             </a>
 
-                            <button
-                                onClick={() => setShowRemoveModal(true)}
-                                className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-                            >
-                                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                </svg>
-                                Remover
-                            </button>
+                            {canManage && (
+                                <button
+                                    onClick={() => setShowRemoveModal(true)}
+                                    className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                                >
+                                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                    Remover
+                                </button>
+                            )}
                         </div>
                     </div>
                 ) : (
@@ -229,40 +215,46 @@ const SignedDocumentViewer = ({ custodyLog, onDocumentUploaded, onDocumentRemove
                             </div>
                         </div>
 
-                        {/* Instruções e upload */}
-                        <div className="space-y-4">
-                            <div className="text-sm text-gray-600">
-                                <h5 className="font-medium text-gray-900 mb-2">Para enviar o documento assinado:</h5>
-                                <ol className="list-decimal list-inside space-y-1 ml-4">
-                                    <li>Exporte a cautela em PDF usando o botão "Exportar PDF"</li>
-                                    <li>Imprima o documento</li>
-                                    <li>Colete as assinaturas necessárias</li>
-                                    <li>Digitalize ou fotografe o documento assinado</li>
-                                    <li>Faça o upload do arquivo usando o botão abaixo</li>
-                                </ol>
-                            </div>
+                        {/* Instruções e upload - Apenas para quem pode gerenciar */}
+                        {canManage ? (
+                            <div className="space-y-4">
+                                <div className="text-sm text-gray-600">
+                                    <h5 className="font-medium text-gray-900 mb-2">Para enviar o documento assinado:</h5>
+                                    <ol className="list-decimal list-inside space-y-1 ml-4">
+                                        <li>Exporte a cautela em PDF usando o botão "Exportar PDF"</li>
+                                        <li>Imprima o documento</li>
+                                        <li>Colete as assinaturas necessárias</li>
+                                        <li>Digitalize ou fotografe o documento assinado</li>
+                                        <li>Faça o upload do arquivo usando o botão abaixo</li>
+                                    </ol>
+                                </div>
 
-                            <div className="flex items-center justify-center w-full">
-                                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
-                                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                        <svg className="w-8 h-8 mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                        </svg>
-                                        <p className="mb-2 text-sm text-gray-500">
-                                            <span className="font-semibold">Clique para enviar</span> ou arraste o arquivo
-                                        </p>
-                                        <p className="text-xs text-gray-500">PDF, JPEG ou PNG (máx. 10MB)</p>
-                                    </div>
-                                    <input
-                                        type="file"
-                                        className="hidden"
-                                        accept=".pdf,.jpg,.jpeg,.png"
-                                        onChange={handleFileSelect}
-                                        disabled={uploading}
-                                    />
-                                </label>
+                                <div className="flex items-center justify-center w-full">
+                                    <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
+                                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                            <svg className="w-8 h-8 mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                            </svg>
+                                            <p className="mb-2 text-sm text-gray-500">
+                                                <span className="font-semibold">Clique para enviar</span> ou arraste o arquivo
+                                            </p>
+                                            <p className="text-xs text-gray-500">PDF, JPEG ou PNG (máx. 10MB)</p>
+                                        </div>
+                                        <input
+                                            type="file"
+                                            className="hidden"
+                                            accept=".pdf,.jpg,.jpeg,.png"
+                                            onChange={handleFileSelect}
+                                            disabled={uploading}
+                                        />
+                                    </label>
+                                </div>
                             </div>
-                        </div>
+                        ) : (
+                            <p className="text-sm text-gray-500 italic">
+                                Aguardando envio do documento assinado pelo administrador.
+                            </p>
+                        )}
                     </div>
                 )}
             </div>

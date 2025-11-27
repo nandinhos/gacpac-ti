@@ -1,12 +1,15 @@
 import SGAITILayout from '@/Layouts/SGAITILayout';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import ConfirmationModal from '@/Components/ConfirmationModal';
 import SignedDocumentViewer from '@/Components/SignedDocumentViewer';
 
 export default function Show({ log }) {
+    const { auth } = usePage().props;
+    const user = auth.user;
     const [showDischargeModal, setShowDischargeModal] = useState(false);
-    const [custodyLog, setCustodyLog] = useState(log);
+    // Removido estado local redundante para garantir sincronização com Inertia
+    const custodyLog = log;
 
     const handleDischarge = () => {
         setShowDischargeModal(true);
@@ -21,14 +24,14 @@ export default function Show({ log }) {
         });
     };
 
-    const handleDocumentUploaded = (documentUrl) => {
-        // Abordagem simples: recarregar a página inteira para garantir sincronização
-        window.location.reload();
+    const handleDocumentUploaded = () => {
+        // Usar router.reload para manter o estado do Inertia sincronizado
+        router.reload({ only: ['log'] });
     };
 
     const handleDocumentRemoved = () => {
-        // Abordagem simples: recarregar a página inteira para garantir sincronização
-        window.location.reload();
+        // Usar router.reload para manter o estado do Inertia sincronizado
+        router.reload({ only: ['log'] });
     };
 
     const handleExportPDF = () => {
@@ -37,6 +40,7 @@ export default function Show({ log }) {
     };
 
     const status = custodyLog.checkin_date ? 'Concluída' : 'Ativa';
+    const isAdmin = user.user_role === 'admin';
 
     return (
         <SGAITILayout
@@ -58,8 +62,8 @@ export default function Show({ log }) {
                             </svg>
                             Exportar PDF
                         </button>
-                        <Link 
-                            href={route('custody.index')} 
+                        <Link
+                            href={route('custody.index')}
                             className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors flex items-center"
                         >
                             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -137,7 +141,7 @@ export default function Show({ log }) {
                         </div>
 
                         {/* Actions */}
-                        {!custodyLog.checkin_date && (
+                        {!custodyLog.checkin_date && isAdmin && (
                             <div className="p-6 bg-gray-50 text-right">
                                 <button onClick={handleDischarge} className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition">
                                     Dar Baixa (Check-Out)
@@ -151,14 +155,15 @@ export default function Show({ log }) {
                         custodyLog={custodyLog}
                         onDocumentUploaded={handleDocumentUploaded}
                         onDocumentRemoved={handleDocumentRemoved}
+                        canManage={isAdmin}
                     />
                 </div>
             </div>
-            
-            <ConfirmationModal 
-                isOpen={showDischargeModal} 
-                onClose={() => setShowDischargeModal(false)} 
-                onConfirm={handleConfirmDischarge} 
+
+            <ConfirmationModal
+                isOpen={showDischargeModal}
+                onClose={() => setShowDischargeModal(false)}
+                onConfirm={handleConfirmDischarge}
                 title="Dar Baixa na Cautela"
                 message={`Tem certeza que deseja dar baixa na cautela ${custodyLog.cautela_number}? Os ativos serão retornados ao almoxarifado.`}
                 confirmText="Dar Baixa (Check-Out)"

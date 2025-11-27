@@ -263,8 +263,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         \Log::info('Resultado da atualização do banco: ' . ($updateResult ? 'TRUE' : 'FALSE'));
 
-        // Verificar se é requisição AJAX
-        if ($request->ajax() || $request->wantsJson()) {
+        // Verificar se é requisição AJAX (mas não Inertia)
+        if (($request->ajax() || $request->wantsJson()) && !$request->header('X-Inertia')) {
             error_log('UPLOAD TESTE: Retornando JSON response');
             return response()->json([
                 'message' => 'Documento enviado com sucesso!',
