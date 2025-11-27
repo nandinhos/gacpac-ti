@@ -41,9 +41,28 @@ docker exec -it sgaiti-app bash
 docker exec sgaiti-app php artisan optimize:clear
 ```
 
+**Reconstruir Container (se a aplicação não carregar):**
+```bash
+docker-compose down sgaiti
+docker-compose up -d --build sgaiti
+```
+
 ---
 
-## ⚠️ Notas Importantes
-1. O phpMyAdmin antigo (porta 58090) foi removido. **Use apenas a porta 8081**.
-2. O banco de dados já possui **42 ativos** cadastrados.
-3. Não rode `migrate:fresh` a menos que queira apagar todos esses dados.
+## 🔧 Troubleshooting
+
+**Erro 404 ao acessar a aplicação:**
+1. Verifique se o container está rodando: `docker ps`
+2. Reconstrua o container: `docker-compose up -d --build sgaiti`
+3. Verifique os logs: `docker logs sgaiti-app -f`
+
+**Assets não carregam (favicon.ico, index.js):**
+```bash
+cd backend && npm run build
+docker-compose restart sgaiti
+```
+
+**Permissão negada ao fazer build:**
+```bash
+sudo chown -R $USER:$USER backend/public/build backend/node_modules
+```
