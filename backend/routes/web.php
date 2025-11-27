@@ -312,9 +312,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
             abort(404, 'Arquivo não encontrado no servidor');
         }
 
-        // Nome amigável para download
+        // Nome amigável para download (sanitizando barras)
         $extension = pathinfo($fullPath, PATHINFO_EXTENSION);
-        $downloadName = 'Cautela_' . $custody->cautela_number . '_Assinada.' . $extension;
+        $cleanCautelaNumber = str_replace(['/', '\\'], '_', $custody->cautela_number);
+        $downloadName = 'Cautela_' . $cleanCautelaNumber . '_Assinada.' . $extension;
 
         return response()->download($fullPath, $downloadName);
     })->name('custody.signed-document-download');
