@@ -70,8 +70,8 @@ export default function SGAITILayout({ header, children }) {
     // Função para obter menus baseados no perfil do usuário
     const getNavigationItems = () => {
         const allNavigation = [
-            { name: 'Dashboard', href: route('dashboard'), icon: 'M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2z', roles: ['admin', 'commission', 'user'] },
-            { name: 'Ativos', href: route('assets.index'), icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z', roles: ['admin', 'commission'] },
+            { name: 'Dashboard', href: route('dashboard'), icon: 'M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2z', roles: ['admin'] },
+            { name: 'Ativos', href: route('assets.index'), icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z', roles: ['admin'] },
             { name: 'Cautelas', href: route('custody.index'), icon: 'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z', roles: ['admin', 'commission', 'user'] },
             { name: 'Inventário', href: route('inventory.index'), icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2', roles: ['admin', 'commission'] },
             { name: 'Setores', href: route('sectors.index'), icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4', roles: ['admin'] },
@@ -101,8 +101,8 @@ export default function SGAITILayout({ header, children }) {
                                     key={item.name}
                                     href={item.href}
                                     className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors ${route().current(item.href.replace('/api/', '').replace('.', '*')) ?
-                                            'bg-indigo-50 text-indigo-600' :
-                                            'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                                        'bg-indigo-50 text-indigo-600' :
+                                        'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                                         }`}
                                 >
                                     <svg className={`mr-3 h-5 w-5 ${route().current(item.href.replace('/api/', '').replace('.', '*')) ? 'text-indigo-600' : 'text-gray-400 group-hover:text-gray-500'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -253,8 +253,8 @@ export default function SGAITILayout({ header, children }) {
                                         key={item.name}
                                         href={item.href}
                                         className={`group flex items-center px-2 py-2 text-base font-medium rounded-md ${route().current(item.href.replace('/api/', '').replace('.', '*')) ?
-                                                'bg-indigo-50 text-indigo-600' :
-                                                'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                                            'bg-indigo-50 text-indigo-600' :
+                                            'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                                             }`}
                                         onClick={() => setShowingNavigationDropdown(false)}
                                     >
