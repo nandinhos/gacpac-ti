@@ -1,73 +1,71 @@
 services:
-  # MySQL Database
-  mysql:
-    image: mysql:8.0
-    container_name: sgaiti-mysql
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-sgaiti_root_pass}
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-sgaiti_db}
-      MYSQL_USER: ${MYSQL_USER:-sgaiti_user}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-sgaiti_pass}
-    ports:
-      - "${MYSQL_HOST_PORT:-53106}:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-    networks:
-      - sgaiti-network
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      timeout: 20s
-      retries: 10
+    laravel.test:
+        build:
+            context: ./backend
+            dockerfile: Dockerfile
+            args:
+                WWWGROUP: '${WWWGROUP}'
+        image: sail-8.4/app
+        extra_hosts:
+            - 'host.docker.internal:host-gateway'
+        ports:
+            - '${APP_PORT:-80}:80'
+            - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
+        environment:
+            WWWUSER: '${WWWUSER}'
+            LARAVEL_SAIL: 1
+            XDEBUG_MODE: '${SAIL_XDEBUG_MODE:-off}'
+            XDEBUG_CONFIG: '${SAIL_XDEBUG_CONFIG:-client_host=host.docker.internal}'
+            IGNITION_LOCAL_SITES_PATH: '${PWD}'
+        volumes:
+            - './backend:/var/www/html'
+        networks:
+            - sail
+        depends_on:
+            - pgsql
 
-  # phpMyAdmin
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin:latest
-    container_name: sgaiti-phpmyadmin
-    restart: always
-    environment:
-      PMA_HOST: mysql
-      PMA_PORT: 3306
-      PMA_USER: ${MYSQL_USER:-sgaiti_user}
-      PMA_PASSWORD: ${MYSQL_PASSWORD:-sgaiti_pass}
-      UPLOAD_LIMIT: 50M
-    ports:
-      - "${PHPMYADMIN_HOST_PORT:-58090}:80"
-    depends_on:
-      mysql:
-        condition: service_healthy
-    networks:
-      - sgaiti-network
+    pgsql:
+        image: 'postgres:16'
+        ports:
+            - '${FORWARD_DB_PORT:-5432}:5432'
+        environment:
+            PGPASSWORD: '${DB_PASSWORD:-secret}'
+            POSTGRES_DB: '${DB_DATABASE}'
+            POSTGRES_USER: '${DB_USERNAME}'
+            POSTGRES_PASSWORD: '${DB_PASSWORD:-secret}'
+        volumes:
+            - 'sail-pgsql:/var/lib/postgresql/data'
+            - './backend/vendor/laravel/sail/database/pgsql/create-testing-database.sql:/docker-entrypoint-initdb.d/10-create-testing-database.sql'
+        networks:
+            - sail
+        healthcheck:
+            test:
+                - CMD
+                - pg_isready
+                - '-q'
+                - '-d'
+                - '${DB_DATABASE}'
+                - '-U'
+                - '${DB_USERNAME}'
+            retries: 3
+            timeout: 5s
 
-  # Laravel + Inertia Application
-  sgaiti:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: sgaiti-app
-    restart: always
-    ports:
-      - "${APP_HOST_PORT:-8000}:8000"
-    depends_on:
-      mysql:
-        condition: service_healthy
-    volumes:
-      - ./backend:/app
-      - storage_data:/app/storage
-    environment:
-      - DB_CONNECTION=mysql
-      - DB_HOST=mysql
-      - DB_PORT=3306
-      - DB_DATABASE=${MYSQL_DATABASE:-sgaiti_db}
-      - DB_USERNAME=${MYSQL_USER:-sgaiti_user}
-      - DB_PASSWORD=${MYSQL_PASSWORD:-sgaiti_pass}
-    networks:
-      - sgaiti-network
-
-volumes:
-  mysql_data:
-  storage_data:
+    pgadmin:
+        image: dpage/pgadmin4
+        ports:
+            - '${PGADMIN_PORT:-5050}:80'
+        environment:
+            PGADMIN_DEFAULT_EMAIL: '${PGADMIN_EMAIL:-admin@admin.com}'
+            PGADMIN_DEFAULT_PASSWORD: '${PGADMIN_PASSWORD:-secret}'
+        networks:
+            - sail
+        depends_on:
+            - pgsql
 
 networks:
-  sgaiti-network:
-    driver: bridge
+    sail:
+        driver: bridge
+
+volumes:
+    sail-pgsql:
+        driver: local
