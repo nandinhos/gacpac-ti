@@ -41,3 +41,9 @@ backend/public/storage/
 
 # Local support bundles
 amp-support-bundle-*.json.gz
+
+# Local Agent/Tool Configs
+.aidev/
+.serena/
+.mcp.json
+project-docs/*.tmp
