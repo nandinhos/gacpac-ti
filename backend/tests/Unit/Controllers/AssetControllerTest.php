@@ -36,20 +36,17 @@ class AssetControllerTest extends TestCase
         $response = $this->getJson('/api/assets');
 
         $response->assertStatus(200)
+                ->assertJsonCount(15)
                 ->assertJsonStructure([
-                    'data' => [
-                        '*' => [
-                            'id',
-                            'name',
-                            'description',
-                            'qr_code',
-                            'status',
-                            'condition',
-                            'sector'
-                        ]
-                    ],
-                    'links',
-                    'meta'
+                    '*' => [
+                        'id',
+                        'name',
+                        'description',
+                        'qr_code',
+                        'status',
+                        'condition',
+                        'sector'
+                    ]
                 ]);
     }
 
@@ -68,7 +65,9 @@ class AssetControllerTest extends TestCase
             'acquisition_value' => 2500.00,
             'brand' => 'Dell',
             'model' => 'Inspiron 15',
-            'serial_number' => 'DL123456789'
+            'serial_number' => 'DL123456789',
+            'type' => 'COMPUTADOR',
+            'category' => 'COMPUTACAO'
         ];
 
         $response = $this->postJson('/api/assets', $assetData);
@@ -137,8 +136,9 @@ class AssetControllerTest extends TestCase
 
         $response = $this->deleteJson("/api/assets/{$asset->id}");
 
-        $response->assertStatus(204);
-        $this->assertDatabaseMissing('assets', ['id' => $asset->id]);
+        $response->assertStatus(200)
+                ->assertJson(['message' => 'Ativo excluído com sucesso']);
+        $this->assertSoftDeleted('assets', ['id' => $asset->id]);
     }
 
     public function test_get_by_qr_code_returns_asset()

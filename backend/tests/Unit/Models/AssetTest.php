@@ -27,6 +27,8 @@ class AssetTest extends TestCase
             'condition' => 'Bom',
             'acquisition_date' => '2024-01-15',
             'acquisition_value' => 2500.00,
+            'category' => 'COMPUTACAO',
+            'type' => 'COMPUTADOR',
             'brand' => 'Dell',
             'model' => 'Inspiron 15',
             'serial_number' => 'DL123456789'

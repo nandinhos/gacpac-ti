@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use App\Models\MilitaryUser;
+use App\Models\Sector;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -33,42 +35,46 @@ class UserModuleTest extends TestCase
     public function test_can_create_user()
     {
         $user = User::factory()->create();
+        $sector = Sector::factory()->create();
 
         Livewire::actingAs($user)
             ->test(\App\Livewire\Users\Create::class)
-            ->set('name', 'New User')
-            ->set('email', 'new@example.com')
+            ->set('rank', 'Soldado')
+            ->set('name', 'New Military User')
+            ->set('military_id', '123456-7')
+            ->set('email', 'new_military@example.com')
+            ->set('sector_id', $sector->id)
             ->set('password', 'password')
             ->set('password_confirmation', 'password')
             ->call('save')
             ->assertRedirect(route('users.index'));
 
-        $this->assertDatabaseHas('users', ['email' => 'new@example.com']);
+        $this->assertDatabaseHas('military_users', ['email' => 'new_military@example.com']);
     }
 
     public function test_can_edit_user()
     {
         $user = User::factory()->create();
-        $targetUser = User::factory()->create();
+        $targetUser = MilitaryUser::factory()->create();
 
         Livewire::actingAs($user)
             ->test(\App\Livewire\Users\Edit::class, ['user' => $targetUser])
-            ->set('name', 'Updated Name')
+            ->set('name', 'Updated Military Name')
             ->call('save')
             ->assertRedirect(route('users.index'));
 
-        $this->assertDatabaseHas('users', ['id' => $targetUser->id, 'name' => 'Updated Name']);
+        $this->assertDatabaseHas('military_users', ['id' => $targetUser->id, 'name' => 'Updated Military Name']);
     }
 
     public function test_can_delete_user()
     {
         $user = User::factory()->create();
-        $targetUser = User::factory()->create();
+        $targetUser = MilitaryUser::factory()->create();
 
         Livewire::actingAs($user)
             ->test(\App\Livewire\Users\Index::class)
             ->call('delete', $targetUser->id);
 
-        $this->assertDatabaseMissing('users', ['id' => $targetUser->id]);
+        $this->assertSoftDeleted('military_users', ['id' => $targetUser->id]);
     }
 }

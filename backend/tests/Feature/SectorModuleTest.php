@@ -59,6 +59,6 @@ class SectorModuleTest extends TestCase
             ->test(\App\Livewire\Sectors\Index::class)
             ->call('delete', $sector->id);
 
-        $this->assertDatabaseMissing('sectors', ['id' => $sector->id]);
+        $this->assertSoftDeleted('sectors', ['id' => $sector->id]);
     }
 }

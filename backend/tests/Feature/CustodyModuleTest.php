@@ -2,83 +2,128 @@
 
 namespace Tests\Feature;
 
+use App\Models\Asset;
 use App\Models\CustodyLog;
 use App\Models\MilitaryUser;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
+use App\Livewire\Custody\Index;
+use App\Livewire\Custody\Create;
+use App\Livewire\Custody\Edit;
+use PHPUnit\Framework\Attributes\Test;
 
 class CustodyModuleTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_custody_list_page_is_accessible_by_auth_users()
+    #[Test]
+    public function custody_index_page_is_displayed()
     {
         $user = User::factory()->create();
-
-        $this->actingAs($user)
-            ->get('/custody')
-            ->assertStatus(200);
-    }
-
-    public function test_custody_model_relationship()
-    {
-       // Basic model test
-       $user = MilitaryUser::factory()->create();
-       $custody = CustodyLog::factory()->create([
-           'user_id' => $user->id,
-           'cautela_number' => 'CAUTELA-TEST-001'
-       ]);
-
-       $this->assertInstanceOf(MilitaryUser::class, $custody->user);
-       $this->assertEquals($user->id, $custody->user->id);
-    }
-
-    public function test_can_create_custody_with_assets()
-    {
-        $user = User::factory()->create();
-        $military = MilitaryUser::factory()->create();
-        $asset = \App\Models\Asset::factory()->create(['status' => 'DISPONIVEL']);
 
         Livewire::actingAs($user)
-            ->test(\App\Livewire\Custody\Create::class)
-            ->set('user_id', $military->id)
-            ->set('checkout_date', now()->format('Y-m-d'))
+            ->test(Index::class)
+            ->assertStatus(200)
+            ->assertSee(__('Nova Cautela'));
+    }
+
+    #[Test]
+    public function can_create_custody_with_available_assets()
+    {
+        $user = User::factory()->create();
+        $militaryUser = MilitaryUser::factory()->create();
+        $asset = Asset::factory()->create(['status' => 'DISPONIVEL']);
+
+        Livewire::actingAs($user)
+            ->test(Create::class)
+            ->set('user_id', $militaryUser->id)
+            ->set('checkout_date', '2025-01-01')
             ->set('selectedAssets', [$asset->id])
+            ->set('notes', 'Test Note')
             ->call('save')
             ->assertRedirect(route('custody.index'));
 
         $this->assertDatabaseHas('custody_logs', [
-            'user_id' => $military->id,
+            'user_id' => $militaryUser->id,
+            'notes' => 'Test Note',
         ]);
 
         $this->assertDatabaseHas('custody_assets', [
             'asset_id' => $asset->id,
         ]);
-        
-        // Verify asset status changed to EM_USO
+
+        // Verify asset status updated
+        $this->assertEquals('EM_USO', $asset->fresh()->status);
+        $this->assertEquals($militaryUser->id, $asset->fresh()->custodian_user_id);
+    }
+
+    #[Test]
+    public function cannot_create_custody_with_unavailable_assets()
+    {
+        $user = User::factory()->create();
+        $militaryUser = MilitaryUser::factory()->create();
+        $asset = Asset::factory()->create(['status' => 'EM_USO']);
+
+        Livewire::actingAs($user)
+            ->test(Create::class)
+            ->set('user_id', $militaryUser->id)
+            ->set('checkout_date', '2025-01-01')
+            ->set('selectedAssets', [$asset->id])
+            ->call('save')
+            ->assertHasErrors(['selectedAssets']);
+    }
+
+    #[Test]
+    public function can_add_asset_to_open_custody()
+    {
+        $user = User::factory()->create();
+        $custody = CustodyLog::factory()->create();
+        $asset = Asset::factory()->create(['status' => 'DISPONIVEL']);
+
+        Livewire::actingAs($user)
+            ->test(Edit::class, ['custodyLog' => $custody])
+            ->call('addAsset', $asset)
+            ->assertHasNoErrors();
+
+        $this->assertTrue($custody->assets->contains($asset));
         $this->assertEquals('EM_USO', $asset->fresh()->status);
     }
 
-    public function test_can_close_custody()
+    #[Test]
+    public function can_remove_asset_from_open_custody()
     {
         $user = User::factory()->create();
-        $military = MilitaryUser::factory()->create();
-        $asset = \App\Models\Asset::factory()->create(['status' => 'EM_USO']);
-        
-        $custody = \App\Models\CustodyLog::factory()->create([
-            'user_id' => $military->id,
-            'checkout_date' => now()->subDays(5),
-        ]);
-        $custody->assets()->attach($asset->id);
+        $custody = CustodyLog::factory()->create();
+        $asset = Asset::factory()->create(['status' => 'EM_USO', 'custodian_user_id' => $custody->user_id]);
+        $custody->assets()->attach($asset);
 
         Livewire::actingAs($user)
-            ->test(\App\Livewire\Custody\Edit::class, ['custodyLog' => $custody])
+            ->test(Edit::class, ['custodyLog' => $custody])
+            ->call('removeAsset', $asset)
+            ->assertHasNoErrors();
+
+        $this->assertFalse($custody->assets->contains($asset));
+        $this->assertEquals('DISPONIVEL', $asset->fresh()->status);
+        $this->assertNull($asset->fresh()->custodian_user_id);
+    }
+
+    #[Test]
+    public function can_close_custody()
+    {
+        $user = User::factory()->create();
+        $custody = CustodyLog::factory()->create(['checkin_date' => null]);
+        $asset = Asset::factory()->create(['status' => 'EM_USO', 'custodian_user_id' => $custody->user_id]);
+        $custody->assets()->attach($asset);
+
+        Livewire::actingAs($user)
+            ->test(Edit::class, ['custodyLog' => $custody])
             ->call('closeCustody')
-            ->assertRedirect(route('custody.index')); 
+            ->assertRedirect(route('custody.index'));
 
         $this->assertNotNull($custody->fresh()->checkin_date);
         $this->assertEquals('DISPONIVEL', $asset->fresh()->status);
+        $this->assertNull($asset->fresh()->custodian_user_id);
     }
 }

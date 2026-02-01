@@ -21,6 +21,7 @@ class MilitaryUserTest extends TestCase
             'name' => 'João Silva',
             'rank' => 'Sargento',
             'registration' => '123456',
+            'military_id' => '1234567-8',
             'sector_id' => $sector->id,
             'role' => 'user',
             'email' => 'joao.silva@eb.mil.br',
@@ -49,8 +50,8 @@ class MilitaryUserTest extends TestCase
     public function test_military_user_has_many_custody_logs()
     {
         $user = MilitaryUser::factory()->create();
-        $custody1 = CustodyLog::factory()->create(['responsible_id' => $user->id]);
-        $custody2 = CustodyLog::factory()->create(['responsible_id' => $user->id]);
+        $custody1 = CustodyLog::factory()->create(['user_id' => $user->id]);
+        $custody2 = CustodyLog::factory()->create(['user_id' => $user->id]);
 
         $this->assertCount(2, $user->custodyLogs);
         $this->assertInstanceOf(CustodyLog::class, $user->custodyLogs->first());
