@@ -24,6 +24,10 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
     Route::get('/assets', App\Livewire\Assets\Index::class)->name('assets.index');
     Route::get('/assets/create', App\Livewire\Assets\Create::class)->name('assets.create');
     Route::get('/assets/{asset}/edit', App\Livewire\Assets\Edit::class)->name('assets.edit');
+
+    Route::get('/custody', App\Livewire\Custody\Index::class)->name('custody.index');
+    Route::get('/custody/create', App\Livewire\Custody\Create::class)->name('custody.create');
+    Route::get('/custody/{custodyLog}/edit', App\Livewire\Custody\Edit::class)->name('custody.edit');
 });
 
 Route::middleware('auth')->group(function () {
