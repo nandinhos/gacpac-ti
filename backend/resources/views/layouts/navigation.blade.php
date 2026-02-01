@@ -13,21 +13,39 @@
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
+                        {{ __('Painel') }}
                     </x-nav-link>
                     <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
-                        {{ __('Users') }}
+                        {{ __('Usuários') }}
                     </x-nav-link>
                     <x-nav-link :href="route('sectors.index')" :active="request()->routeIs('sectors.*')">
-                        {{ __('Sectors') }}
+                        {{ __('Setores') }}
                     </x-nav-link>
                     <x-nav-link :href="route('assets.index')" :active="request()->routeIs('assets.*')">
-                        {{ __('Assets') }}
+                        {{ __('Ativos') }}
                     </x-nav-link>
                     <x-nav-link :href="route('custody.index')" :active="request()->routeIs('custody.*')">
-                        {{ __('Custody') }}
+                        {{ __('Cautelas') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('inventory.index')" :active="request()->routeIs('inventory.*')">
+                        {{ __('Inventário') }}
                     </x-nav-link>
                 </div>
+            </div>
+
+            <!-- Quick Search -->
+            <div class="hidden sm:flex items-center flex-1 max-w-xs px-4">
+                <form action="{{ route('assets.index') }}" method="GET" class="w-full">
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <input type="text" name="search" placeholder="{{ __('Busca rápida (Patrimônio/QR)...') }}" 
+                               class="block w-full pl-10 pr-3 py-1.5 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+                </form>
             </div>
 
             <!-- Settings Dropdown -->
@@ -47,7 +65,7 @@
 
                     <x-slot name="content">
                         <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('Profile') }}
+                            {{ __('Perfil') }}
                         </x-dropdown-link>
 
                         <!-- Authentication -->
@@ -57,7 +75,7 @@
                             <x-dropdown-link :href="route('logout')"
                                     onclick="event.preventDefault();
                                                 this.closest('form').submit();">
-                                {{ __('Log Out') }}
+                                {{ __('Sair') }}
                             </x-dropdown-link>
                         </form>
                     </x-slot>
@@ -80,7 +98,22 @@
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ __('Dashboard') }}
+                {{ __('Painel') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
+                {{ __('Usuários') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('sectors.index')" :active="request()->routeIs('sectors.*')">
+                {{ __('Setores') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('assets.index')" :active="request()->routeIs('assets.*')">
+                {{ __('Ativos') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('custody.index')" :active="request()->routeIs('custody.*')">
+                {{ __('Cautelas') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('inventory.index')" :active="request()->routeIs('inventory.*')">
+                {{ __('Inventário') }}
             </x-responsive-nav-link>
         </div>
 
@@ -93,7 +126,7 @@
 
             <div class="mt-3 space-y-1">
                 <x-responsive-nav-link :href="route('profile.edit')">
-                    {{ __('Profile') }}
+                    {{ __('Perfil') }}
                 </x-responsive-nav-link>
 
                 <!-- Authentication -->
@@ -103,7 +136,7 @@
                     <x-responsive-nav-link :href="route('logout')"
                             onclick="event.preventDefault();
                                         this.closest('form').submit();">
-                        {{ __('Log Out') }}
+                        {{ __('Sair') }}
                     </x-responsive-nav-link>
                 </form>
             </div>
