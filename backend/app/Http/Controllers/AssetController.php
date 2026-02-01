@@ -25,12 +25,13 @@ class AssetController extends Controller
         if ($request->has('sectorId')) {
             $query->where('sector_id', $request->sectorId);
         }
-        if ($request->has('search')) {
+        if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function () use ($search) {
-                $query->where('name', 'like', "%{$search}%")
-                      ->orWhere('serial_number', 'like', "%{$search}%")
-                      ->orWhere('patrimony_id', 'like', "%{$search}%");
+            $query->where(function($q) use ($search) {
+                $q->where('brand', 'like', "%{$search}%")
+                  ->orWhere('model', 'like', "%{$search}%")
+                  ->orWhere('serial_number', 'like', "%{$search}%")
+                  ->orWhere('qr_code', 'like', "%{$search}%");
             });
         }
         return $query->with(['sector', 'custodian'])->get();
@@ -38,6 +39,16 @@ class AssetController extends Controller
 
     public function store(Request $request)
     {
+        $request->validate([
+            'brand' => 'required|string|max:255',
+            'type' => 'required|string',
+            'category' => 'required|string',
+            'serial_number' => 'nullable|string|unique:assets',
+            'status' => 'required|string',
+            'condition' => 'required|string',
+            'sector_id' => 'required|exists:sectors,id',
+        ]);
+
         try {
             // COMPATIBILIDADE TOTAL: Aceita AMBOS os formatos
             $data = $request->only([
@@ -114,6 +125,16 @@ class AssetController extends Controller
 
     public function update(Request $request, Asset $asset)
     {
+        $request->validate([
+            'brand' => 'sometimes|required|string|max:255',
+            'type' => 'sometimes|required|string',
+            'category' => 'sometimes|required|string',
+            'serial_number' => 'sometimes|nullable|string|unique:assets,serial_number,' . $asset->id,
+            'status' => 'sometimes|required|string',
+            'condition' => 'sometimes|required|string',
+            'sector_id' => 'sometimes|required|exists:sectors,id',
+        ]);
+
         try {
             // COMPATIBILIDADE TOTAL: Aceita AMBOS os formatos (antigo + novo)
             $data = $request->only([
@@ -212,7 +233,7 @@ class AssetController extends Controller
         // Limpar cache do dashboard após exclusão
         Cache::forget('dashboard_stats');
 
-        return response()->json(['message' => 'Deleted']);
+        return response()->json(['message' => 'Ativo excluído com sucesso']);
     }
 
     /**
@@ -278,11 +299,32 @@ class AssetController extends Controller
             // Atualizar cache
             cache()->put($cacheKey, $filteredPhotos, 3600);
             
-            return response()->json(['message' => 'Photo deleted successfully']);
+            return response()->json(['message' => 'Foto excluída com sucesso']);
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Erro ao excluir foto: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Get asset by QR Code
+     */
+    public function getByQrCode($qrCode)
+    {
+        $asset = Asset::where('qr_code', $qrCode)->firstOrFail();
+        return response()->json($asset);
+    }
+
+    /**
+     * Get the next available QR Code
+     */
+    public function getNextQrCode()
+    {
+        $lastAsset = Asset::orderBy('id', 'desc')->first();
+        $nextNumber = $lastAsset ? ($lastAsset->id + 1) : 1;
+        $qrCode = 'QR' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+        
+        return response()->json(['next_qr_code' => $qrCode]);
     }
 }
