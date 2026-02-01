@@ -4,37 +4,46 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 
 class Asset extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
+
     protected $fillable = [
+        // Identificação Principal
         'qr_code',
         'name',
-        'brand',
-        'model', 
-        'serial_number',
         'patrimony_number',
+        'serial_number',
+
+        // Classificação e Detalhes
+        'brand',
+        'model',
         'type',
         'category',
+        'description', // Mantido pois é útil, mesmo se não obrigatório
+        
+        // Estado e Localização
         'status',
         'condition',
         'sector_id',
+        'location',
+        'custodian_user_id',
+        'notes',
+
+        // Financeiro
         'acquisition_date',
         'warranty_expiry',
         'purchase_value',
-        'notes',
-        // Legacy fields - manter para compatibilidade
-        'qr_code',
-        'name',
-        'subcategory',
-        'description',
-        'patrimony_id',
-        'manufacturer',
-        'purchase_price',
-        'condition_rating',
-        'location',
-        'custodian_user_id',
+
+        // --- Campos Legados / Compatibilidade (Manter enquanto houver dependência) ---
+        'patrimony_id',      // = patrimony_number
+        'manufacturer',      // = brand
+        'subcategory',       // (sem uso direto no novo, mas mantido)
+        'purchase_price',    // = purchase_value
+        'condition_rating',  // = condition (int vs string)
         'conta',
         'categoria_inventario',
         'bmp',
@@ -49,6 +58,9 @@ class Asset extends Model
     protected $casts = [
         'acquisition_date' => 'date',
         'warranty_expiry' => 'date',
+        'purchase_value' => 'decimal:2',
+        
+        // Casts de compatibilidade
         'purchase_price' => 'decimal:2',
         'condition_rating' => 'integer',
         'qtd' => 'integer',

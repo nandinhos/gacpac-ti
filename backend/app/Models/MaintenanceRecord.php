@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class MaintenanceRecord extends Model
 {
+    use HasFactory;
     protected $table = 'maintenance_records';
 
     protected $fillable = [

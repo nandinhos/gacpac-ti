@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class UncataloguedItem extends Model
 {
+    use HasFactory;
     protected $table = 'uncatalogued_items';
 
     protected $fillable = [

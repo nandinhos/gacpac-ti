@@ -24,6 +24,8 @@ class MilitaryUserFactory extends Factory
             'password' => 'password', // Default password for tests
             'is_active' => true,
             'user_role' => 'user',
+            'role' => 'user',
+            'registration' => $this->faker->unique()->numerify('######'),
             'email_verified_at' => now(),
             'remember_token' => Str::random(10),
         ];

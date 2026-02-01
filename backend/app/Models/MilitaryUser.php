@@ -6,10 +6,11 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class MilitaryUser extends Authenticatable
 {
-    use HasApiTokens, Notifiable, HasFactory;
+    use HasApiTokens, Notifiable, HasFactory, SoftDeletes;
 
     protected $table = 'military_users';
 
@@ -23,6 +24,8 @@ class MilitaryUser extends Authenticatable
         'password',
         'is_active',
         'user_role',
+        'role',
+        'registration',
         'commission_inventories',
     ];
 
@@ -51,5 +54,15 @@ class MilitaryUser extends Authenticatable
     public function inventoryRecords()
     {
         return $this->hasMany(InventoryRecord::class, 'responsible_user_id');
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    public function scopeByRole($query, $role)
+    {
+        return $query->where('role', $role);
     }
 }

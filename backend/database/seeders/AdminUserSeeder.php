@@ -21,6 +21,8 @@ class AdminUserSeeder extends Seeder
                 'name' => 'Administrador do Sistema',
                 'rank' => 'Ten Cel',
                 'military_id' => 'admin',
+                'registration' => '000000',
+                'role' => 'Administrador',
                 'email' => 'admin@gac.pac.br',
                 'password' => Hash::make('admin123'),
                 'is_active' => true,
@@ -36,11 +38,13 @@ class AdminUserSeeder extends Seeder
                 'name' => 'João Silva Santos',
                 'rank' => 'Cap',
                 'military_id' => 'comissao001',
+                'registration' => '123456',
+                'role' => 'Presidente da Comissão',
                 'email' => 'joao.santos@gac.pac.br',
                 'password' => Hash::make('comissao123'),
                 'is_active' => true,
                 'user_role' => 'commission',
-                'commission_inventories' => [1, 2], // IDs dos inventários que pode gerenciar
+                'commission_inventories' => [1, 2], 
             ]
         );
 
@@ -51,6 +55,8 @@ class AdminUserSeeder extends Seeder
                 'name' => 'Maria Oliveira Costa',
                 'rank' => '1º Ten',
                 'military_id' => 'user001',
+                'registration' => '654321',
+                'role' => 'Encarregado de Material',
                 'email' => 'maria.costa@gac.pac.br',
                 'password' => Hash::make('user123'),
                 'is_active' => true,
