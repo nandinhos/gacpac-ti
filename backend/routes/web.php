@@ -5,13 +5,11 @@ use App\Livewire\Users\Index;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
 
 Route::group(['middleware' => ['auth', 'verified']], function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', App\Livewire\Dashboard::class)->name('dashboard');
 
     Route::get('/users', Index::class)->name('users.index');
     Route::get('/users/create', App\Livewire\Users\Create::class)->name('users.create');
@@ -28,6 +26,9 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
     Route::get('/custody', App\Livewire\Custody\Index::class)->name('custody.index');
     Route::get('/custody/create', App\Livewire\Custody\Create::class)->name('custody.create');
     Route::get('/custody/{custodyLog}/edit', App\Livewire\Custody\Edit::class)->name('custody.edit');
+
+    Route::get('/inventory', App\Livewire\Inventory\Index::class)->name('inventory.index');
+    Route::get('/inventory/{inventory}', App\Livewire\Inventory\Show::class)->name('inventory.show');
 });
 
 Route::middleware('auth')->group(function () {
