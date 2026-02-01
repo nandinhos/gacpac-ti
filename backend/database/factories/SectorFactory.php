@@ -30,6 +30,7 @@ class SectorFactory extends Factory
                 'Estado Maior'
             ]),
             'description' => $this->faker->optional()->sentence(),
+            'is_active' => true,
             'created_at' => now(),
             'updated_at' => now(),
         ];

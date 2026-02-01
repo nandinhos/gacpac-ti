@@ -18,7 +18,7 @@ class Edit extends Component
         $this->sector = $sector;
         $this->name = $sector->name;
         $this->description = $sector->description ?? '';
-        $this->is_active = $sector->is_active;
+        $this->is_active = (bool) $sector->is_active;
     }
 
     public function save()
