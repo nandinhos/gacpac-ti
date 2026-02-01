@@ -23,6 +23,6 @@ class Index extends Component
             'sectors' => Sector::where('name', 'like', '%'.$this->search.'%')
                 ->orWhere('description', 'like', '%'.$this->search.'%')
                 ->paginate(10),
-        ])->layout('layouts.app');
+        ])->layout('layouts.sgaiti');
     }
 }

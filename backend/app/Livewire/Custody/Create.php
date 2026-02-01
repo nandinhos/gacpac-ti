@@ -31,14 +31,48 @@ class Create extends Component
         $this->cautela_number = 'CAUTELA-' . date('Y') . '-' . str_pad($lastId + 1, 4, '0', STR_PAD_LEFT);
     }
 
+    public function getAvailableAssetsProperty()
+    {
+        return Asset::where('status', 'DISPONIVEL')
+            ->where(function ($query) {
+                $query->where('name', 'like', '%' . $this->searchAsset . '%')
+                      ->orWhere('qr_code', 'like', '%' . $this->searchAsset . '%')
+                      ->orWhere('patrimony_number', 'like', '%' . $this->searchAsset . '%');
+            })
+            ->limit(50) // Limit to prevent overload
+            ->get();
+    }
+
+    public function toggleAsset($assetId)
+    {
+        if (in_array($assetId, $this->selectedAssets)) {
+            $this->selectedAssets = array_diff($this->selectedAssets, [$assetId]);
+        } else {
+            $this->selectedAssets[] = $assetId;
+        }
+    }
+
     public function save()
     {
         $this->validate([
             'user_id' => 'required|exists:military_users,id',
             'checkout_date' => 'required|date',
             'selectedAssets' => 'required|array|min:1',
+            'selectedAssets.*' => 'exists:assets,id', // Basic existence check
             'cautela_number' => 'required|unique:custody_logs,cautela_number',
         ]);
+
+        // Race condition check: Verify if all selected assets are still available
+        $unavailableAssets = Asset::whereIn('id', $this->selectedAssets)
+                                  ->where('status', '!=', 'DISPONIVEL')
+                                  ->count();
+
+        if ($unavailableAssets > 0) {
+            $this->addError('selectedAssets', 'Um ou mais itens selecionados não estão mais disponíveis.');
+            // Refresh the list
+            $this->dispatch('assets-updated'); 
+            return;
+        }
 
         DB::transaction(function () {
             $custody = CustodyLog::create([
@@ -51,7 +85,7 @@ class Create extends Component
             $custody->assets()->attach($this->selectedAssets);
 
             // Update assets status
-            Asset::whereIn('id', $this->selectedAssets)->update(['status' => 'EM_USO']);
+            Asset::whereIn('id', $this->selectedAssets)->update(['status' => 'EM_USO', 'custodian_user_id' => $this->user_id]);
         });
 
         return redirect()->route('custody.index');
@@ -59,18 +93,9 @@ class Create extends Component
 
     public function render()
     {
-        $assets = Asset::where('status', 'DISPONIVEL')
-            ->where(function ($query) {
-                $query->where('name', 'like', '%' . $this->searchAsset . '%')
-                      ->orWhere('qr_code', 'like', '%' . $this->searchAsset . '%')
-                      ->orWhere('patrimony_number', 'like', '%' . $this->searchAsset . '%');
-            })
-            ->limit(10)
-            ->get();
-
         return view('livewire.custody.create', [
             'users' => MilitaryUser::orderBy('name')->get(),
-            'availableAssets' => $assets
-        ])->layout('layouts.app');
+            'assetsList' => $this->availableAssets, // Use computed property
+        ])->layout('layouts.sgaiti');
     }
 }

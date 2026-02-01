@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Users;
 
-use App\Models\User;
+use App\Models\MilitaryUser;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -12,21 +12,18 @@ class Index extends Component
 
     public $search = '';
 
-    public function delete(User $user)
+    public function delete(\App\Models\MilitaryUser $user)
     {
-        if ($user->id === auth()->id()) {
-            return;
-        }
-
         $user->delete();
     }
 
     public function render()
     {
         return view('livewire.users.index', [
-            'users' => User::where('name', 'like', '%'.$this->search.'%')
+            'users' => \App\Models\MilitaryUser::where('name', 'like', '%'.$this->search.'%')
                 ->orWhere('email', 'like', '%'.$this->search.'%')
+                ->orWhere('military_id', 'like', '%'.$this->search.'%')
                 ->paginate(10),
-        ])->layout('layouts.app');
+        ])->layout('layouts.sgaiti');
     }
 }

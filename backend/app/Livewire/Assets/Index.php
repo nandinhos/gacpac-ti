@@ -3,14 +3,62 @@
 namespace App\Livewire\Assets;
 
 use App\Models\Asset;
+use App\Models\Sector;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Livewire\Attributes\Url;
 
 class Index extends Component
 {
     use WithPagination;
 
+    #[Url(history: true)]
     public $search = '';
+
+    #[Url(history: true)]
+    public $sector_id = '';
+
+    #[Url(history: true)]
+    public $status = '';
+
+    #[Url(history: true)]
+    public $type = '';
+
+    #[Url(history: true)]
+    public $sortField = 'created_at';
+
+    #[Url(history: true)]
+    public $sortDirection = 'desc';
+
+    public function sortBy($field)
+    {
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortField = $field;
+            $this->sortDirection = 'asc';
+        }
+    }
+
+    public function updatedSearch()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedSectorId()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedStatus()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedType()
+    {
+        $this->resetPage();
+    }
 
     public function delete(Asset $asset)
     {
@@ -21,11 +69,26 @@ class Index extends Component
     {
         return view('livewire.assets.index', [
             'assets' => Asset::with('sector')
-                ->where('name', 'like', '%'.$this->search.'%')
-                ->orWhere('serial_number', 'like', '%'.$this->search.'%')
-                ->orWhere('patrimony_number', 'like', '%'.$this->search.'%')
-                ->latest()
+                ->where(function ($query) {
+                    $query->where('name', 'like', '%'.$this->search.'%')
+                        ->orWhere('serial_number', 'like', '%'.$this->search.'%')
+                        ->orWhere('patrimony_number', 'like', '%'.$this->search.'%')
+                        ->orWhere('qr_code', 'like', '%'.$this->search.'%');
+                })
+                ->when($this->sector_id, function ($query) {
+                    $query->where('sector_id', $this->sector_id);
+                })
+                ->when($this->status, function ($query) {
+                    $query->where('status', $this->status);
+                })
+                ->when($this->type, function ($query) {
+                    $query->where('type', $this->type);
+                })
+                ->orderBy($this->sortField, $this->sortDirection)
                 ->paginate(10),
-        ])->layout('layouts.app');
+            'sectors' => Sector::orderBy('name')->get(),
+            'types' => ['COMPUTADOR', 'NOTEBOOK', 'MONITOR', 'IMPRESSORA', 'PERIFERICO', 'REDE', 'NOBREAK', 'OUTRO'],
+            'statuses' => ['DISPONIVEL', 'EM_USO', 'MANUTENCAO', 'BAIXADO', 'EXTRAVIADO'],
+        ])->layout('layouts.sgaiti');
     }
 }

@@ -40,6 +40,6 @@ class Edit extends Component
 
     public function render()
     {
-        return view('livewire.sectors.edit')->layout('layouts.app');
+        return view('livewire.sectors.edit')->layout('layouts.sgaiti');
     }
 }

@@ -29,9 +29,11 @@ class Edit extends Component
     public string $status = 'DISPONIVEL';
     public string $condition = 'NOVO';
     public ?int $sector_id = null;
+    public ?string $location = null;
     
     // Financial
     public ?string $acquisition_date = null;
+    public ?string $warranty_expiry = null;
     public ?string $purchase_value = null;
     public ?string $notes = null;
 
@@ -49,7 +51,9 @@ class Edit extends Component
         $this->status = $asset->status;
         $this->condition = $asset->condition ?? 'NOVO';
         $this->sector_id = $asset->sector_id;
+        $this->location = $asset->location ?? '';
         $this->acquisition_date = $asset->acquisition_date ? $asset->acquisition_date->format('Y-m-d') : null;
+        $this->warranty_expiry = $asset->warranty_expiry ? $asset->warranty_expiry->format('Y-m-d') : null;
         $this->purchase_value = $asset->purchase_value;
         $this->notes = $asset->notes;
     }
@@ -71,8 +75,10 @@ class Edit extends Component
             'status' => ['required', 'string'],
             'condition' => ['required', 'string'],
             'sector_id' => ['nullable', 'exists:sectors,id'],
+            'location' => ['nullable', 'string', 'max:255'],
             
             'acquisition_date' => ['nullable', 'date'],
+            'warranty_expiry' => ['nullable', 'date', 'after_or_equal:acquisition_date'],
             'purchase_value' => ['nullable', 'numeric', 'min:0'],
             'notes' => ['nullable', 'string'],
         ]);
@@ -89,6 +95,6 @@ class Edit extends Component
             'types' => ['COMPUTADOR', 'MONITOR', 'IMPRESSORA', 'PERIFERICO', 'REDE', 'NOBREAK', 'OUTRO'],
             'statuses' => ['DISPONIVEL', 'EM_USO', 'MANUTENCAO', 'BAIXADO'],
             'conditions' => ['NOVO', 'BOM', 'REGULAR', 'RUIM', 'SUCATA'],
-        ])->layout('layouts.app');
+        ])->layout('layouts.sgaiti');
     }
 }

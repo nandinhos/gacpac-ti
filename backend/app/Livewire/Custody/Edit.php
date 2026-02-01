@@ -26,6 +26,51 @@ class Edit extends Component
         $this->notes = $custodyLog->notes;
     }
 
+    public $searchAsset = '';
+
+    public function getAvailableAssetsProperty()
+    {
+        return Asset::where('status', 'DISPONIVEL')
+            ->where(function ($query) {
+                $query->where('name', 'like', '%' . $this->searchAsset . '%')
+                      ->orWhere('qr_code', 'like', '%' . $this->searchAsset . '%')
+                      ->orWhere('patrimony_number', 'like', '%' . $this->searchAsset . '%');
+            })
+            ->limit(10)
+            ->get();
+    }
+
+    public function addAsset(Asset $asset)
+    {
+        if ($this->custodyLog->checkin_date) {
+            return;
+        }
+
+        if ($asset->status !== 'DISPONIVEL') {
+            $this->addError('searchAsset', 'Asset is not available.');
+            return;
+        }
+
+        DB::transaction(function () use ($asset) {
+            $this->custodyLog->assets()->attach($asset->id);
+            $asset->update(['status' => 'EM_USO', 'custodian_user_id' => $this->custodyLog->user_id]);
+        });
+
+        $this->searchAsset = '';
+    }
+
+    public function removeAsset(Asset $asset)
+    {
+        if ($this->custodyLog->checkin_date) {
+            return;
+        }
+
+        DB::transaction(function () use ($asset) {
+            $this->custodyLog->assets()->detach($asset->id);
+            $asset->update(['status' => 'DISPONIVEL', 'custodian_user_id' => null]);
+        });
+    }
+
     public function closeCustody()
     {
         DB::transaction(function () {
@@ -34,7 +79,9 @@ class Edit extends Component
             ]);
 
             // Release assets
-            $this->custodyLog->assets()->update(['status' => 'DISPONIVEL']);
+            foreach ($this->custodyLog->assets as $asset) {
+                $asset->update(['status' => 'DISPONIVEL', 'custodian_user_id' => null]);
+            }
         });
 
         return redirect()->route('custody.index');
@@ -43,7 +90,8 @@ class Edit extends Component
     public function render()
     {
         return view('livewire.custody.edit', [
-            'assets' => $this->custodyLog->assets,
-        ])->layout('layouts.app');
+            'assets' => $this->custodyLog->assets()->get(), // Ensure fresh list
+            'availableAssets' => $this->availableAssets,
+        ])->layout('layouts.sgaiti');
     }
 }

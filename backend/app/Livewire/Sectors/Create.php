@@ -30,6 +30,6 @@ class Create extends Component
 
     public function render()
     {
-        return view('livewire.sectors.create')->layout('layouts.app');
+        return view('livewire.sectors.create')->layout('layouts.sgaiti');
     }
 }
