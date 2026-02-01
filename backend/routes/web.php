@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
-use App\Livewire\Users\Index;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -9,26 +8,29 @@ Route::get('/', function () {
 });
 
 Route::group(['middleware' => ['auth', 'verified']], function () {
-    Route::get('/dashboard', App\Livewire\Dashboard::class)->name('dashboard');
+    Route::livewire('/dashboard', App\Livewire\Dashboard::class)->name('dashboard');
 
-    Route::get('/users', Index::class)->name('users.index');
-    Route::get('/users/create', App\Livewire\Users\Create::class)->name('users.create');
-    Route::get('/users/{user}/edit', App\Livewire\Users\Edit::class)->name('users.edit');
+    Route::livewire('/users', App\Livewire\Users\Index::class)->name('users.index');
+    Route::livewire('/users/create', App\Livewire\Users\Create::class)->name('users.create');
+    Route::livewire('/users/{user}/edit', App\Livewire\Users\Edit::class)->name('users.edit');
 
-    Route::get('/sectors', App\Livewire\Sectors\Index::class)->name('sectors.index');
-    Route::get('/sectors/create', App\Livewire\Sectors\Create::class)->name('sectors.create');
-    Route::get('/sectors/{sector}/edit', App\Livewire\Sectors\Edit::class)->name('sectors.edit');
+    Route::livewire('/sectors', App\Livewire\Sectors\Index::class)->name('sectors.index');
+    Route::livewire('/sectors/create', App\Livewire\Sectors\Create::class)->name('sectors.create');
+    Route::livewire('/sectors/{sector}/edit', App\Livewire\Sectors\Edit::class)->name('sectors.edit');
 
-    Route::get('/assets', App\Livewire\Assets\Index::class)->name('assets.index');
-    Route::get('/assets/create', App\Livewire\Assets\Create::class)->name('assets.create');
-    Route::get('/assets/{asset}/edit', App\Livewire\Assets\Edit::class)->name('assets.edit');
+    Route::livewire('/assets', App\Livewire\Assets\Index::class)->name('assets.index');
+    Route::livewire('/assets/create', App\Livewire\Assets\Create::class)->name('assets.create');
+    Route::livewire('/assets/{asset}/edit', App\Livewire\Assets\Edit::class)->name('assets.edit');
 
-    Route::get('/custody', App\Livewire\Custody\Index::class)->name('custody.index');
-    Route::get('/custody/create', App\Livewire\Custody\Create::class)->name('custody.create');
-    Route::get('/custody/{custodyLog}/edit', App\Livewire\Custody\Edit::class)->name('custody.edit');
+    Route::livewire('/custody', App\Livewire\Custody\Index::class)->name('custody.index');
+    Route::livewire('/custody/create', App\Livewire\Custody\Create::class)->name('custody.create');
+    Route::livewire('/custody/{custodyLog}/edit', App\Livewire\Custody\Edit::class)->name('custody.edit');
 
-    Route::get('/inventory', App\Livewire\Inventory\Index::class)->name('inventory.index');
-    Route::get('/inventory/{inventory}', App\Livewire\Inventory\Show::class)->name('inventory.show');
+    Route::livewire('/inventory', App\Livewire\Inventory\Index::class)->name('inventory.index');
+    Route::livewire('/inventory/{inventory}', App\Livewire\Inventory\Show::class)->name('inventory.show');
+
+    Route::livewire('/categories', App\Livewire\Categories\Index::class)->name('categories.index');
+    Route::livewire('/categories/create', App\Livewire\Categories\Create::class)->name('categories.create');
 });
 
 Route::middleware('auth')->group(function () {
