@@ -16,6 +16,10 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
     Route::get('/users', Index::class)->name('users.index');
     Route::get('/users/create', App\Livewire\Users\Create::class)->name('users.create');
     Route::get('/users/{user}/edit', App\Livewire\Users\Edit::class)->name('users.edit');
+
+    Route::get('/sectors', App\Livewire\Sectors\Index::class)->name('sectors.index');
+    Route::get('/sectors/create', App\Livewire\Sectors\Create::class)->name('sectors.create');
+    Route::get('/sectors/{sector}/edit', App\Livewire\Sectors\Edit::class)->name('sectors.edit');
 });
 
 Route::middleware('auth')->group(function () {
