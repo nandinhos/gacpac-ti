@@ -20,6 +20,10 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
     Route::get('/sectors', App\Livewire\Sectors\Index::class)->name('sectors.index');
     Route::get('/sectors/create', App\Livewire\Sectors\Create::class)->name('sectors.create');
     Route::get('/sectors/{sector}/edit', App\Livewire\Sectors\Edit::class)->name('sectors.edit');
+
+    Route::get('/assets', App\Livewire\Assets\Index::class)->name('assets.index');
+    Route::get('/assets/create', App\Livewire\Assets\Create::class)->name('assets.create');
+    Route::get('/assets/{asset}/edit', App\Livewire\Assets\Edit::class)->name('assets.edit');
 });
 
 Route::middleware('auth')->group(function () {
