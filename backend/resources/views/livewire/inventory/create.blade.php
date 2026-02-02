@@ -53,9 +53,8 @@
                                     wire:model="sector_id"
                                     id="sector_id"
                                     class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
-                                    required
                                 >
-                                    <option value="">{{ __('Selecione um setor') }}</option>
+                                    <option value="">{{ __('TODOS OS SETORES (Geral)') }}</option>
                                     @foreach($sectors as $sector)
                                         <option value="{{ $sector->id }}">{{ $sector->name }}</option>
                                     @endforeach
@@ -79,6 +78,32 @@
                                 @endforeach
                             </select>
                             <x-input-error :messages="$errors->get('responsible_user_id')" class="mt-2" />
+                        </div>
+
+                        <!-- Comissão -->
+                        <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                            <label class="flex items-center space-x-3 cursor-pointer mb-4">
+                                <input type="checkbox" wire:model.live="is_commission" class="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                                <span class="font-medium text-gray-900">{{ __('Realizar Inventário em Comissão') }}</span>
+                            </label>
+
+                            @if($is_commission)
+                            <div>
+                                <x-input-label for="selected_members" :value="__('Membros da Comissão')" />
+                                <select
+                                    wire:model="selected_members"
+                                    id="selected_members"
+                                    class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm h-32"
+                                    multiple
+                                >
+                                    @foreach($users as $user)
+                                        <option value="{{ $user->id }}">{{ $user->rank }} {{ $user->name }}</option>
+                                    @endforeach
+                                </select>
+                                <p class="text-xs text-gray-500 mt-1">Segure Ctrl (Windows) ou Cmd (Mac) para selecionar múltiplos.</p>
+                                <x-input-error :messages="$errors->get('selected_members')" class="mt-2" />
+                            </div>
+                            @endif
                         </div>
 
                         <!-- Observações -->

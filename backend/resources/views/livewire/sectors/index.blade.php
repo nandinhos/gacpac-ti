@@ -1,4 +1,4 @@
-
+<div>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Setores') }}
@@ -60,7 +60,7 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <a href="{{ route('sectors.edit', $sector) }}" class="text-indigo-600 hover:text-indigo-900 mr-3" wire:navigate>{{ __('Editar') }}</a>
-                                            <button wire:click="delete({{ $sector->id }})" wire:confirm="Tem certeza?" class="text-red-600 hover:text-red-900">{{ __('Excluir') }}</button>
+                                            <button wire:click="confirmDelete({{ $sector->id }})" class="text-red-600 hover:text-red-900">{{ __('Excluir') }}</button>
                                         </td>
                                     </tr>
                                 @empty
@@ -81,3 +81,22 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal de Confirmação -->
+    <x-confirm-modal
+        id="delete-modal"
+        title="Excluir Setor"
+        message="Tem certeza que deseja excluir este setor? Esta ação não pode ser desfeita."
+        confirmText="Excluir"
+        cancelText="Cancelar"
+        confirmColor="red"
+    >
+        <button
+            type="button"
+            wire:click="delete"
+            class="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto"
+        >
+            Excluir
+        </button>
+    </x-confirm-modal>
+</div>

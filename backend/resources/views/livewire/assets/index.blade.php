@@ -1,4 +1,4 @@
-
+<div>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Ativos') }}
@@ -12,7 +12,7 @@
                     <div class="mb-4 flex flex-col sm:flex-row justify-between items-center gap-4">
                         <div class="flex flex-col sm:flex-row gap-4 w-full">
                             <input wire:model.live.debounce.300ms="search" type="text" placeholder="Buscar por nome, serial ou patrimônio..." class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full sm:w-1/3">
-                            
+
                             <select wire:model.live="sector_id" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full sm:w-1/4">
                                 <option value="">{{ __('Todos Setores') }}</option>
                                 @foreach($sectors as $sector)
@@ -99,7 +99,7 @@
                                             {{ $asset->sector->name ?? '-' }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
                                                 {{ $asset->status === 'DISPONIVEL' ? 'bg-green-100 text-green-800' : '' }}
                                                 {{ $asset->status === 'EM_USO' ? 'bg-blue-100 text-blue-800' : '' }}
                                                 {{ $asset->status === 'MANUTENCAO' ? 'bg-yellow-100 text-yellow-800' : '' }}
@@ -109,7 +109,7 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <a href="{{ route('assets.edit', $asset) }}" class="text-indigo-600 hover:text-indigo-900 mr-3" wire:navigate>{{ __('Editar') }}</a>
-                                            <button wire:click="delete({{ $asset->id }})" wire:confirm="Tem certeza?" class="text-red-600 hover:text-red-900">{{ __('Excluir') }}</button>
+                                            <button wire:click="confirmDelete({{ $asset->id }})" class="text-red-600 hover:text-red-900">{{ __('Excluir') }}</button>
                                         </td>
                                     </tr>
                                 @empty
@@ -130,3 +130,22 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal de Confirmação -->
+    <x-confirm-modal
+        id="delete-modal"
+        title="Excluir Ativo"
+        message="Tem certeza que deseja excluir este ativo? Esta ação não pode ser desfeita."
+        confirmText="Excluir"
+        cancelText="Cancelar"
+        confirmColor="red"
+    >
+        <button
+            type="button"
+            wire:click="delete"
+            class="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto"
+        >
+            Excluir
+        </button>
+    </x-confirm-modal>
+</div>

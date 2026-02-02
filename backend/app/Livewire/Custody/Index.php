@@ -18,16 +18,37 @@ class Index extends Component
     #[Url(history: true)]
     public $status = ''; // 'open' or 'closed'
 
-    public function delete(CustodyLog $custody)
+    public $confirmingDelete = null;
+
+    public function confirmDelete($id)
     {
-        DB::transaction(function () use ($custody) {
-            // Restore assets to available if custody is deleted and was open
-            if (!$custody->checkin_date) {
-                $custody->assets()->update(['status' => 'DISPONIVEL']);
+        $this->confirmingDelete = $id;
+        $this->dispatch('open-confirm-delete-modal');
+    }
+
+    public function delete()
+    {
+        if ($this->confirmingDelete) {
+            $custody = CustodyLog::find($this->confirmingDelete);
+            if ($custody) {
+                DB::transaction(function () use ($custody) {
+                    // Restore assets to available if custody is deleted and was open
+                    if (!$custody->checkin_date) {
+                        $custody->assets()->update(['status' => 'DISPONIVEL']);
+                    }
+                    $custody->assets()->detach();
+                    $custody->delete();
+                });
             }
-            $custody->assets()->detach();
-            $custody->delete();
-        });
+            $this->confirmingDelete = null;
+        }
+        $this->dispatch('close-confirm-delete-modal');
+    }
+
+    public function cancelDelete()
+    {
+        $this->confirmingDelete = null;
+        $this->dispatch('close-confirm-delete-modal');
     }
 
     public function render()

@@ -11,10 +11,27 @@ class Index extends Component
     use WithPagination;
 
     public $search = '';
+    public $confirmingDelete = null;
 
-    public function delete(Sector $sector)
+    public function confirmDelete($id)
     {
-        $sector->delete();
+        $this->confirmingDelete = $id;
+        $this->dispatch('open-confirm-delete-modal');
+    }
+
+    public function delete()
+    {
+        if ($this->confirmingDelete) {
+            Sector::find($this->confirmingDelete)?->delete();
+            $this->confirmingDelete = null;
+        }
+        $this->dispatch('close-confirm-delete-modal');
+    }
+
+    public function cancelDelete()
+    {
+        $this->confirmingDelete = null;
+        $this->dispatch('close-confirm-delete-modal');
     }
 
     public function render()

@@ -60,9 +60,27 @@ class Index extends Component
         $this->resetPage();
     }
 
-    public function delete(Asset $asset)
+    public $confirmingDelete = null;
+
+    public function confirmDelete($id)
     {
-        $asset->delete();
+        $this->confirmingDelete = $id;
+        $this->dispatch('open-confirm-delete-modal');
+    }
+
+    public function delete()
+    {
+        if ($this->confirmingDelete) {
+            Asset::find($this->confirmingDelete)?->delete();
+            $this->confirmingDelete = null;
+        }
+        $this->dispatch('close-confirm-delete-modal');
+    }
+
+    public function cancelDelete()
+    {
+        $this->confirmingDelete = null;
+        $this->dispatch('close-confirm-delete-modal');
     }
 
     public function render()

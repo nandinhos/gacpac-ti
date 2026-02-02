@@ -21,24 +21,67 @@ class Index extends Component
         'sector_id' => ['except' => ''],
     ];
 
-    public function updatingSearch()
+    public function delete($id)
     {
-        $this->resetPage();
+        $inventory = InventoryRecord::find($id);
+        
+        if ($inventory) {
+            if ($inventory->status === 'Concluído') {
+                session()->flash('message', 'Inventários concluídos não podem ser excluídos.');
+                return;
+            }
+            
+            $inventory->delete();
+            session()->flash('message', 'Inventário excluído com sucesso.');
+        }
     }
 
-    public function delete(InventoryRecord $inventory)
+    public $reopenId = null;
+    public $reopenJustification = '';
+    public $showReopenModal = false;
+
+    public function openReopenModal($id)
     {
-        $inventory->delete();
-        session()->flash('message', 'Inventário excluído com sucesso.');
+        $this->reopenId = $id;
+        $this->reopenJustification = '';
+        $this->showReopenModal = true;
+        $this->dispatch('open-modal', 'reopen-modal');
     }
 
-    public function reopen(InventoryRecord $inventory)
+    public function confirmReopen()
     {
-        $inventory->update([
-            'status' => 'Reaberto',
-            'end_date' => null,
+        $this->validate([
+            'reopenJustification' => 'required|string|min:5|max:255',
         ]);
-        session()->flash('message', 'Inventário reaberto com sucesso.');
+
+        $inventory = InventoryRecord::find($this->reopenId);
+        
+        if ($inventory) {
+            $inventory->update([
+                'status' => 'Reaberto',
+                'end_date' => null,
+            ]);
+
+            \App\Models\ReopenHistory::create([
+                'inventory_id' => $inventory->id,
+                'reopened_by_user_id' => auth()->id(),
+                'reopened_at' => now(),
+                'justification' => $this->reopenJustification,
+            ]);
+
+            session()->flash('message', 'Inventário reaberto com sucesso.');
+        }
+
+        $this->showReopenModal = false;
+        $this->reopenId = null;
+        $this->dispatch('close-modal', 'reopen-modal');
+    }
+
+    public function closeReopenModal()
+    {
+        $this->showReopenModal = false;
+        $this->reopenId = null;
+        $this->dispatch('close-modal', 'reopen-modal');
     }
 
     public function render()
