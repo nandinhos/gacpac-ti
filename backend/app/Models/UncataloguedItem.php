@@ -15,6 +15,7 @@ class UncataloguedItem extends Model
         'description',
         'location',
         'found_date',
+        'created_by_user_id',
     ];
 
     protected $casts = [
@@ -24,5 +25,10 @@ class UncataloguedItem extends Model
     public function inventory()
     {
         return $this->belongsTo(InventoryRecord::class, 'inventory_id');
+    }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(MilitaryUser::class, 'created_by_user_id');
     }
 }

@@ -18,11 +18,13 @@ class InventoryRecord extends Model
         'responsible_user_id',
         'status',
         'notes',
+        'is_commission',
     ];
 
     protected $casts = [
         'start_date' => 'date',
         'end_date' => 'date',
+        'is_commission' => 'boolean',
     ];
 
     protected $appends = ['found_items', 'uncatalogued_items', 'pending_items', 'summary'];
@@ -68,11 +70,13 @@ class InventoryRecord extends Model
     // Atributo para itens não catalogados - retornar objetos completos
     public function getUncataloguedItemsAttribute()
     {
-        return $this->uncataloguedItems()->get()->map(function ($item) {
+        return $this->uncataloguedItems()->with('createdBy')->get()->map(function ($item) {
             return [
                 'id' => $item->id,
                 'description' => $item->description,
                 'created_at' => $item->created_at,
+                'created_by_user_id' => $item->created_by_user_id,
+                'creator_name' => $item->createdBy->name ?? 'Unknown',
             ];
         })->values();
     }
@@ -123,5 +127,10 @@ class InventoryRecord extends Model
     public function reopenHistory()
     {
         return $this->hasMany(ReopenHistory::class, 'inventory_id');
+    }
+
+    public function commissionMembers()
+    {
+        return $this->belongsToMany(MilitaryUser::class, 'inventory_commission_members', 'inventory_record_id', 'military_user_id');
     }
 }
