@@ -27,6 +27,7 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
     Route::livewire('/custody/{custodyLog}/edit', App\Livewire\Custody\Edit::class)->name('custody.edit');
 
     Route::livewire('/inventory', App\Livewire\Inventory\Index::class)->name('inventory.index');
+    Route::livewire('/inventory/create', App\Livewire\Inventory\Create::class)->name('inventory.create');
     Route::livewire('/inventory/{inventory}', App\Livewire\Inventory\Show::class)->name('inventory.show');
 
     Route::livewire('/categories', App\Livewire\Categories\Index::class)->name('categories.index');

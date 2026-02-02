@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Livewire\Inventory\Create;
 use App\Livewire\Inventory\Index;
 use App\Livewire\Inventory\Show;
 use App\Models\Asset;
@@ -84,5 +85,64 @@ class InventoryFeatureTest extends TestCase
         $this->assertEquals('Concluído', $inventory->status);
         $this->assertEquals('Auditoria OK', $inventory->notes);
         $this->assertNotNull($inventory->end_date);
+    }
+
+    public function test_can_view_inventory_create(): void
+    {
+        Sector::factory()->create();
+        MilitaryUser::factory()->create();
+
+        Livewire::test(Create::class)
+            ->assertStatus(200)
+            ->assertSee('Número da Comissão')
+            ->assertSee('Setor a Inventariar')
+            ->assertSee('Militar Responsável');
+    }
+
+    public function test_can_create_inventory(): void
+    {
+        $sector = Sector::factory()->create();
+        $responsible = MilitaryUser::factory()->create();
+
+        Livewire::test(Create::class)
+            ->set('commission_number', 'INV-TEST-001')
+            ->set('start_date', '2026-02-01')
+            ->set('sector_id', $sector->id)
+            ->set('responsible_user_id', $responsible->id)
+            ->set('notes', 'Inventário de teste')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('inventory_records', [
+            'commission_number' => 'INV-TEST-001',
+            'sector_id' => $sector->id,
+            'responsible_user_id' => $responsible->id,
+            'status' => 'Em Andamento',
+        ]);
+    }
+
+    public function test_create_inventory_validates_required_fields(): void
+    {
+        Livewire::test(Create::class)
+            ->set('commission_number', '')
+            ->set('sector_id', '')
+            ->set('responsible_user_id', '')
+            ->call('save')
+            ->assertHasErrors(['commission_number', 'sector_id', 'responsible_user_id']);
+    }
+
+    public function test_create_inventory_validates_unique_commission_number(): void
+    {
+        $sector = Sector::factory()->create();
+        $responsible = MilitaryUser::factory()->create();
+        InventoryRecord::factory()->create(['commission_number' => 'INV-DUPLICATE']);
+
+        Livewire::test(Create::class)
+            ->set('commission_number', 'INV-DUPLICATE')
+            ->set('start_date', '2026-02-01')
+            ->set('sector_id', $sector->id)
+            ->set('responsible_user_id', $responsible->id)
+            ->call('save')
+            ->assertHasErrors(['commission_number']);
     }
 }
