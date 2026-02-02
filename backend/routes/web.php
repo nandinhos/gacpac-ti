@@ -29,6 +29,7 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
     Route::livewire('/inventory', App\Livewire\Inventory\Index::class)->name('inventory.index');
     Route::livewire('/inventory/create', App\Livewire\Inventory\Create::class)->name('inventory.create');
     Route::livewire('/inventory/{inventory}', App\Livewire\Inventory\Show::class)->name('inventory.show');
+    Route::get('/inventory/{inventory}/pdf', [App\Http\Controllers\InventoryReportController::class, 'download'])->name('inventory.pdf');
 
     Route::livewire('/categories', App\Livewire\Categories\Index::class)->name('categories.index');
     Route::livewire('/categories/create', App\Livewire\Categories\Create::class)->name('categories.create');
