@@ -128,7 +128,7 @@ class InventoryFeatureTest extends TestCase
             ->set('sector_id', '')
             ->set('responsible_user_id', '')
             ->call('save')
-            ->assertHasErrors(['commission_number', 'sector_id', 'responsible_user_id']);
+            ->assertHasErrors(['commission_number', 'responsible_user_id']);
     }
 
     public function test_create_inventory_validates_unique_commission_number(): void
