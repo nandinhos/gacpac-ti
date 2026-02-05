@@ -43,11 +43,11 @@ backend/public/storage/
 amp-support-bundle-*.json.gz
 
 # Local Agent/Tool Configs
-.aidev/
 .serena/
 .mcp.json
 project-docs/*.tmp
 
-# AI Dev State (dynamic session data)
+# AI Dev State (dynamic session data - NÃO versionar)
 .aidev/state/
+.aidev/.cache/
 .env
