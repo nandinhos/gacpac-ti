@@ -80,19 +80,38 @@
                                             @endif
                                         </td>
                                         <td class="px-4 py-4 whitespace-nowrap">
-                                            @if($log->checkin_date)
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                                                    {{ __('Baixada') }}
-                                                </span>
-                                            @else
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                    {{ __('Aberta') }}
-                                                </span>
-                                            @endif
+                                            <div class="flex items-center space-x-2">
+                                                @if($log->checkin_date)
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                                        {{ __('Baixada') }}
+                                                    </span>
+                                                @else
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                        {{ __('Aberta') }}
+                                                    </span>
+                                                @endif
+                                                @if($log->signed_term_url)
+                                                    <span title="Documento assinado" class="text-blue-600">
+                                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
+                                                    </span>
+                                                @endif
+                                            </div>
                                         </td>
                                         <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <a href="{{ route('custody.edit', $log) }}" class="text-indigo-600 hover:text-indigo-900 mr-3" wire:navigate>{{ __('Detalhes') }}</a>
-                                            <button wire:click="delete({{ $log->id }})" wire:confirm="Tem certeza? Isso fará com que os ativos voltem para o status DISPONÍVEL." class="text-red-600 hover:text-red-900">{{ __('Excluir') }}</button>
+                                            <div class="flex items-center justify-end gap-2">
+                                                {{-- Detalhes --}}
+                                                <a href="{{ route('custody.show', $log) }}" class="p-1.5 text-indigo-600 hover:text-indigo-900 hover:bg-indigo-50 rounded" wire:navigate title="{{ __('Detalhes') }}">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                                </a>
+                                                {{-- Imprimir --}}
+                                                <a href="{{ route('custody.print', $log) }}" class="p-1.5 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded" target="_blank" title="{{ __('Imprimir') }}">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                                                </a>
+                                                {{-- Excluir --}}
+                                                <button wire:click="delete({{ $log->id }})" wire:confirm="Tem certeza? Isso fará com que os ativos voltem para o status DISPONÍVEL." class="p-1.5 text-red-600 hover:text-red-900 hover:bg-red-50 rounded" title="{{ __('Excluir') }}">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 @empty
@@ -140,9 +159,16 @@
                                             <div>Dev: {{ $log->checkin_date->format('d/m/Y') }}</div>
                                         @endif
                                     </div>
-                                    <div class="flex space-x-3">
-                                        <a href="{{ route('custody.edit', $log) }}" class="text-sm text-indigo-600 font-medium" wire:navigate>{{ __('Detalhes') }}</a>
-                                        <button wire:click="delete({{ $log->id }})" wire:confirm="Tem certeza?" class="text-sm text-red-600 font-medium">{{ __('Excluir') }}</button>
+                                    <div class="flex items-center gap-3">
+                                        <a href="{{ route('custody.show', $log) }}" class="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded" wire:navigate title="{{ __('Detalhes') }}">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                        </a>
+                                        <a href="{{ route('custody.print', $log) }}" class="p-1.5 text-gray-600 hover:bg-gray-50 rounded" target="_blank" title="{{ __('Imprimir') }}">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                                        </a>
+                                        <button wire:click="delete({{ $log->id }})" wire:confirm="Tem certeza?" class="p-1.5 text-red-600 hover:bg-red-50 rounded" title="{{ __('Excluir') }}">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                        </button>
                                     </div>
                                 </div>
                             </div>

@@ -47,3 +47,7 @@ amp-support-bundle-*.json.gz
 .serena/
 .mcp.json
 project-docs/*.tmp
+
+# AI Dev State (dynamic session data)
+.aidev/state/
+.env
