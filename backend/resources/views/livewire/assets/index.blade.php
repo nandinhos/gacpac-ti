@@ -99,12 +99,34 @@
                                             {{ $asset->sector->name ?? '-' }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
-                                                {{ $asset->status === 'DISPONIVEL' ? 'bg-green-100 text-green-800' : '' }}
-                                                {{ $asset->status === 'EM_USO' ? 'bg-blue-100 text-blue-800' : '' }}
-                                                {{ $asset->status === 'MANUTENCAO' ? 'bg-yellow-100 text-yellow-800' : '' }}
-                                                {{ $asset->status === 'BAIXADO' ? 'bg-red-100 text-red-800' : '' }}">
-                                                {{ $asset->status }}
+                                            @php
+                                                // Normalize status for color lookup (upper case, no accents for safety if needed, but direct map is easier)
+                                                // Database has mixed values: "Disponível", "DISPONIVEL", "Em Uso", "Manutenção", etc.
+                                                
+                                                $status = $asset->status;
+                                                $normalizedStatus = strtoupper(Str::slug($status, '_')); // converts "Em Uso" -> "EM_USO", "Manutenção" -> "MANUTENCAO"
+                                                
+                                                // Map normalized keys to colors
+                                                $statusColors = [
+                                                    'DISPONIVEL' => 'bg-green-100 text-green-800',
+                                                    'EM_USO' => 'bg-blue-100 text-blue-800',
+                                                    'MANUTENCAO' => 'bg-orange-100 text-orange-800',
+                                                    'BAIXADO' => 'bg-red-800 text-red-100', // Vermelho escuro conforme solicitado
+                                                ];
+
+                                                // Fallback to direct match if slug conversion misses something unique, or default
+                                                $colorClass = $statusColors[$normalizedStatus] ?? 
+                                                              $statusColors[$status] ?? 
+                                                              'bg-gray-100 text-gray-800';
+                                                
+                                                // Label: Use DB value if it looks nice, or format it
+                                                // If uppercase like DISPONIVEL, make it Title Case. If mixed like "Em Uso", keep it.
+                                                $statusLabel = ctype_upper(str_replace('_', '', $status)) 
+                                                    ? str_replace('_', ' ', ucfirst(strtolower($status)))
+                                                    : $status;
+                                            @endphp
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $colorClass }}">
+                                                {{ $statusLabel }}
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right">

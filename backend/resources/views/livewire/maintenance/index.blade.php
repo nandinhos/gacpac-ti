@@ -1,4 +1,5 @@
 <div>
+@if(!$isEmbedded)
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <div>
@@ -22,12 +23,22 @@
             </div>
         </div>
     </x-slot>
+@endif
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            @if (session()->has('message'))
+            @if(!$isEmbedded && session()->has('message'))
                 <div class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
                     {{ session('message') }}
+                </div>
+            @endif
+
+            @if($isEmbedded)
+                <div class="mb-6 flex justify-end">
+                    <a href="{{ route('maintenance.create', $asset) }}"
+                       class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:border-indigo-900 focus:ring ring-indigo-300 transition ease-in-out duration-150">
+                        {{ __('Nova Manutenção') }}
+                    </a>
                 </div>
             @endif
 
@@ -96,7 +107,7 @@
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @forelse ($records as $record)
-                                    <tr class="hover:bg-gray-50">
+                                    <tr class="hover:bg-gray-50" wire:key="record-{{ $record->id }}">
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                             {{ $record->date->format('d/m/Y') }}
                                         </td>
@@ -136,8 +147,8 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right">
                                             <div class="flex justify-end space-x-2">
-                                                <button wire:click="delete({{ $record->id }})"
-                                                        wire:confirm="Tem certeza que deseja excluir este registro de manutenção?"
+                                                <button type="button"
+                                                        @click="$dispatch('open-delete-modal', { id: {{ $record->id }} })"
                                                         class="text-red-600 hover:text-red-900"
                                                         title="Excluir">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -162,6 +173,67 @@
                         {{ $records->links() }}
                     </div>
                 </div>
+            </div>
+
+            <!-- Modal de Exclusão -->
+            <div x-data="{ showDeleteModal: false, deleteRecordId: null }"
+                 x-on:open-delete-modal.window="deleteRecordId = $event.detail.id; showDeleteModal = true"
+                 x-on:close-delete-modal.window="showDeleteModal = false"
+                 x-on:maintenance-deleted.window="showDeleteModal = false">
+
+                <template x-teleport="body">
+                    <div x-show="showDeleteModal"
+                         x-cloak
+                         x-transition:enter="ease-out duration-300"
+                         x-transition:enter-start="opacity-0"
+                         x-transition:enter-end="opacity-100"
+                         x-transition:leave="ease-in duration-200"
+                         x-transition:leave-start="opacity-100"
+                         x-transition:leave-end="opacity-0"
+                         x-on:keydown.escape.window="showDeleteModal = false"
+                         class="fixed inset-0 z-50 overflow-y-auto px-4 py-6 sm:px-0">
+
+                        {{-- Backdrop --}}
+                        <div class="fixed inset-0 bg-gray-500/75 transition-opacity"
+                             x-on:click="showDeleteModal = false"></div>
+
+                        {{-- Dialog --}}
+                        <div class="relative bg-white rounded-lg shadow-xl sm:max-w-md sm:mx-auto mt-32 p-6"
+                             x-show="showDeleteModal"
+                             x-transition:enter="ease-out duration-300"
+                             x-transition:enter-start="opacity-0 translate-y-4 sm:scale-95"
+                             x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                             x-transition:leave="ease-in duration-200"
+                             x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                             x-transition:leave-end="opacity-0 translate-y-4 sm:scale-95">
+
+                            <div class="flex items-start gap-4">
+                                <div class="shrink-0 flex items-center justify-center w-10 h-10 rounded-full bg-red-100">
+                                    <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-medium text-gray-900">Excluir Manutenção</h3>
+                                    <p class="mt-1 text-sm text-gray-500">Tem certeza que deseja excluir este registro de manutenção? Esta ação não pode ser desfeita.</p>
+                                </div>
+                            </div>
+
+                            <div class="mt-6 flex justify-end gap-3">
+                                <button type="button"
+                                        x-on:click="showDeleteModal = false"
+                                        class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-50 transition">
+                                    Cancelar
+                                </button>
+                                <button type="button"
+                                        x-on:click="$wire.delete(deleteRecordId); showDeleteModal = false"
+                                        class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700 transition">
+                                    Sim, excluir
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
             </div>
         </div>
     </div>

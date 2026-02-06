@@ -24,8 +24,23 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
             @if (session()->has('message'))
-                <div class="p-4 bg-green-100 border border-green-400 text-green-700 rounded">
-                    {{ session('message') }}
+                <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)"
+                     x-transition:leave="transition ease-in duration-300"
+                     x-transition:leave-start="opacity-100 translate-y-0"
+                     x-transition:leave-end="opacity-0 -translate-y-2"
+                     class="p-4 bg-green-100 border border-green-400 text-green-700 rounded shadow-sm flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>{{ session('message') }}</span>
+                    </div>
+                    <button @click="show = false" class="text-green-700 hover:text-green-900 focus:outline-none rounded-full p-1 hover:bg-green-200 transition-colors">
+                        <span class="sr-only">Fechar</span>
+                        <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
                 </div>
             @endif
 
@@ -52,14 +67,17 @@
                             </span>
                         </button>
 
-                        <a href="{{ route('maintenance.index', $asset) }}"
-                           class="px-6 py-3 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors duration-200">
+                        <button wire:click="$set('activeTab', 'manutencao')"
+                                class="px-6 py-3 border-b-2 font-medium text-sm transition-colors duration-200 {{ $activeTab === 'manutencao' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
                             <svg class="w-4 h-4 inline-block mr-1 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                             </svg>
                             {{ __('Manutenções') }}
-                        </a>
+                            <span class="ml-1 px-2 py-0.5 text-xs rounded-full {{ $maintenanceCount > 0 ? 'bg-indigo-100 text-indigo-600' : 'bg-gray-100 text-gray-500' }}">
+                                {{ $maintenanceCount }}
+                            </span>
+                        </button>
                     </nav>
                 </div>
 
@@ -195,6 +213,12 @@
                         </div>
                     </form>
                 </div>
+                @endif
+
+                @if($activeTab === 'manutencao')
+                    <div class="p-6">
+                        <livewire:maintenance.index :asset="$asset" :isEmbedded="true" />
+                    </div>
                 @endif
 
                 <!-- Tab: Fotos -->

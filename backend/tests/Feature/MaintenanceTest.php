@@ -44,7 +44,7 @@ class MaintenanceTest extends TestCase
             ->set('performed_by', 'SGT Silva')
             ->set('cost', '150.00')
             ->call('save')
-            ->assertRedirect(route('maintenance.index', $asset));
+            ->assertRedirect(route('assets.edit', ['asset' => $asset, 'tab' => 'manutencao']));
 
         $this->assertDatabaseHas('maintenance_records', [
             'asset_id' => $asset->id,
@@ -70,7 +70,7 @@ class MaintenanceTest extends TestCase
             ->set('next_maintenance_date', '2026-08-06')
             ->set('notes', 'Verificar cooler na próxima manutenção')
             ->call('save')
-            ->assertRedirect(route('maintenance.index', $asset));
+            ->assertRedirect(route('assets.edit', ['asset' => $asset, 'tab' => 'manutencao']));
 
         $this->assertDatabaseHas('maintenance_records', [
             'asset_id' => $asset->id,

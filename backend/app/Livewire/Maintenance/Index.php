@@ -6,12 +6,15 @@ use App\Models\Asset;
 use App\Models\MaintenanceRecord;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Livewire\Attributes\Layout;
 
+#[Layout('layouts.sgaiti')]
 class Index extends Component
 {
     use WithPagination;
 
     public Asset $asset;
+    public bool $isEmbedded = false;
 
     public $search = '';
     public $typeFilter = '';
@@ -21,9 +24,10 @@ class Index extends Component
         'typeFilter' => ['except' => ''],
     ];
 
-    public function mount(Asset $asset)
+    public function mount(Asset $asset, bool $isEmbedded = false)
     {
         $this->asset = $asset;
+        $this->isEmbedded = $isEmbedded;
     }
 
     public function updatedSearch()
@@ -40,6 +44,7 @@ class Index extends Component
     {
         $record = MaintenanceRecord::where('asset_id', $this->asset->id)->findOrFail($id);
         $record->delete();
+        $this->dispatch('maintenance-deleted');
         session()->flash('message', 'Registro de manutenção excluído com sucesso.');
     }
 
@@ -66,6 +71,6 @@ class Index extends Component
         return view('livewire.maintenance.index', [
             'records' => $records,
             'totalCost' => $totalCost,
-        ])->layout('layouts.sgaiti');
+        ]);
     }
 }

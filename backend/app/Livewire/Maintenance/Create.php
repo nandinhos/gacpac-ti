@@ -42,7 +42,7 @@ class Create extends Component
 
         session()->flash('message', 'Manutenção registrada com sucesso.');
 
-        return redirect()->route('maintenance.index', $this->asset);
+        return redirect()->route('assets.edit', ['asset' => $this->asset, 'tab' => 'manutencao']);
     }
 
     public function render()

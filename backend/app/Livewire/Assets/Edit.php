@@ -216,6 +216,7 @@ class Edit extends Component
             'statuses' => ['DISPONIVEL', 'EM_USO', 'MANUTENCAO', 'BAIXADO'],
             'conditions' => ['NOVO', 'BOM', 'REGULAR', 'RUIM', 'SUCATA'],
             'assetPhotos' => $assetPhotos,
+            'maintenanceCount' => $this->asset->maintenanceRecords()->count(),
         ])->layout('layouts.sgaiti');
     }
 }
