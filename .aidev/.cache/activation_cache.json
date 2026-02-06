@@ -1,0 +1,12 @@
+{
+  "version": "3.5.0",
+  "generated_at": "2026-02-04T17:16:27-03:00",
+  "hash": "9104574a52a5b0eb4a864ad5268253bc2bcfc4172e52209f2cd28d447d8d73ac",
+  "project": "gacpac-ti",
+  "stack": "generic",
+  "agents": ["architect", "backend", "devops", "frontend", "legacy-analyzer", "orchestrator", "qa", "release-manager", "security-guardian"],
+  "skills": ["brainstorming", "code-review", "learned-lesson", "meta-planning", "release-management", "systematic-debugging", "test-driven-development", "writing-plans"],
+  "rules": ["generic", "global_project_rules", "laravel"],
+  "agents_count": 9,
+  "skills_count": 8
+}
