@@ -363,13 +363,12 @@
                             <div class="rounded-xl overflow-hidden bg-white border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200
                                         {{ $photo->is_primary ? 'ring-2 ring-indigo-500 ring-offset-2' : '' }}">
 
-                                {{-- Image area wrapper --}}
-                                <div class="relative group/img aspect-square overflow-hidden cursor-pointer"
+                                {{-- Image (click abre lightbox) --}}
+                                <div class="relative aspect-square overflow-hidden cursor-pointer"
                                      onclick="window.dispatchEvent(new CustomEvent('open-lightbox', { detail: { index: {{ $loop->index }} } }))">
-
                                     <img src="{{ Storage::url($photo->url) }}"
                                          alt="{{ $photo->caption ?: 'Foto do ativo' }}"
-                                         class="w-full h-full object-cover transition-transform duration-300 group-hover/img:scale-105"
+                                         class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                                          loading="lazy" />
 
                                     {{-- Primary Badge --}}
@@ -384,47 +383,22 @@
                                     </div>
                                     @endif
 
-                                    {{-- Zoom icon (top right) --}}
-                                    <div class="absolute top-2.5 right-2.5 pointer-events-none opacity-0 group-hover/img:opacity-100 transition-opacity duration-200">
+                                    {{-- Zoom icon --}}
+                                    <div class="absolute top-2.5 right-2.5 pointer-events-none">
                                         <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-black/40 backdrop-blur-sm text-white">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" />
                                             </svg>
                                         </span>
                                     </div>
-
-                                    {{-- Action Overlay (dentro da area da imagem) --}}
-                                    <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover/img:opacity-100 transition-opacity duration-200 flex items-end"
-                                         style="height: 50%;">
-                                        <div class="flex items-center gap-2 p-3 w-full" onclick="event.stopPropagation()">
-                                            @if(!$photo->is_primary)
-                                            <button type="button" wire:click="setPrimary({{ $photo->id }})"
-                                                    class="flex-1 inline-flex items-center justify-center gap-1 px-2 py-1.5 bg-white/90 backdrop-blur-sm text-gray-700 text-xs font-medium rounded-lg hover:bg-white transition"
-                                                    title="Definir como principal">
-                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
-                                                </svg>
-                                                Principal
-                                            </button>
-                                            @endif
-                                            <button type="button" wire:click="deletePhoto({{ $photo->id }})"
-                                                    wire:confirm="Tem certeza que deseja excluir esta foto?"
-                                                    class="{{ $photo->is_primary ? 'flex-1' : '' }} inline-flex items-center justify-center gap-1 px-2 py-1.5 bg-red-500/90 backdrop-blur-sm text-white text-xs font-medium rounded-lg hover:bg-red-600 transition"
-                                                    title="Excluir foto">
-                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                                                </svg>
-                                                Excluir
-                                            </button>
-                                        </div>
-                                    </div>
                                 </div>
 
-                                {{-- Info Footer (fora da area da imagem, sem sobreposição) --}}
-                                <div class="px-3 py-2.5 border-t border-gray-100"
+                                {{-- Footer: legenda + meta + ações --}}
+                                <div class="px-3 py-2.5 border-t border-gray-100 space-y-2"
                                      x-data="{ editing: false, captionText: @js($photo->caption ?? '') }">
-                                    <div class="mb-0.5 min-h-[1rem]">
-                                        {{-- Display mode --}}
+
+                                    {{-- Legenda editavel --}}
+                                    <div class="min-h-[1rem]">
                                         <button type="button"
                                                 x-show="!editing"
                                                 x-on:click="editing = true; $nextTick(() => $refs.captionInput{{ $photo->id }}.focus())"
@@ -435,7 +409,6 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487z" />
                                             </svg>
                                         </button>
-                                        {{-- Edit mode --}}
                                         <div x-show="editing" x-cloak class="flex items-center gap-1">
                                             <input type="text"
                                                    x-ref="captionInput{{ $photo->id }}"
@@ -461,6 +434,8 @@
                                             </button>
                                         </div>
                                     </div>
+
+                                    {{-- Data e tamanho --}}
                                     <div class="flex items-center gap-1.5 text-xs text-gray-400">
                                         <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -470,6 +445,27 @@
                                             <span class="text-gray-300">&middot;</span>
                                             {{ number_format($photo->file_size / 1024, 0) }} KB
                                         @endif
+                                    </div>
+
+                                    {{-- Botões de ação --}}
+                                    <div class="flex items-center gap-2 pt-1 border-t border-gray-100">
+                                        @if(!$photo->is_primary)
+                                        <button type="button" wire:click="setPrimary({{ $photo->id }})"
+                                                class="flex-1 inline-flex items-center justify-center gap-1 px-2 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-indigo-50 hover:text-indigo-600 transition">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
+                                            </svg>
+                                            Principal
+                                        </button>
+                                        @endif
+                                        <button type="button" wire:click="deletePhoto({{ $photo->id }})"
+                                                wire:confirm="Tem certeza que deseja excluir esta foto?"
+                                                class="{{ $photo->is_primary ? 'flex-1' : '' }} inline-flex items-center justify-center gap-1 px-2 py-1.5 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                            </svg>
+                                            Excluir
+                                        </button>
                                     </div>
                                 </div>
                             </div>
