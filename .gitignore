@@ -47,7 +47,5 @@ amp-support-bundle-*.json.gz
 .mcp.json
 project-docs/*.tmp
 
-# AI Dev State (dynamic session data - NÃO versionar)
-.aidev/state/
-.aidev/.cache/
-.env
+# AI Dev State (keep folders but ignore backups)
+.aidev/backups/
