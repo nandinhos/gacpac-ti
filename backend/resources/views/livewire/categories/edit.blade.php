@@ -1,7 +1,7 @@
 <div>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Nova Categoria') }}
+            {{ __('Editar Categoria') }}
         </h2>
     </x-slot>
 
@@ -59,6 +59,9 @@
                                 @error('parent_id')
                                     <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
                                 @enderror
+                                <p class="text-xs text-gray-500 mt-1">
+                                    Categorias que criariam ciclos estao ocultas.
+                                </p>
                             </div>
 
                             <div>
@@ -89,6 +92,20 @@
                             </span>
                         </div>
 
+                        <div class="p-4 bg-blue-50 rounded-md">
+                            <h4 class="text-sm font-medium text-blue-900 mb-2">Informacoes da Categoria</h4>
+                            <div class="text-xs text-blue-800 space-y-1">
+                                <p><strong>Criada em:</strong> {{ $category->created_at->format('d/m/Y H:i') }}</p>
+                                @if($category->updated_at != $category->created_at)
+                                    <p><strong>Ultima atualizacao:</strong> {{ $category->updated_at->format('d/m/Y H:i') }}</p>
+                                @endif
+                                <p><strong>Ativos vinculados:</strong> {{ $category->assets()->count() }}</p>
+                                @if($category->children()->count() > 0)
+                                    <p><strong>Subcategorias:</strong> {{ $category->children()->count() }}</p>
+                                @endif
+                            </div>
+                        </div>
+
                         <div class="flex items-center justify-end space-x-3">
                             <button type="button"
                                     wire:click="cancel"
@@ -98,7 +115,7 @@
                             
                             <button type="submit"
                                     class="px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:border-indigo-900 focus:ring ring-indigo-300 disabled:opacity-25 transition ease-in-out duration-150">
-                                Salvar
+                                Salvar Alteracoes
                             </button>
                         </div>
                     </form>
