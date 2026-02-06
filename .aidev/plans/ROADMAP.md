@@ -20,16 +20,18 @@ Este documento serve como **fonte única de verdade** para implementação de fu
 
 ## 🎯 SPRINTS PLANEJADOS
 
-### 📅 SPRINT 1: Funcionalidades Críticas
+### 📅 SPRINT 1: Funcionalidades Críticas ✅ CONCLUÍDA
 **Duração:** 1-2 semanas  
 **Objetivo:** Implementar bloqueios críticos  
-**Status:** 🟡 Não iniciado
+**Status:** ✅ **VERIFICADA - JÁ IMPLEMENTADA**
+**Data verificação:** 2026-02-05
 
 #### Funcionalidades:
 
-##### 1.1 - Criar Novo Inventário
+##### 1.1 - Criar Novo Inventário ✅
 **Prioridade:** 🔴 CRÍTICA  
-**Motivo:** Botão existe mas está desabilitado (href="#")  
+**Motivo:** Botão existe mas está desabilitado (href="#") - **VERIFICADO: JÁ FUNCIONA**
+**Status:** ✅ **CONCLUÍDO - Já estava implementado**  
 
 **Requisitos de Negócio:**
 - Permitir criar inventário físico de ativos por setor
@@ -37,16 +39,16 @@ Este documento serve como **fonte única de verdade** para implementação de fu
 - Registrar data de início
 - Status inicial: "Em Andamento"
 
-**Requisitos Técnicos:**
-- [ ] Criar rota POST /inventory
-- [ ] Criar componente Livewire Inventory/Create
-- [ ] Formulário com:
-  - Select de Setor (obrigatório)
-  - Número da Comissão (opcional, unique)
-  - Data de Início (default: hoje)
-  - Select de Responsáveis (múltiplos militares)
-- [ ] Validação: apenas um inventário "Em Andamento" por setor
-- [ ] Testes: InventoryCreateTest
+**Requisitos Técnicos:** ✅ TODOS IMPLEMENTADOS
+- [x] Criar rota POST /inventory - **backend/routes/web.php (linha 32)**
+- [x] Criar componente Livewire Inventory/Create - **backend/app/Livewire/Inventory/Create.php**
+- [x] Formulário com:
+  - Select de Setor (obrigatório) ✅
+  - Número da Comissão (opcional, unique) ✅
+  - Data de Início (default: hoje) ✅
+  - Select de Responsáveis (múltiplos militares) ✅
+- [x] Validação: apenas um inventário "Em Andamento" por setor ✅
+- [x] Testes: InventoryCreateTest ✅ **backend/tests/Feature/InventoryCreateTest.php**
 
 **Critérios de Aceitação:**
 1. Usuário consegue clicar "Novo Inventário" e abrir formulário
@@ -63,6 +65,24 @@ backend/tests/Feature/InventoryCreateTest.php
 ```
 
 **Dependências:** Nenhuma (base para outras features)
+
+**Nota de Implementação:**
+> ✅ **VERIFICADO EM 2026-02-05:** A funcionalidade já estava completamente implementada!
+> 
+> **Arquivos encontrados:**
+> - `backend/app/Livewire/Inventory/Create.php` - Componente funcional
+> - `backend/resources/views/livewire/inventory/create.blade.php` - View completa
+> - `backend/routes/web.php` - Rota configurada
+> - `backend/resources/views/livewire/inventory/index.blade.php` - Botão já aponta para rota correta
+> 
+> **O que funciona:**
+> - Geração automática de número de comissão
+> - Validações completas
+> - Suporte a comissão com múltiplos membros
+> - Notificações ao responsável
+> - Redirecionamento após criação
+> 
+> **Documentação detalhada:** `.aidev/plans/features/001-inventory-create.md`
 
 ---
 
@@ -229,7 +249,7 @@ backend/tests/Feature/AssetPhotoTest.php
 
 | Sprint | Funcionalidade | Prioridade | Status | Dependências |
 |--------|----------------|------------|--------|--------------|
-| 1 | Novo Inventário | 🔴 CRÍTICA | 🟡 Pendente | Nenhuma |
+| 1 | ✅ Novo Inventário | 🔴 CRÍTICA | **CONCLUÍDO** | Nenhuma |
 | 2 | CRUD Categorias | 🟡 MÉDIA | 🟡 Pendente | Nenhuma |
 | 3 | Manutenção | 🟡 MÉDIA | 🟡 Pendente | Ativos |
 | 4 | Fotos | 🟡 MÉDIA | 🟡 Pendente | Ativos |
@@ -356,4 +376,4 @@ cat .aidev/plans/features/XXX-feature-name.md
 **Criado em:** 2026-02-05  
 **Versão:** 1.0  
 **Status:** Ativo  
-**Próxima Sprint:** Sprint 1 - Novo Inventário
+**Próxima Sprint:** Sprint 2 - CRUD Categorias
