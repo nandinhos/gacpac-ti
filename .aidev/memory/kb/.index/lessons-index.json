@@ -1,0 +1,159 @@
+{
+  "version": "1.0",
+  "created_at": "2026-02-05",
+  "total_lessons": 13,
+  "lessons": [
+    {
+      "id": "2025-11-06-sgti-gac-rename",
+      "title": "Renomeação SGAITI-UM para SGTI-GAC",
+      "file": "2025-11-06-sgti-gac-rename.md",
+      "date": "2025-11-06",
+      "category": "config",
+      "stack": ["Laravel", "React", "Inertia"],
+      "severity": "Médio",
+      "tags": ["branding", "nomenclatura", "config"]
+    },
+    {
+      "id": "2025-11-06-uncatalogued-items-accessor",
+      "title": "Itens Não Catalogados em Branco - Accessor Inconsistente",
+      "file": "2025-11-06-uncatalogued-items-accessor.md",
+      "date": "2025-11-06",
+      "category": "bug",
+      "stack": ["Laravel", "PHP", "React"],
+      "severity": "Alto",
+      "tags": ["eloquent", "accessor", "defensive-programming"]
+    },
+    {
+      "id": "2025-11-06-mysql-docker-host-config",
+      "title": "Erro de Conexão MySQL Docker - Hostname vs IP",
+      "file": "2025-11-06-mysql-docker-host-config.md",
+      "date": "2025-11-06",
+      "category": "config",
+      "stack": ["Laravel", "Docker", "MySQL"],
+      "severity": "Crítico",
+      "tags": ["docker", "database", "networking"]
+    },
+    {
+      "id": "2025-11-06-comando-aeronautica-fix",
+      "title": "Rota Inexistente para Reabrir Inventário",
+      "file": "2025-11-06-comando-aeronautica-fix.md",
+      "date": "2025-11-06",
+      "category": "bug",
+      "stack": ["Laravel", "React", "Inertia"],
+      "severity": "Alto",
+      "tags": ["routing", "inertia", "parameters"]
+    },
+    {
+      "id": "2025-11-06-project-connectivity",
+      "title": "Configuração de Conectividade entre Ambientes Local e Docker",
+      "file": "2025-11-06-project-connectivity.md",
+      "date": "2025-11-06",
+      "category": "config",
+      "stack": ["Laravel", "Docker", "MySQL"],
+      "severity": "Alto",
+      "tags": ["docker", "environment", "switch"]
+    },
+    {
+      "id": "2025-11-06-common-errors-guide",
+      "title": "Erros Comuns Consolidados - Guia de Prevenção",
+      "file": "2025-11-06-common-errors-guide.md",
+      "date": "2025-11-06",
+      "category": "architecture",
+      "stack": ["Laravel", "PHP", "React", "TypeScript"],
+      "severity": "Alto",
+      "tags": ["best-practices", "patterns", "performance"]
+    },
+    {
+      "id": "2025-11-06-inertia-js-defensive-programming",
+      "title": "Defensive Programming em React - Valores Nulos do Backend",
+      "file": "2025-11-06-inertia-js-defensive-programming.md",
+      "date": "2025-11-06",
+      "category": "bug",
+      "stack": ["React", "TypeScript", "Inertia"],
+      "severity": "Médio",
+      "tags": ["defensive-programming", "typescript", "null-safety"]
+    },
+    {
+      "id": "2025-11-06-docker-laravel-common-errors",
+      "title": "Erros Comuns Docker + Laravel - Guia Rápido",
+      "file": "2025-11-06-docker-laravel-common-errors.md",
+      "date": "2025-11-06",
+      "category": "config",
+      "stack": ["Laravel", "Docker", "MySQL"],
+      "severity": "Médio",
+      "tags": ["docker", "troubleshooting", "common-errors"]
+    },
+    {
+      "id": "2025-11-06-inventory-crud-optimization",
+      "title": "Melhorias CRUD Inventário - UX e Funcionalidades",
+      "file": "2025-11-06-inventory-crud-optimization.md",
+      "date": "2025-11-06",
+      "category": "architecture",
+      "stack": ["Laravel", "PHP", "React", "Inertia"],
+      "severity": "Médio",
+      "tags": ["ux", "crud", "inline-editing"]
+    },
+    {
+      "id": "2025-11-06-laravel-storage-permissions",
+      "title": "Permissões Laravel Storage - Docker vs Local",
+      "file": "2025-11-06-laravel-storage-permissions.md",
+      "date": "2025-11-06",
+      "category": "config",
+      "stack": ["Laravel", "Docker"],
+      "severity": "Médio",
+      "tags": ["docker", "permissions", "storage"]
+    },
+    {
+      "id": "2025-11-06-laravel-quick-fixes-collection",
+      "title": "Laravel Quick Fixes - Resoluções Rápidas",
+      "file": "2025-11-06-laravel-quick-fixes-collection.md",
+      "date": "2025-11-06",
+      "category": "bug",
+      "stack": ["Laravel", "PHP", "MySQL"],
+      "severity": "Baixo",
+      "tags": ["quick-fix", "setup", "migrations"]
+    },
+    {
+      "id": "2025-11-06-vite-cache-clear",
+      "title": "Cache Vite - Assets Não Atualizando",
+      "file": "2025-11-06-vite-cache-clear.md",
+      "date": "2025-11-06",
+      "category": "config",
+      "stack": ["Laravel", "Vite", "React"],
+      "severity": "Médio",
+      "tags": ["vite", "caching", "build"]
+    },
+    {
+      "id": "2025-11-06-docker-development-workflow",
+      "title": "Workflow Docker Development - Processo Completo",
+      "file": "2025-11-06-docker-development-workflow.md",
+      "date": "2025-11-06",
+      "category": "architecture",
+      "stack": ["Laravel", "Docker", "React"],
+      "severity": "Alto",
+      "tags": ["workflow", "docker", "process"]
+    }
+  ],
+  "categories": {
+    "bug": 5,
+    "config": 6,
+    "performance": 0,
+    "security": 0,
+    "architecture": 2,
+    "integration": 0,
+    "deployment": 0
+  },
+  "tags": [
+    "branding",
+    "eloquent",
+    "docker",
+    "database",
+    "routing",
+    "best-practices",
+    "defensive-programming",
+    "ux",
+    "permissions",
+    "workflow"
+  ],
+  "last_updated": "2026-02-05"
+}
