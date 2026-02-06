@@ -57,7 +57,9 @@ class SectorModuleTest extends TestCase
 
         Livewire::actingAs($user)
             ->test(\App\Livewire\Sectors\Index::class)
-            ->call('delete', $sector->id);
+            ->call('confirmDelete', $sector->id)
+            ->assertSet('confirmingDelete', $sector->id)
+            ->call('delete');
 
         $this->assertSoftDeleted('sectors', ['id' => $sector->id]);
     }

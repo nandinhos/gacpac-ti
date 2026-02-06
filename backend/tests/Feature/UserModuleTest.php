@@ -73,7 +73,9 @@ class UserModuleTest extends TestCase
 
         Livewire::actingAs($user)
             ->test(\App\Livewire\Users\Index::class)
-            ->call('delete', $targetUser->id);
+            ->call('confirmDelete', $targetUser->id)
+            ->assertSet('confirmingDelete', $targetUser->id)
+            ->call('delete');
 
         $this->assertSoftDeleted('military_users', ['id' => $targetUser->id]);
     }

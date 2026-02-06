@@ -7,6 +7,9 @@ use App\Models\AssetPhoto;
 use App\Models\Sector;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Livewire\Attributes\Url;
+
+use function Illuminate\Support\defer;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -17,6 +20,7 @@ class Edit extends Component
     public Asset $asset;
 
     // Tab control
+    #[Url(as: 'tab')]
     public string $activeTab = 'dados';
 
     // Basic Info
@@ -99,7 +103,7 @@ class Edit extends Component
         $this->asset->update($validated);
 
         session()->flash('message', 'Ativo atualizado com sucesso.');
-        return redirect()->route('assets.edit', $this->asset);
+        return redirect()->route('assets.edit', ['asset' => $this->asset, 'tab' => $this->activeTab]);
     }
 
     public function updatedUploadPhotos()
@@ -181,8 +185,7 @@ class Edit extends Component
     {
         $photo = AssetPhoto::where('asset_id', $this->asset->id)->findOrFail($photoId);
 
-        Storage::disk('public')->delete($photo->url);
-
+        $filePath = $photo->url;
         $wasPrimary = $photo->is_primary;
         $photo->delete();
 
@@ -192,6 +195,10 @@ class Edit extends Component
                 $next->update(['is_primary' => true]);
             }
         }
+
+        // Deleta o arquivo físico após a resposta HTTP ser enviada,
+        // evitando 403 durante o morph do Livewire
+        defer(fn () => Storage::disk('public')->delete($filePath))->always();
 
         session()->flash('photo-message', 'Foto excluída com sucesso.');
     }

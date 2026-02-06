@@ -155,6 +155,7 @@ class AssetPhotoTest extends TestCase
     #[Test]
     public function can_delete_photo()
     {
+        $this->withoutDefer();
         Storage::fake('public');
 
         $user = User::factory()->create();
@@ -223,7 +224,7 @@ class AssetPhotoTest extends TestCase
             ->test(Edit::class, ['asset' => $asset])
             ->set('activeTab', 'fotos')
             ->assertSee('Vista lateral')
-            ->assertSee('1 foto(s)');
+            ->assertSee('1 foto');
     }
 
     #[Test]
@@ -237,7 +238,7 @@ class AssetPhotoTest extends TestCase
             ->assertSet('activeTab', 'dados')
             ->assertSee('Nome do Ativo')
             ->set('activeTab', 'fotos')
-            ->assertSee('Enviar Fotos')
+            ->assertSee('Salvar Fotos')
             ->assertDontSee('Nome do Ativo');
     }
 }
