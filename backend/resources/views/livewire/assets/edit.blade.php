@@ -364,15 +364,13 @@
                                         {{ $photo->is_primary ? 'ring-2 ring-indigo-500 ring-offset-2' : '' }}">
 
                                 {{-- Image (click abre lightbox) --}}
-                                <button type="button"
-                                        x-data
-                                        x-on:click="$dispatch('open-lightbox', { index: {{ $loop->index }} })"
-                                        class="block w-full aspect-square overflow-hidden cursor-pointer focus:outline-none">
+                                <div class="block w-full aspect-square overflow-hidden cursor-pointer"
+                                     onclick="window.dispatchEvent(new CustomEvent('open-lightbox', { detail: { index: {{ $loop->index }} } }))">
                                     <img src="{{ Storage::url($photo->url) }}"
                                          alt="{{ $photo->caption ?: 'Foto do ativo' }}"
                                          class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                                          loading="lazy" />
-                                </button>
+                                </div>
 
                                 {{-- Primary Badge --}}
                                 @if($photo->is_primary)
@@ -398,7 +396,7 @@
                                 {{-- Action Overlay --}}
                                 <div class="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-end"
                                      style="height: 50%;"
-                                     x-data x-on:click.stop>
+                                     onclick="event.stopPropagation()">
                                     <div class="flex items-center gap-2 p-3 w-full">
                                         @if(!$photo->is_primary)
                                         <button type="button" wire:click="setPrimary({{ $photo->id }})"
@@ -425,7 +423,7 @@
                                 {{-- Info Footer --}}
                                 <div class="px-3 py-2.5 border-t border-gray-100"
                                      x-data="{ editing: false, captionText: @js($photo->caption ?? '') }"
-                                     x-on:click.stop>
+                                     onclick="event.stopPropagation()">
                                     <div class="mb-0.5 min-h-[1rem]">
                                         {{-- Display mode --}}
                                         <button type="button"
