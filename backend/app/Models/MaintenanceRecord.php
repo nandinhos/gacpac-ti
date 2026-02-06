@@ -12,19 +12,35 @@ class MaintenanceRecord extends Model
 
     protected $fillable = [
         'asset_id',
+        'type',
         'date',
         'description',
         'performed_by',
         'cost',
+        'next_maintenance_date',
+        'notes',
     ];
 
     protected $casts = [
         'date' => 'date',
         'cost' => 'decimal:2',
+        'next_maintenance_date' => 'date',
     ];
 
     public function asset()
     {
         return $this->belongsTo(Asset::class);
+    }
+
+    public function scopeUpcoming($query, $days = 30)
+    {
+        return $query->whereNotNull('next_maintenance_date')
+            ->whereBetween('next_maintenance_date', [now(), now()->addDays($days)]);
+    }
+
+    public function scopeOverdue($query)
+    {
+        return $query->whereNotNull('next_maintenance_date')
+            ->where('next_maintenance_date', '<', now());
     }
 }

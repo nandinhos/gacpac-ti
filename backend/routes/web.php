@@ -36,6 +36,9 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
     Route::livewire('/categories', App\Livewire\Categories\Index::class)->name('categories.index');
     Route::livewire('/categories/create', App\Livewire\Categories\Create::class)->name('categories.create');
     Route::livewire('/categories/{category}/edit', App\Livewire\Categories\Edit::class)->name('categories.edit');
+
+    Route::livewire('/assets/{asset}/maintenance', App\Livewire\Maintenance\Index::class)->name('maintenance.index');
+    Route::livewire('/assets/{asset}/maintenance/create', App\Livewire\Maintenance\Create::class)->name('maintenance.create');
 });
 
 Route::middleware('auth')->group(function () {
