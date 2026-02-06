@@ -23,6 +23,7 @@ class Asset extends Model
         'model',
         'type',
         'category',
+        'category_id',
         'description', // Mantido pois é útil, mesmo se não obrigatório
         
         // Estado e Localização
