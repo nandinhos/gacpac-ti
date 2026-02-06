@@ -1,0 +1,13 @@
+{
+  "platform": "gemini",
+  "servers": {
+    "context7": {
+      "enabled": true,
+      "command": "npx -y @upstash/context7-mcp@latest"
+    },
+    "serena": {
+      "enabled": true,
+      "command": "uvx serena --project=."
+    }
+  }
+}
