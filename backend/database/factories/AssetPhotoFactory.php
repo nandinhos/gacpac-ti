@@ -12,10 +12,12 @@ class AssetPhotoFactory extends Factory
     {
         return [
             "asset_id" => \App\Models\Asset::factory(),
-            "url" => $this->faker->imageUrl(),
+            "url" => 'asset-photos/' . $this->faker->uuid() . '.jpg',
             "caption" => $this->faker->sentence(),
             "uploaded_at" => now(),
             "mime_type" => "image/jpeg",
+            "is_primary" => false,
+            "file_size" => $this->faker->numberBetween(100000, 5000000),
         ];
     }
 }

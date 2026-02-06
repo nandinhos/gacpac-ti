@@ -39,6 +39,7 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 
     Route::livewire('/assets/{asset}/maintenance', App\Livewire\Maintenance\Index::class)->name('maintenance.index');
     Route::livewire('/assets/{asset}/maintenance/create', App\Livewire\Maintenance\Create::class)->name('maintenance.create');
+
 });
 
 Route::middleware('auth')->group(function () {

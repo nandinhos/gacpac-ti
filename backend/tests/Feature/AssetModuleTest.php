@@ -76,7 +76,7 @@ class AssetModuleTest extends TestCase
             ->test(Edit::class, ['asset' => $asset])
             ->set('name', 'Updated Name')
             ->call('save')
-            ->assertRedirect(route('assets.index'));
+            ->assertRedirect(route('assets.edit', $asset));
         
         $this->assertDatabaseHas('assets', [
             'id' => $asset->id,
