@@ -86,36 +86,38 @@ backend/tests/Feature/InventoryCreateTest.php
 
 ---
 
-### 📅 SPRINT 2: Gestão de Categorias
+### 📅 SPRINT 2: Gestão de Categorias ✅ CONCLUÍDA
 **Duração:** 1 semana  
 **Objetivo:** Implementar CRUD completo de categorias  
-**Status:** 🟡 Não iniciado
+**Status:** ✅ **IMPLEMENTADA**
+**Data início:** 2026-02-05  
+**Data conclusão:** 2026-02-05
 
 #### Funcionalidades:
 
-##### 2.1 - CRUD Categorias
+##### 2.1 - CRUD Categorias ✅
 **Prioridade:** 🟡 MÉDIA  
-**Motivo:** Módulo existe mas views estão vazias
+**Motivo:** Módulo existe mas views estão vazias - **IMPLEMENTADO**
 
-**Requisitos de Negócio:**
-- Permitir categorização de ativos (Ex: Eletrônicos, Móveis, Veículos)
-- Hierarquia de categorias (categoria pai/filho)
-- Cores distintas para visualização
+**Requisitos de Negócio:** ✅ TODOS IMPLEMENTADOS
+- [x] Permitir categorização de ativos (Ex: Eletrônicos, Móveis, Veículos)
+- [x] Hierarquia de categorias (categoria pai/filho)
+- [x] Cores distintas para visualização
 
-**Requisitos Técnicos:**
-- [ ] Criar migration para tabela categories (se não existir)
-- [ ] Model Category com relação parent/children
-- [ ] Componente Livewire Category/Index (listagem)
-- [ ] Componente Livewire Category/Create
-- [ ] Componente Livewire Category/Edit
-- [ ] Formulários com:
-  - Nome (obrigatório, unique)
-  - Descrição (opcional)
-  - Categoria Pai (select, opcional, hierárquico)
-  - Cor (color picker)
-- [ ] Validação: não permitir categoria ser pai dela mesma
-- [ ] Soft delete
-- [ ] Testes: CategoryTest
+**Requisitos Técnicos:** ✅ TODOS IMPLEMENTADOS
+- [x] Migration para tabela categories (adicionados parent_id, color, softDeletes)
+- [x] Model Category com relação parent/children
+- [x] Componente Livewire Categories/Index (listagem com filtros)
+- [x] Componente Livewire Categories/Create
+- [x] Componente Livewire Categories/Edit
+- [x] Formulários com:
+  - Nome (obrigatório, unique) ✅
+  - Descrição (opcional) ✅
+  - Categoria Pai (select, hierárquico) ✅
+  - Cor (color picker) ✅
+- [x] Validação: não permitir categoria ser pai dela mesma
+- [x] Soft delete
+- [ ] Testes: CategoryTest (PENDENTE)
 
 **Critérios de Aceitação:**
 1. Listagem mostra categorias em árvore hierárquica
@@ -136,6 +138,30 @@ backend/tests/Feature/CategoryTest.php
 ```
 
 **Dependências:** Nenhuma
+
+**Nota de Implementação:**
+> ✅ **IMPLEMENTADO EM 2026-02-05:** CRUD completo de categorias com hierarquia!
+> 
+> **Arquivos criados/modificados:**
+> - `backend/database/migrations/2026_02_05_000000_add_hierarchy_to_categories_table.php` - Migration
+> - `backend/app/Models/Category.php` - Modelo atualizado com parent/children
+> - `backend/app/Livewire/Categories/Index.php` - Listagem com filtros
+> - `backend/app/Livewire/Categories/Create.php` - Criação
+> - `backend/app/Livewire/Categories/Edit.php` - Edição
+> - `backend/resources/views/livewire/categories/index.blade.php` - View listagem
+> - `backend/resources/views/livewire/categories/create.blade.php` - View criação
+> - `backend/resources/views/livewire/categories/edit.blade.php` - View edição
+> - `backend/routes/web.php` - Rotas atualizadas
+> 
+> **Funcionalidades implementadas:**
+> - Hierarquia de categorias (pai/filho)
+> - Soft delete
+> - Color picker para categorias
+> - Validação contra ciclos
+> - Filtros por busca e categoria pai
+> - Paginação
+> - Preview de cor em tempo real
+> - Proteção contra exclusão se houver ativos/subcategorias
 
 ---
 
@@ -250,7 +276,7 @@ backend/tests/Feature/AssetPhotoTest.php
 | Sprint | Funcionalidade | Prioridade | Status | Dependências |
 |--------|----------------|------------|--------|--------------|
 | 1 | ✅ Novo Inventário | 🔴 CRÍTICA | **CONCLUÍDO** | Nenhuma |
-| 2 | CRUD Categorias | 🟡 MÉDIA | 🟡 Pendente | Nenhuma |
+| 2 | ✅ CRUD Categorias | 🟡 MÉDIA | **CONCLUÍDO** | Nenhuma |
 | 3 | Manutenção | 🟡 MÉDIA | 🟡 Pendente | Ativos |
 | 4 | Fotos | 🟡 MÉDIA | 🟡 Pendente | Ativos |
 
@@ -376,4 +402,4 @@ cat .aidev/plans/features/XXX-feature-name.md
 **Criado em:** 2026-02-05  
 **Versão:** 1.0  
 **Status:** Ativo  
-**Próxima Sprint:** Sprint 2 - CRUD Categorias
+**Próxima Sprint:** Sprint 3 - Manutenção de Ativos
