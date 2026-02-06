@@ -1,7 +1,7 @@
 {
   "version": "1.0",
   "created_at": "2026-02-05",
-  "total_lessons": 13,
+  "total_lessons": 14,
   "lessons": [
     {
       "id": "2025-11-06-sgti-gac-rename",
@@ -132,10 +132,20 @@
       "stack": ["Laravel", "Docker", "React"],
       "severity": "Alto",
       "tags": ["workflow", "docker", "process"]
+    },
+    {
+      "id": "2026-02-05-livewire-modal-alpine-fix",
+      "title": "Modais Livewire com Alpine.js - Abertura Instantânea",
+      "file": "2026-02-05-livewire-modal-alpine-fix.md",
+      "date": "2026-02-05",
+      "category": "bug",
+      "stack": ["Laravel", "PHP", "Livewire", "Alpine.js"],
+      "severity": "Médio",
+      "tags": ["livewire", "alpinejs", "modal", "ui", "ux"]
     }
   ],
   "categories": {
-    "bug": 5,
+    "bug": 6,
     "config": 6,
     "performance": 0,
     "security": 0,
@@ -153,7 +163,10 @@
     "defensive-programming",
     "ux",
     "permissions",
-    "workflow"
+    "workflow",
+    "livewire",
+    "alpinejs",
+    "modal"
   ],
   "last_updated": "2026-02-05"
 }
