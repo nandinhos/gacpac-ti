@@ -19,7 +19,7 @@
                             </select>
                         </div>
 
-                        <a href="{{ route('custody.create') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 whitespace-nowrap">
+                        <a href="{{ route('custody.create') }}" class="inline-flex items-center px-4 py-2 text-xs font-semibold tracking-widest text-white uppercase transition duration-150 ease-in-out bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:border-indigo-900 focus:ring ring-indigo-300 disabled:opacity-25 whitespace-nowrap">
                             {{ __('Nova Cautela') }}
                         </a>
                     </div>
@@ -97,18 +97,18 @@
                                                 @endif
                                             </div>
                                         </td>
-                                        <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <div class="flex items-center justify-end gap-2">
+                                        <td class="px-4 py-4 whitespace-nowrap text-right">
+                                            <div class="flex justify-end space-x-2">
                                                 {{-- Detalhes --}}
-                                                <a href="{{ route('custody.show', $log) }}" class="p-1.5 text-indigo-600 hover:text-indigo-900 hover:bg-indigo-50 rounded" wire:navigate title="{{ __('Detalhes') }}">
+                                                <a href="{{ route('custody.show', $log) }}" class="text-indigo-600 hover:text-indigo-900" wire:navigate title="{{ __('Detalhes') }}">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                                 </a>
                                                 {{-- Imprimir --}}
-                                                <a href="{{ route('custody.print', $log) }}" class="p-1.5 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded" target="_blank" title="{{ __('Imprimir') }}">
+                                                <a href="{{ route('custody.print', $log) }}" class="text-gray-600 hover:text-gray-900" target="_blank" title="{{ __('Imprimir') }}">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                                                 </a>
                                                 {{-- Excluir --}}
-                                                <button wire:click="delete({{ $log->id }})" wire:confirm="Tem certeza? Isso fará com que os ativos voltem para o status DISPONÍVEL." class="p-1.5 text-red-600 hover:text-red-900 hover:bg-red-50 rounded" title="{{ __('Excluir') }}">
+                                                <button wire:click="delete({{ $log->id }})" wire:confirm="Tem certeza? Isso fará com que os ativos voltem para o status DISPONÍVEL." class="text-red-600 hover:text-red-900" title="{{ __('Excluir') }}">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                                 </button>
                                             </div>
@@ -159,14 +159,14 @@
                                             <div>Dev: {{ $log->checkin_date->format('d/m/Y') }}</div>
                                         @endif
                                     </div>
-                                    <div class="flex items-center gap-3">
-                                        <a href="{{ route('custody.show', $log) }}" class="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded" wire:navigate title="{{ __('Detalhes') }}">
+                                    <div class="flex justify-end space-x-2">
+                                        <a href="{{ route('custody.show', $log) }}" class="text-indigo-600 hover:text-indigo-900" wire:navigate title="{{ __('Detalhes') }}">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                         </a>
-                                        <a href="{{ route('custody.print', $log) }}" class="p-1.5 text-gray-600 hover:bg-gray-50 rounded" target="_blank" title="{{ __('Imprimir') }}">
+                                        <a href="{{ route('custody.print', $log) }}" class="text-gray-600 hover:text-gray-900" target="_blank" title="{{ __('Imprimir') }}">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                                         </a>
-                                        <button wire:click="delete({{ $log->id }})" wire:confirm="Tem certeza?" class="p-1.5 text-red-600 hover:bg-red-50 rounded" title="{{ __('Excluir') }}">
+                                        <button wire:click="delete({{ $log->id }})" wire:confirm="Tem certeza?" class="text-red-600 hover:text-red-900" title="{{ __('Excluir') }}">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                         </button>
                                     </div>

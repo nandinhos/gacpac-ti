@@ -89,17 +89,13 @@
                             </span>
                         </div>
 
-                        <div class="flex items-center justify-end space-x-3">
-                            <button type="button"
-                                    wire:click="cancel"
-                                    class="px-4 py-2 bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-300 active:bg-gray-400 focus:outline-none focus:border-gray-400 focus:ring ring-gray-300 disabled:opacity-25 transition ease-in-out duration-150">
-                                Cancelar
+                        <div class="flex items-center justify-end gap-4 pt-4 border-t">
+                            <button type="button" wire:click="cancel" class="text-gray-600 hover:text-gray-900">
+                                {{ __('Cancelar') }}
                             </button>
-                            
-                            <button type="submit"
-                                    class="px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:border-indigo-900 focus:ring ring-indigo-300 disabled:opacity-25 transition ease-in-out duration-150">
-                                Salvar
-                            </button>
+                            <x-primary-button>
+                                {{ __('Salvar') }}
+                            </x-primary-button>
                         </div>
                     </form>
                 </div>

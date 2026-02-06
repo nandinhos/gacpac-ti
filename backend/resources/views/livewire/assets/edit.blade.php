@@ -189,9 +189,9 @@
                             </div>
                         </div>
 
-                        <div class="flex items-center gap-4 pt-4 border-t">
-                            <x-primary-button>{{ __('Salvar') }}</x-primary-button>
+                        <div class="flex items-center justify-end gap-4 pt-4 border-t">
                             <a href="{{ route('assets.index') }}" class="text-gray-600 hover:text-gray-900">{{ __('Cancelar') }}</a>
+                            <x-primary-button>{{ __('Salvar') }}</x-primary-button>
                         </div>
                     </form>
                 </div>
@@ -222,12 +222,35 @@
                                 x-data="{
                                     uploading: false,
                                     progress: 0,
-                                    dragging: false
+                                    dragging: false,
+                                    fileError: '',
+                                    maxSizeMB: 5,
+                                    allowedTypes: ['image/jpeg', 'image/png', 'image/webp'],
+                                    validateFiles(input) {
+                                        this.fileError = '';
+                                        var files = input.files;
+                                        if (!files.length) return true;
+                                        for (var i = 0; i < files.length; i++) {
+                                            var file = files[i];
+                                            if (!this.allowedTypes.includes(file.type)) {
+                                                this.fileError = 'O arquivo \'' + file.name + '\' tem formato invalido. Use JPG, PNG ou WEBP.';
+                                                input.value = '';
+                                                return false;
+                                            }
+                                            if (file.size > this.maxSizeMB * 1024 * 1024) {
+                                                var sizeMB = (file.size / 1024 / 1024).toFixed(1);
+                                                this.fileError = 'O arquivo \'' + file.name + '\' tem ' + sizeMB + ' MB. O maximo permitido e ' + this.maxSizeMB + ' MB.';
+                                                input.value = '';
+                                                return false;
+                                            }
+                                        }
+                                        return true;
+                                    }
                                 }"
                                 x-on:livewire-upload-start="uploading = true"
                                 x-on:livewire-upload-finish="uploading = false; progress = 0"
                                 x-on:livewire-upload-cancel="uploading = false"
-                                x-on:livewire-upload-error="uploading = false"
+                                x-on:livewire-upload-error="uploading = false; fileError = 'Falha no upload. Verifique o tamanho do arquivo e tente novamente.'"
                                 x-on:livewire-upload-progress="progress = $event.detail.progress"
                                 class="space-y-4"
                             >
@@ -269,11 +292,30 @@
                                         </div>
                                     </div>
 
-                                    <input id="uploadPhotos" type="file" wire:model="uploadPhotos" multiple
-                                           accept="image/jpeg,image/png,image/webp" class="hidden" />
+                                    <input id="uploadPhotos" type="file" multiple
+                                           accept="image/jpeg,image/png,image/webp" class="hidden"
+                                           x-on:change="
+                                               if (validateFiles($el)) {
+                                                   uploading = true;
+                                                   $wire.$uploadMultiple('uploadPhotos', [...$el.files],
+                                                       () => { uploading = false; progress = 0; },
+                                                       () => { uploading = false; fileError = 'Falha no upload. Verifique o tamanho do arquivo e tente novamente.'; },
+                                                       (event) => { progress = event.detail.progress; }
+                                                   )
+                                               }
+                                           " />
                                 </label>
 
-                                {{-- Erros de validacao --}}
+                                {{-- Erro de pré-validação (JS) --}}
+                                <div x-show="fileError" x-cloak
+                                     class="flex items-center gap-1.5 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                                    <svg class="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span x-text="fileError"></span>
+                                </div>
+
+                                {{-- Erros de validacao (backend) --}}
                                 @error('uploadPhotos')
                                     <div class="flex items-center gap-1.5 text-sm text-red-600">
                                         <svg class="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 20 20">

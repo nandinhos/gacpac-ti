@@ -77,9 +77,9 @@
                             <x-input-error :messages="$errors->get('notes')" class="mt-2" />
                         </div>
 
-                        <div class="flex items-center gap-4">
-                            <x-primary-button>{{ __('Registrar Manutenção') }}</x-primary-button>
+                        <div class="flex items-center justify-end gap-4 pt-4 border-t">
                             <a href="{{ route('maintenance.index', $asset) }}" class="text-gray-600 hover:text-gray-900">{{ __('Cancelar') }}</a>
+                            <x-primary-button>{{ __('Registrar Manutenção') }}</x-primary-button>
                         </div>
                     </form>
                 </div>

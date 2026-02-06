@@ -103,11 +103,11 @@
                             <x-input-error :messages="$errors->get('notes')" class="mt-2" />
                         </div>
 
-                        <div class="flex items-center justify-end mt-4">
-                            <a href="{{ route('custody.index') }}" class="text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mr-3">
+                        <div class="flex items-center justify-end gap-4 pt-4 border-t">
+                            <a href="{{ route('custody.index') }}" class="text-gray-600 hover:text-gray-900">
                                 {{ __('Cancelar') }}
                             </a>
-                            <x-primary-button class="ml-4">
+                            <x-primary-button>
                                 {{ __('Criar Cautela') }}
                             </x-primary-button>
                         </div>

@@ -137,9 +137,9 @@
                             </div>
                         </div>
 
-                        <div class="flex items-center gap-4">
-                            <x-primary-button>{{ __('Salvar') }}</x-primary-button>
+                        <div class="flex items-center justify-end gap-4 pt-4 border-t">
                             <a href="{{ route('assets.index') }}" class="text-gray-600 hover:text-gray-900">{{ __('Cancelar') }}</a>
+                            <x-primary-button>{{ __('Salvar') }}</x-primary-button>
                         </div>
                     </form>
                 </div>
