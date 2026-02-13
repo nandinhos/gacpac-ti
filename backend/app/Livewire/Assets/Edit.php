@@ -109,11 +109,11 @@ class Edit extends Component
     public function updatedUploadPhotos()
     {
         $this->validate([
-            'uploadPhotos.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            'uploadPhotos.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:10240'],
         ], [
             'uploadPhotos.*.image' => 'O arquivo deve ser uma imagem.',
             'uploadPhotos.*.mimes' => 'Formato invalido. Use JPG, JPEG, PNG ou WEBP.',
-            'uploadPhotos.*.max' => 'A imagem nao pode ultrapassar 5 MB.',
+            'uploadPhotos.*.max' => 'A imagem nao pode ultrapassar 10 MB.',
         ]);
 
         $this->photosReady = count($this->uploadPhotos) > 0;
@@ -132,14 +132,14 @@ class Edit extends Component
     {
         $this->validate([
             'uploadPhotos' => ['required', 'array', 'min:1'],
-            'uploadPhotos.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            'uploadPhotos.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:10240'],
             'caption' => ['nullable', 'string', 'max:255'],
         ], [
             'uploadPhotos.required' => 'Selecione ao menos uma foto.',
             'uploadPhotos.min' => 'Selecione ao menos uma foto.',
             'uploadPhotos.*.image' => 'O arquivo deve ser uma imagem.',
             'uploadPhotos.*.mimes' => 'Formato invalido. Use JPG, JPEG, PNG ou WEBP.',
-            'uploadPhotos.*.max' => 'A imagem nao pode ultrapassar 5 MB.',
+            'uploadPhotos.*.max' => 'A imagem nao pode ultrapassar 10 MB.',
         ]);
 
         foreach ($this->uploadPhotos as $photo) {

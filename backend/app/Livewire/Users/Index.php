@@ -37,9 +37,12 @@ class Index extends Component
     public function render()
     {
         return view('livewire.users.index', [
-            'users' => MilitaryUser::where('name', 'like', '%'.$this->search.'%')
-                ->orWhere('email', 'like', '%'.$this->search.'%')
-                ->orWhere('military_id', 'like', '%'.$this->search.'%')
+            'users' => MilitaryUser::with(['sector'])
+                ->where(function($query) {
+                    $query->where('name', 'ilike', '%'.$this->search.'%')
+                        ->orWhere('email', 'ilike', '%'.$this->search.'%')
+                        ->orWhere('military_id', 'ilike', '%'.$this->search.'%');
+                })
                 ->paginate(10),
         ])->layout('layouts.sgaiti');
     }

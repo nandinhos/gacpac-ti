@@ -4,78 +4,66 @@
             {{ __('Ativos') }}
         </h2>
     </x-slot>
-
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="bg-white/70 backdrop-blur-md overflow-hidden shadow-sm sm:rounded-lg border border-white/20">
                 <div class="p-6 text-gray-900">
-                    <div class="mb-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-                        <div class="flex flex-col sm:flex-row gap-4 w-full">
-                            <input wire:model.live.debounce.300ms="search" type="text" placeholder="Buscar por nome, serial ou patrimônio..." class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full sm:w-1/3">
-
-                            <select wire:model.live="sector_id" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full sm:w-1/4">
-                                <option value="">{{ __('Todos Setores') }}</option>
-                                @foreach($sectors as $sector)
-                                    <option value="{{ $sector->id }}">{{ $sector->name }}</option>
-                                @endforeach
-                            </select>
-
-                            <select wire:model.live="type" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full sm:w-1/4">
-                                <option value="">{{ __('Todos Tipos') }}</option>
-                                @foreach($types as $typeOption)
-                                    <option value="{{ $typeOption }}">{{ $typeOption }}</option>
-                                @endforeach
-                            </select>
-
-                            <select wire:model.live="status" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full sm:w-1/4">
-                                <option value="">{{ __('Todos Status') }}</option>
-                                @foreach($statuses as $statusOption)
-                                    <option value="{{ $statusOption }}">{{ $statusOption }}</option>
-                                @endforeach
-                            </select>
+                    <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
+                        <div class="flex flex-col md:flex-row gap-4 w-full md:w-auto flex-1">
+                            <div class="flex-1 relative group">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg class="h-4 w-4 text-gray-400 group-focus-within:text-fab-blue transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                </div>
+                                <input wire:model.live.debounce.300ms="search" type="text" placeholder="Buscar ativos..." class="block w-full pl-10 pr-3 py-2 border-gray-200 rounded-xl bg-white/50 focus:border-fab-blue focus:ring-fab-blue sm:text-sm shadow-sm transition-all">
+                            </div>
                         </div>
 
-                        <a href="{{ route('assets.create') }}" class="inline-flex items-center px-4 py-2 text-xs font-semibold tracking-widest text-white uppercase transition duration-150 ease-in-out bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:border-indigo-900 focus:ring ring-indigo-300 disabled:opacity-25 whitespace-nowrap">
+                        <a href="{{ route('assets.create') }}" class="inline-flex items-center px-4 py-2 bg-fab-blue border border-transparent rounded-xl font-bold text-xs text-white uppercase tracking-widest hover:bg-fab-blue-hover active:bg-fab-blue-hover focus:outline-none focus:ring-2 focus:ring-fab-blue focus:ring-offset-2 transition ease-in-out duration-150 shadow-lg shadow-fab-blue/20 whitespace-nowrap">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            </svg>
                             {{ __('Novo Ativo') }}
                         </a>
                     </div>
 
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
+                            <thead class="bg-gray-50/50">
                                 <tr>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" wire:click="sortBy('name')">
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors" wire:click="sortBy('name')">
                                         {{ __('Nome/Modelo') }}
                                         @if($sortField === 'name')
-                                            <span>{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                            <span class="ml-1">{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
                                         @endif
                                     </th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" wire:click="sortBy('patrimony_number')">
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors" wire:click="sortBy('patrimony_number')">
                                         {{ __('Ident.') }}
                                         @if($sortField === 'patrimony_number')
-                                            <span>{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                            <span class="ml-1">{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
                                         @endif
                                     </th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" wire:click="sortBy('type')">
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors" wire:click="sortBy('type')">
                                         {{ __('Tipo') }}
                                         @if($sortField === 'type')
-                                            <span>{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                            <span class="ml-1">{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
                                         @endif
                                     </th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" wire:click="sortBy('sector_id')">
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors" wire:click="sortBy('sector_id')">
                                         {{ __('Setor') }}
                                         @if($sortField === 'sector_id')
-                                            <span>{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                            <span class="ml-1">{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
                                         @endif
                                     </th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" wire:click="sortBy('status')">
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors" wire:click="sortBy('status')">
                                         {{ __('Status') }}
                                         @if($sortField === 'status')
-                                            <span>{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                            <span class="ml-1">{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
                                         @endif
                                     </th>
-                                    <th scope="col" class="relative px-6 py-3">
-                                        <span class="sr-only">{{ __('Ações') }}</span>
+                                    <th scope="col" class="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                        {{ __('Ações') }}
                                     </th>
                                 </tr>
                             </thead>
@@ -83,7 +71,14 @@
                                 @forelse ($assets as $asset)
                                     <tr>
                                         <td class="px-6 py-4">
-                                            <div class="text-sm font-medium text-gray-900">{{ $asset->name }}</div>
+                                            <div class="flex items-center gap-2">
+                                                <div class="text-sm font-medium text-gray-900">{{ $asset->name }}</div>
+                                                @if($asset->is_modified)
+                                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-orange-100 text-orange-800 border border-orange-200 uppercase" title="Máquina Modificada / Upgrade">
+                                                        Mod
+                                                    </span>
+                                                @endif
+                                            </div>
                                             <div class="text-xs text-gray-500">{{ $asset->brand }} {{ $asset->model }}</div>
                                         </td>
                                         <td class="px-6 py-4">
@@ -131,7 +126,7 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right">
                                             <div class="flex justify-end space-x-2">
-                                                <a href="{{ route('assets.edit', $asset) }}" class="text-indigo-600 hover:text-indigo-900" title="Editar" wire:navigate>
+                                                <a href="{{ route('assets.edit', $asset) }}" class="text-fab-blue hover:text-fab-blue-hover" title="Editar" wire:navigate>
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                     </svg>

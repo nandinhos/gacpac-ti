@@ -10,10 +10,10 @@
             <!-- Stats Cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <!-- Total Assets -->
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-indigo-500">
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-fab-blue">
                     <div class="p-6">
                         <div class="flex items-center">
-                            <div class="p-3 rounded-full bg-indigo-100 text-indigo-600">
+                            <div class="p-3 rounded-full bg-blue-100 text-fab-blue">
                                 <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                                 </svg>
@@ -177,7 +177,7 @@
                     </table>
                 </div>
                 <div class="p-4 bg-gray-50 text-right">
-                    <a href="{{ route('custody.index') }}" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">{{ __('Ver todas as cautelas') }} →</a>
+                    <a href="{{ route('custody.index') }}" class="text-sm font-medium text-fab-blue hover:text-fab-blue-hover">{{ __('Ver todas as cautelas') }} →</a>
                 </div>
             </div>
         </div>

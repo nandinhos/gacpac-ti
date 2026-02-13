@@ -1,3 +1,4 @@
+<div>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Cautelas') }}
@@ -6,46 +7,58 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="bg-white/70 backdrop-blur-md overflow-hidden shadow-sm sm:rounded-lg border border-white/20">
                 <div class="p-6 text-gray-900">
-                    <div class="mb-4 flex flex-col md:flex-row justify-between items-center gap-4">
-                        <div class="flex flex-1 gap-4 w-full">
-                            <input wire:model.live.debounce.300ms="search" type="text" placeholder="Buscar por número, usuário ou ID militar..." class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full md:w-1/2">
+                    <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
+                        <div class="flex flex-col md:flex-row gap-4 w-full md:w-auto flex-1">
+                            <div class="flex-1 relative group">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg class="h-4 w-4 text-gray-400 group-focus-within:text-fab-blue transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                </div>
+                                <input wire:model.live.debounce.300ms="search" type="text" placeholder="Buscar por número, usuário ou ID militar..." class="block w-full pl-10 pr-3 py-2 border-gray-200 rounded-xl bg-white/50 focus:border-fab-blue focus:ring-fab-blue sm:text-sm shadow-sm transition-all">
+                            </div>
                             
-                            <select wire:model.live="status" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full md:w-1/4">
-                                <option value="">{{ __('Todos Status') }}</option>
-                                <option value="open">{{ __('Aberta') }}</option>
-                                <option value="closed">{{ __('Baixada') }}</option>
-                            </select>
+                            <div class="w-full md:w-48">
+                                <select wire:model.live="status" class="w-full border-gray-200 rounded-xl bg-white/50 shadow-sm focus:border-fab-blue focus:ring-fab-blue sm:text-sm">
+                                    <option value="">{{ __('Todos Status') }}</option>
+                                    <option value="open">{{ __('Aberta') }}</option>
+                                    <option value="closed">{{ __('Baixada') }}</option>
+                                </select>
+                            </div>
                         </div>
 
-                        <a href="{{ route('custody.create') }}" class="inline-flex items-center px-4 py-2 text-xs font-semibold tracking-widest text-white uppercase transition duration-150 ease-in-out bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:border-indigo-900 focus:ring ring-indigo-300 disabled:opacity-25 whitespace-nowrap">
+                        <a href="{{ route('custody.create') }}" class="inline-flex items-center px-4 py-2 bg-fab-blue border border-transparent rounded-xl font-bold text-xs text-white uppercase tracking-widest hover:bg-fab-blue-hover active:bg-fab-blue-hover focus:outline-none focus:ring-2 focus:ring-fab-blue focus:ring-offset-2 transition ease-in-out duration-150 shadow-lg shadow-fab-blue/20 whitespace-nowrap">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            </svg>
                             {{ __('Nova Cautela') }}
                         </a>
                     </div>
 
                     <!-- Desktop View -->
                     <div class="hidden md:block overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
+                        <table class="w-full text-sm text-left text-gray-500">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                                 <tr>
-                                    <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th scope="col" class="px-6 py-3">
                                         {{ __('Número') }}
                                     </th>
-                                    <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th scope="col" class="px-6 py-3">
                                         {{ __('Usuário') }}
                                     </th>
-                                    <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th scope="col" class="px-6 py-3">
                                         {{ __('Itens') }}
                                     </th>
-                                    <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th scope="col" class="px-6 py-3">
                                         {{ __('Período') }}
                                     </th>
-                                    <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th scope="col" class="px-6 py-3">
                                         {{ __('Status') }}
                                     </th>
-                                    <th scope="col" class="relative px-4 py-3">
-                                        <span class="sr-only">{{ __('Ações') }}</span>
+                                    <th scope="col" class="px-6 py-3 text-right">
+                                        {{ __('Ações') }}
                                     </th>
                                 </tr>
                             </thead>
@@ -82,11 +95,11 @@
                                         <td class="px-4 py-4 whitespace-nowrap">
                                             <div class="flex items-center space-x-2">
                                                 @if($log->checkin_date)
-                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                                    <span class="px-2 py-0.5 text-xs font-bold rounded-full bg-gray-100 text-gray-800">
                                                         {{ __('Baixada') }}
                                                     </span>
                                                 @else
-                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                    <span class="px-2 py-0.5 text-xs font-bold rounded-full bg-green-100 text-green-800">
                                                         {{ __('Aberta') }}
                                                     </span>
                                                 @endif
@@ -100,7 +113,7 @@
                                         <td class="px-4 py-4 whitespace-nowrap text-right">
                                             <div class="flex justify-end space-x-2">
                                                 {{-- Detalhes --}}
-                                                <a href="{{ route('custody.show', $log) }}" class="text-indigo-600 hover:text-indigo-900" wire:navigate title="{{ __('Detalhes') }}">
+                                        <a href="{{ route('custody.show', $log) }}" class="text-green-600 hover:text-green-900 transition-colors" wire:navigate title="{{ __('Detalhes') }}">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                                 </a>
                                                 {{-- Imprimir --}}
@@ -132,11 +145,11 @@
                                 <div class="flex justify-between items-start mb-2">
                                     <span class="font-bold text-gray-900">{{ $log->cautela_number }}</span>
                                     @if($log->checkin_date)
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                        <span class="px-2 py-0.5 text-xs font-bold rounded-full bg-gray-100 text-gray-800">
                                             {{ __('Baixada') }}
                                         </span>
                                     @else
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                        <span class="px-2 py-0.5 text-xs font-bold rounded-full bg-green-100 text-green-800">
                                             {{ __('Aberta') }}
                                         </span>
                                     @endif
@@ -160,7 +173,7 @@
                                         @endif
                                     </div>
                                     <div class="flex justify-end space-x-2">
-                                        <a href="{{ route('custody.show', $log) }}" class="text-indigo-600 hover:text-indigo-900" wire:navigate title="{{ __('Detalhes') }}">
+                                        <a href="{{ route('custody.show', $log) }}" class="text-green-600 hover:text-green-900 transition-colors" wire:navigate title="{{ __('Detalhes') }}">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                         </a>
                                         <a href="{{ route('custody.print', $log) }}" class="text-gray-600 hover:text-gray-900" target="_blank" title="{{ __('Imprimir') }}">
@@ -186,3 +199,4 @@
             </div>
         </div>
     </div>
+</div>

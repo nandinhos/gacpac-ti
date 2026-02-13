@@ -8,6 +8,17 @@
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
     <div class="py-6" x-data="inventoryScanner()">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-6">
+                <a href="javascript:history.back()" class="inline-flex items-center text-sm font-medium text-fab-blue hover:text-fab-blue-hover transition-colors group">
+                    <svg class="w-5 h-5 mr-1 transform transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                    {{ __('Voltar') }}
+                </a>
+            </div>
+        </div>
+
         <!-- Toolbar -->
         <div class="mb-6 flex flex-wrap items-center justify-between gap-4 p-4 bg-white shadow sm:rounded-lg">
             <div class="flex items-center space-x-4">
@@ -15,7 +26,7 @@
                     {{ $inventory->status }}
                 </span>
                 @if($inventory->is_commission)
-                    <span class="px-3 py-1 text-sm font-medium rounded-full bg-purple-100 text-indigo-800">
+                    <span class="px-3 py-1 text-sm font-medium rounded-full bg-purple-100 text-fab-blue">
                         {{ __('Comissão') }}
                     </span>
                 @endif
@@ -27,11 +38,11 @@
                     {{ __('Reabrir Inventário') }}
                 </button>
                 @endif
-                <a href="{{ route('inventory.pdf', $inventory) }}" target="_blank" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <a href="{{ route('inventory.pdf', $inventory) }}" target="_blank" class="px-4 py-2 text-sm font-medium text-white bg-fab-blue border border-transparent rounded-xl shadow-lg shadow-fab-blue/20 hover:bg-fab-blue-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-fab-blue transition duration-150 font-bold uppercase text-[10px] tracking-widest">
+                    <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
                     {{ __('Relatório PDF') }}
-                </a>
-                <a href="{{ route('inventory.index') }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    {{ __('Voltar') }}
                 </a>
             </div>
         </div>
@@ -59,7 +70,7 @@
                     </div>
                     
                     <div class="flex gap-2 w-full md:w-auto">
-                        <button type="button" @click="startScan" class="flex items-center justify-center px-4 py-2 bg-indigo-100 border border-indigo-300 rounded-md font-semibold text-xs text-indigo-700 uppercase tracking-widest hover:bg-indigo-200 active:bg-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 w-full md:w-auto">
+                        <button type="button" @click="startScan" class="flex items-center justify-center px-4 py-2 bg-blue-50 border border-fab-blue/30 rounded-xl font-bold text-xs text-fab-blue uppercase tracking-widest hover:bg-blue-100 active:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-fab-blue transition ease-in-out duration-150 w-full md:w-auto shadow-sm">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -175,7 +186,7 @@
                 <div class="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
                     <div class="flex items-center space-x-2">
                         @if($inventory->status !== 'Concluído')
-                        <input type="checkbox" wire:model.live="selectAllPending" class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                        <input type="checkbox" wire:model.live="selectAllPending" class="w-4 h-4 text-fab-blue border-gray-300 rounded focus:ring-fab-blue">
                         @endif
                         <h3 class="text-lg font-medium text-red-600">Pendentes ({{ $pendingAssets->count() }})</h3>
                     </div>
@@ -191,7 +202,7 @@
                         <li wire:key="pending-{{ $asset->id }}" class="p-4 hover:bg-gray-50">
                             <label class="flex items-center space-x-3 cursor-pointer">
                                 @if($inventory->status !== 'Concluído')
-                                <input type="checkbox" wire:model.live="selectedPending" value="{{ $asset->id }}" class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                                <input type="checkbox" wire:model.live="selectedPending" value="{{ $asset->id }}" class="w-4 h-4 text-fab-blue border-gray-300 rounded focus:ring-fab-blue">
                                 @endif
                                 <div>
                                     <p class="font-medium text-gray-900">{{ $asset->name }}</p>
@@ -211,7 +222,7 @@
                 <div class="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
                     <div class="flex items-center space-x-2">
                         @if($inventory->status !== 'Concluído')
-                        <input type="checkbox" wire:model.live="selectAllFound" class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                        <input type="checkbox" wire:model.live="selectAllFound" class="w-4 h-4 text-fab-blue border-gray-300 rounded focus:ring-fab-blue">
                         @endif
                         <h3 class="text-lg font-medium text-green-600">Conferidos ({{ $foundAssets->count() }})</h3>
                     </div>
@@ -227,7 +238,7 @@
                         <li wire:key="found-{{ $asset->id }}" class="p-4 hover:bg-gray-50">
                             <label class="flex items-center space-x-3 cursor-pointer">
                                 @if($inventory->status !== 'Concluído')
-                                <input type="checkbox" wire:model.live="selectedFound" value="{{ $asset->id }}" class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                                <input type="checkbox" wire:model.live="selectedFound" value="{{ $asset->id }}" class="w-4 h-4 text-fab-blue border-gray-300 rounded focus:ring-fab-blue">
                                 @endif
                                 <div>
                                     <p class="font-medium text-gray-900">{{ $asset->name }}</p>

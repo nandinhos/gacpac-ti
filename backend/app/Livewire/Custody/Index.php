@@ -56,10 +56,10 @@ class Index extends Component
         return view('livewire.custody.index', [
             'custodyLogs' => CustodyLog::with(['user', 'assets'])
                 ->when($this->search, function ($query) {
-                    $query->where('cautela_number', 'like', '%'.$this->search.'%')
+                    $query->where('cautela_number', 'ilike', '%'.$this->search.'%')
                         ->orWhereHas('user', function ($q) {
-                            $q->where('name', 'like', '%'.$this->search.'%')
-                              ->orWhere('military_id', 'like', '%'.$this->search.'%');
+                            $q->where('name', 'ilike', '%'.$this->search.'%')
+                              ->orWhere('military_id', 'ilike', '%'.$this->search.'%');
                         });
                 })
                 ->when($this->status === 'open', fn($q) => $q->open())

@@ -21,7 +21,7 @@
         <div class="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0">
             <div class="flex flex-col flex-grow pt-5 pb-4 overflow-y-auto bg-white border-r border-gray-200">
                 <div class="flex items-center flex-shrink-0 px-4">
-                    <x-application-logo class="w-auto h-8 text-indigo-600" />
+                    <x-application-logo class="w-auto h-8 text-fab-blue" />
                     <span class="ml-2 text-lg font-semibold text-gray-900">SGTI-GAC</span>
                 </div>
                 <div class="flex flex-col flex-grow mt-8">
@@ -40,8 +40,8 @@
 
                         @foreach($navItems as $item)
                         <a href="{{ Route::has($item['route']) ? route($item['route']) : '#' }}" 
-                           class="flex items-center px-2 py-2 text-sm font-medium rounded-md group transition-colors {{ request()->routeIs($item['route'] . '*') ? 'bg-indigo-50 text-indigo-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
-                            <svg class="flex-shrink-0 w-5 h-5 mr-3 {{ request()->routeIs($item['route'] . '*') ? 'text-indigo-600' : 'text-gray-400 group-hover:text-gray-500' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                           class="flex items-center px-2 py-2 text-sm font-medium rounded-md group transition-colors {{ request()->routeIs($item['route'] . '*') ? 'bg-blue-50 text-fab-blue' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                            <svg class="flex-shrink-0 w-5 h-5 mr-3 {{ request()->routeIs($item['route'] . '*') ? 'text-fab-blue' : 'text-gray-400 group-hover:text-gray-500' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $item['icon'] }}" />
                             </svg>
                             {{ $item['name'] }}
@@ -67,7 +67,7 @@
                 </div>
                 <div class="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
                     <div class="flex items-center flex-shrink-0 px-4">
-                        <x-application-logo class="w-auto h-8 text-indigo-600" />
+                        <x-application-logo class="w-auto h-8 text-fab-blue" />
                         <span class="ml-2 text-lg font-semibold text-gray-900">SGTI-GAC</span>
                     </div>
                     <nav class="mt-5 px-2 space-y-1">

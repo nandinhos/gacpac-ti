@@ -68,7 +68,7 @@
                                         @forelse($this->availableAssets as $asset)
                                             <tr class="hover:bg-gray-50 cursor-pointer" wire:click="toggleAsset({{ $asset->id }})">
                                                 <td class="px-6 py-4 whitespace-nowrap">
-                                                    <input type="checkbox" wire:model.live="selectedAssets" value="{{ $asset->id }}" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500">
+                                                    <input type="checkbox" wire:model.live="selectedAssets" value="{{ $asset->id }}" class="rounded border-gray-300 text-fab-blue shadow-sm focus:ring-fab-blue">
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap">
                                                     <div class="text-sm font-medium text-gray-900">{{ $asset->name }}</div>

@@ -7,9 +7,12 @@
             </svg>
             Imprimir
         </button>
-        <a href="{{ route('custody.show', $custodyLog) }}" class="btn-back">
-            ← Voltar
-        </a>
+        <button onclick="window.close()" class="btn-back">
+            <svg style="width: 16px; height: 16px; margin-right: 6px; transform: translateY(-1px);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            Fechar
+        </button>
     </div>
 
     <div class="print-container">

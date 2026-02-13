@@ -32,9 +32,9 @@ class Edit extends Component
     {
         return Asset::where('status', 'DISPONIVEL')
             ->where(function ($query) {
-                $query->where('name', 'like', '%' . $this->searchAsset . '%')
-                      ->orWhere('qr_code', 'like', '%' . $this->searchAsset . '%')
-                      ->orWhere('patrimony_number', 'like', '%' . $this->searchAsset . '%');
+                $query->where('name', 'ilike', '%' . $this->searchAsset . '%')
+                      ->orWhere('qr_code', 'ilike', '%' . $this->searchAsset . '%')
+                      ->orWhere('patrimony_number', 'ilike', '%' . $this->searchAsset . '%');
             })
             ->limit(10)
             ->get();

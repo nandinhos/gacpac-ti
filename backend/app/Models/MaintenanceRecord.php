@@ -19,12 +19,15 @@ class MaintenanceRecord extends Model
         'cost',
         'next_maintenance_date',
         'notes',
+        'is_upgrade',
+        'parts_replaced',
     ];
 
     protected $casts = [
         'date' => 'date',
         'cost' => 'decimal:2',
         'next_maintenance_date' => 'date',
+        'is_upgrade' => 'boolean',
     ];
 
     public function asset()

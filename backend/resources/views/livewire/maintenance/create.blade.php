@@ -43,7 +43,7 @@
                             <x-input-error :messages="$errors->get('description')" class="mt-2" />
                         </div>
 
-                        <!-- Responsável e Custo -->
+                        <!-- Responsável e Destino (Setor) -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <x-input-label for="performed_by" :value="__('Realizado por')" />
@@ -52,11 +52,39 @@
                             </div>
 
                             <div>
-                                <x-input-label for="cost" :value="__('Custo (R$)')" />
-                                <x-text-input wire:model="cost" id="cost" class="block mt-1 w-full" type="number" step="0.01" min="0" placeholder="0,00" />
-                                <x-input-error :messages="$errors->get('cost')" class="mt-2" />
+                                <x-input-label for="sector_id" :value="__('Encaminhar para Setor')" />
+                                <select wire:model="sector_id" id="sector_id" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
+                                    @foreach($sectors as $sector)
+                                        <option value="{{ $sector->id }}">{{ $sector->name }}</option>
+                                    @endforeach
+                                </select>
+                                <p class="text-xs text-gray-500 mt-1">O ativo será movido para este setor durante a manutenção.</p>
+                                <x-input-error :messages="$errors->get('sector_id')" class="mt-2" />
                             </div>
                         </div>
+
+                        <!-- Upgrade e Modificação -->
+                        <div class="border-t pt-4">
+                            <div class="flex items-start">
+                                <div class="flex items-center h-5">
+                                    <input wire:model.live="is_upgrade" id="is_upgrade" type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                                </div>
+                                <div class="ml-3 text-sm">
+                                    <label for="is_upgrade" class="font-medium text-gray-700">Este registro envolve Upgrade ou Modificação física?</label>
+                                    <p class="text-gray-500 text-xs">Se marcado, o Ativo será sinalizado como "Máquina Modificada" permanentemente.</p>
+                                </div>
+                            </div>
+                            <x-input-error :messages="$errors->get('is_upgrade')" class="mt-2" />
+                        </div>
+
+                        @if($is_upgrade)
+                        <div x-show="$wire.is_upgrade" x-transition>
+                            <x-input-label for="parts_replaced" :value="__('Peças Substituídas / Adicionadas')" />
+                            <textarea wire:model="parts_replaced" id="parts_replaced" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" rows="3" placeholder="Liste as peças trocadas (Ex: SDD 480GB, Memória 8GB...)"></textarea>
+                            <p class="text-xs text-gray-500 mt-1">Descreva as alterações técnicas realizadas no equipamento.</p>
+                            <x-input-error :messages="$errors->get('parts_replaced')" class="mt-2" />
+                        </div>
+                        @endif
 
                         <!-- Próxima Manutenção -->
                         <div class="border-t pt-4">
@@ -78,7 +106,7 @@
                         </div>
 
                         <div class="flex items-center justify-end gap-4 pt-4 border-t">
-                            <a href="{{ route('maintenance.index', $asset) }}" class="text-gray-600 hover:text-gray-900">{{ __('Cancelar') }}</a>
+                            <a href="javascript:history.back()" class="text-gray-600 hover:text-gray-900">{{ __('Voltar') }}</a>
                             <x-primary-button>{{ __('Registrar Manutenção') }}</x-primary-button>
                         </div>
                     </form>

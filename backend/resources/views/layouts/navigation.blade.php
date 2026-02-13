@@ -43,7 +43,7 @@
                             </svg>
                         </div>
                         <input type="text" name="search" placeholder="{{ __('Busca rápida (Patrimônio/QR)...') }}" 
-                               class="block w-full pl-10 pr-3 py-1.5 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                               class="block w-full pl-10 pr-3 py-1.5 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-fab-blue focus:border-fab-blue sm:text-sm">
                     </div>
                 </form>
             </div>

@@ -54,6 +54,7 @@ class Asset extends Model
         'valor_atualizado',
         'deprec_acumulada',
         'valor_liquido',
+        'is_modified',
     ];
 
     protected $casts = [
@@ -68,6 +69,7 @@ class Asset extends Model
         'valor_atualizado' => 'decimal:2',
         'deprec_acumulada' => 'decimal:2',
         'valor_liquido' => 'decimal:2',
+        'is_modified' => 'boolean',
     ];
 
     public function sector()

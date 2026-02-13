@@ -1,24 +1,35 @@
-
+<div>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <div>
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                    {{ __('Detalhamento do Ativo') }}
-                </h2>
-                <p class="text-sm text-gray-500 mt-1">
-                    <span class="font-medium text-gray-700">{{ $asset->name }}</span>
-                    &middot; {{ $asset->qr_code }}
-                    @if($asset->serial_number)
-                        &middot; S/N: {{ $asset->serial_number }}
-                    @endif
-                </p>
-            </div>
-            <a href="{{ route('assets.index') }}"
-               class="inline-flex items-center px-4 py-2 bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-300 transition ease-in-out duration-150">
-                {{ __('Voltar') }}
-            </a>
+        <div>
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                {{ __('Detalhamento do Ativo') }}
+            </h2>
+            <p class="text-sm text-gray-500 mt-1">
+                <span class="font-medium text-gray-700">{{ $asset->name }}</span>
+                &middot; {{ $asset->qr_code }}
+                @if($asset->serial_number)
+                    &middot; S/N: {{ $asset->serial_number }}
+                @endif
+                @if($asset->is_modified)
+                    <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-orange-100 text-orange-800 border border-orange-200 uppercase tracking-wider">
+                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        Modificado
+                    </span>
+                @endif
+            </p>
         </div>
     </x-slot>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+        <a href="javascript:history.back()" class="inline-flex items-center text-sm font-medium text-fab-blue hover:text-fab-blue-hover transition-colors group">
+            <svg class="w-5 h-5 mr-1 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+            {{ __('Voltar') }}
+        </a>
+    </div>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
@@ -49,7 +60,7 @@
                 <div class="border-b border-gray-200">
                     <nav class="flex -mb-px">
                         <button wire:click="$set('activeTab', 'dados')"
-                                class="px-6 py-3 border-b-2 font-medium text-sm transition-colors duration-200 {{ $activeTab === 'dados' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                                class="px-6 py-3 border-b-2 font-medium text-sm transition-colors duration-200 {{ $activeTab === 'dados' ? 'border-fab-blue text-fab-blue' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
                             <svg class="w-4 h-4 inline-block mr-1 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
@@ -57,24 +68,24 @@
                         </button>
 
                         <button wire:click="$set('activeTab', 'fotos')"
-                                class="px-6 py-3 border-b-2 font-medium text-sm transition-colors duration-200 {{ $activeTab === 'fotos' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                                class="px-6 py-3 border-b-2 font-medium text-sm transition-colors duration-200 {{ $activeTab === 'fotos' ? 'border-fab-blue text-fab-blue' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
                             <svg class="w-4 h-4 inline-block mr-1 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
                             {{ __('Fotos') }}
-                            <span class="ml-1 px-2 py-0.5 text-xs rounded-full {{ $assetPhotos->count() > 0 ? 'bg-indigo-100 text-indigo-600' : 'bg-gray-100 text-gray-500' }}">
+                            <span class="ml-1 px-2 py-0.5 text-xs rounded-full {{ $assetPhotos->count() > 0 ? 'bg-blue-100 text-fab-blue' : 'bg-gray-100 text-gray-500' }}">
                                 {{ $assetPhotos->count() }}
                             </span>
                         </button>
 
                         <button wire:click="$set('activeTab', 'manutencao')"
-                                class="px-6 py-3 border-b-2 font-medium text-sm transition-colors duration-200 {{ $activeTab === 'manutencao' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                                class="px-6 py-3 border-b-2 font-medium text-sm transition-colors duration-200 {{ $activeTab === 'manutencao' ? 'border-fab-blue text-fab-blue' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
                             <svg class="w-4 h-4 inline-block mr-1 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                             </svg>
                             {{ __('Manutenções') }}
-                            <span class="ml-1 px-2 py-0.5 text-xs rounded-full {{ $maintenanceCount > 0 ? 'bg-indigo-100 text-indigo-600' : 'bg-gray-100 text-gray-500' }}">
+                            <span class="ml-1 px-2 py-0.5 text-xs rounded-full {{ $maintenanceCount > 0 ? 'bg-blue-100 text-fab-blue' : 'bg-gray-100 text-gray-500' }}">
                                 {{ $maintenanceCount }}
                             </span>
                         </button>
@@ -248,7 +259,7 @@
                                     progress: 0,
                                     dragging: false,
                                     fileError: '',
-                                    maxSizeMB: 5,
+                                    maxSizeMB: 10,
                                     allowedTypes: ['image/jpeg', 'image/png', 'image/webp'],
                                     validateFiles(input) {
                                         this.fileError = '';
@@ -287,24 +298,24 @@
                                        class="relative flex flex-col items-center justify-center w-full py-8 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200">
 
                                     <div x-show="!uploading" class="flex flex-col items-center gap-2">
-                                        <div class="p-3 rounded-full bg-indigo-50">
-                                            <svg class="w-8 h-8 text-indigo-500" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                        <div class="p-3 rounded-full bg-blue-50">
+                                            <svg class="w-8 h-8 text-fab-blue" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" />
                                             </svg>
                                         </div>
                                         <div class="text-center">
                                             <p class="text-sm text-gray-600">
-                                                <span class="font-semibold text-indigo-600">Clique para selecionar</span>
+                                                <span class="font-semibold text-fab-blue">Clique para selecionar</span>
                                                 ou arraste arquivos aqui
                                             </p>
-                                            <p class="text-xs text-gray-400 mt-1">JPG, JPEG, PNG ou WEBP &mdash; max. 5 MB por arquivo</p>
+                                            <p class="text-xs text-gray-400 mt-1">JPG, JPEG, PNG ou WEBP &mdash; max. 10 MB por arquivo</p>
                                         </div>
                                     </div>
 
                                     {{-- Upload Progress --}}
                                     <div x-show="uploading" x-cloak class="w-full max-w-xs text-center">
                                         <div class="flex items-center justify-center gap-3 mb-2">
-                                            <svg class="w-5 h-5 text-indigo-500 animate-spin" fill="none" viewBox="0 0 24 24">
+                                            <svg class="w-5 h-5 text-fab-blue animate-spin" fill="none" viewBox="0 0 24 24">
                                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                             </svg>
@@ -618,3 +629,4 @@
             </div>
         </div>
     </div>
+</div>

@@ -54,7 +54,7 @@ class Index extends Component
             ->withCount('assets');
 
         if ($this->search) {
-            $query->where('name', 'like', '%' . $this->search . '%');
+            $query->where('name', 'ilike', '%' . $this->search . '%');
         }
 
         if ($this->parentId === 'root') {

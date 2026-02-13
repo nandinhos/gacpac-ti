@@ -12,9 +12,9 @@
                 </p>
             </div>
             <div class="flex gap-2">
-                <a href="{{ route('assets.edit', $asset) }}"
+                <a href="javascript:history.back()"
                    class="inline-flex items-center px-4 py-2 bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-300 transition ease-in-out duration-150">
-                    {{ __('Voltar ao Ativo') }}
+                    {{ __('Voltar') }}
                 </a>
                 <a href="{{ route('maintenance.create', $asset) }}"
                    class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:border-indigo-900 focus:ring ring-indigo-300 transition ease-in-out duration-150">
@@ -50,12 +50,8 @@
                         <p class="text-2xl font-semibold text-gray-900">{{ $records->total() }}</p>
                     </div>
                 </div>
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-green-500">
-                    <div class="p-4">
-                        <p class="text-sm font-medium text-gray-600 uppercase">{{ __('Custo Total') }}</p>
-                        <p class="text-2xl font-semibold text-gray-900">R$ {{ number_format($totalCost, 2, ',', '.') }}</p>
-                    </div>
-                </div>
+ 
+
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-yellow-500">
                     <div class="p-4">
                         <p class="text-sm font-medium text-gray-600 uppercase">{{ __('Próxima Manutenção') }}</p>
@@ -98,9 +94,8 @@
                                 <tr>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descrição</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Responsável</th>
-                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Custo</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Serviço / Upgrade</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Técnico / Notas</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Próxima</th>
                                     <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
                                 </tr>
@@ -116,20 +111,21 @@
                                                 {{ ucfirst($record->type) }}
                                             </span>
                                         </td>
-                                        <td class="px-6 py-4 text-sm text-gray-900 max-w-xs truncate">
-                                            {{ $record->description }}
-                                            @if($record->notes)
-                                                <p class="text-xs text-gray-500 mt-1 truncate">{{ $record->notes }}</p>
+                                        <td class="px-6 py-4 text-sm text-gray-900 max-w-xs">
+                                            <div class="truncate">{{ $record->description }}</div>
+                                            @if($record->is_upgrade)
+                                                <span class="inline-flex items-center mt-1 px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-200 uppercase">
+                                                    Upgrade
+                                                </span>
+                                            @endif
+                                            @if($record->parts_replaced)
+                                                <p class="text-[10px] text-gray-500 mt-1 italic">Peças: {{ Str::limit($record->parts_replaced, 50) }}</p>
                                             @endif
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            {{ $record->performed_by }}
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
-                                            @if($record->cost)
-                                                R$ {{ number_format($record->cost, 2, ',', '.') }}
-                                            @else
-                                                <span class="text-gray-400">-</span>
+                                            <div>{{ $record->performed_by }}</div>
+                                            @if($record->notes)
+                                                <div class="text-[10px] text-gray-400 truncate max-w-[150px]" title="{{ $record->notes }}">{{ $record->notes }}</div>
                                             @endif
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm">

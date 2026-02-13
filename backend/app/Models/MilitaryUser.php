@@ -61,6 +61,33 @@ class MilitaryUser extends Authenticatable
         return $query->where('is_active', true);
     }
 
+    public function assets()
+    {
+        return $this->hasMany(Asset::class, 'custodian_user_id');
+    }
+
+    /**
+     * Retorna os ativos vinculados a cautelas abertas (sem data de checkin)
+     */
+    public function activeCustodyAssets()
+    {
+        return $this->belongsToMany(Asset::class, 'custody_assets', 'custody_log_id', 'asset_id', null, 'id')
+            ->whereHas('custodyLog', function($query) {
+                $query->whereNull('checkin_date')
+                      ->where('user_id', $this->id);
+            });
+    }
+
+    // Nota: O relacionamento acima via belongsToMany direto pode ser complexo devido à estrutura.
+    // Uma alternativa mais limpa para o contexto do app:
+    public function currentCustodyAssets()
+    {
+        return Asset::whereHas('custodyLogs', function($query) {
+            $query->whereNull('checkin_date')
+                  ->where('user_id', $this->id);
+        });
+    }
+
     public function scopeByRole($query, $role)
     {
         return $query->where('role', $role);

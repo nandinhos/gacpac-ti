@@ -119,7 +119,7 @@
                     @endif
 
                     <div class="mt-6 flex items-center justify-end">
-                        <a href="{{ route('custody.index') }}" class="text-gray-600 hover:text-gray-900">{{ __('Voltar') }}</a>
+                        <a href="javascript:history.back()" class="text-gray-600 hover:text-gray-900">{{ __('Voltar') }}</a>
                     </div>
                 </div>
             </div>
