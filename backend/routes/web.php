@@ -43,7 +43,11 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
     Route::livewire('/assets/{asset}/maintenance/create', App\Livewire\Maintenance\Create::class)->name('maintenance.create');
 
     Route::livewire('/notifications', App\Livewire\Notifications\Index::class)->name('notifications.index');
-    Route::livewire('/reports', App\Livewire\Reports\Index::class)->name('reports.index');
+    Route::livewire('/notifications', App\Livewire\Notifications\Index::class)->name('notifications.index');
+    Route::get('/reports', App\Livewire\Reports\Index::class)->name('reports.index');
+    Route::get('/reports/assets', [App\Http\Controllers\ReportController::class, 'assets'])->name('reports.assets');
+    Route::get('/reports/maintenance', [App\Http\Controllers\ReportController::class, 'maintenance'])->name('reports.maintenance');
+    Route::get('/reports/term', [App\Http\Controllers\ReportController::class, 'term'])->name('reports.term');
 
 });
 

@@ -96,4 +96,14 @@ class Asset extends Model
     {
         return $this->belongsToMany(CustodyLog::class, 'custody_assets');
     }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    public function location()
+    {
+        return $this->belongsTo(Sector::class, 'sector_id');
+    }
 }

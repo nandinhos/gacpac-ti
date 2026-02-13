@@ -433,7 +433,25 @@ cat .aidev/plans/features/XXX-feature-name.md
 **Versão:** 1.0  
 **Status:** Ativo  
 **Status:** Ativo  
-**Próxima Sprint:** A definir (ver Backlog em TASKS.md).
+**Próxima Sprint:** Sprint 7 - Módulo de Relatórios PDF
+
+---
+
+### 📅 SPRINT 7: Relatórios PDF ✅ CONCLUÍDA
+**Duração:** 1 semana
+**Objetivo:** Implementar geração de PDFs para ativos, manutenção e termos.
+**Status:** ✅ **IMPLEMENTADA**
+**Data início:** 2026-02-13
+**Data conclusão:** 2026-02-13
+
+#### Funcionalidades:
+
+##### 7.1 - Geração de PDFs
+**Prioridade:** 🔴 ALTA
+**Requisitos Técnicos:**
+- [x] Controller `ReportController`.
+- [x] Views específicas para impressão (A4).
+- [x] Relatórios: Ativos, Manutenção, Termo.
 
 ---
 
