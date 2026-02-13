@@ -1,9 +1,9 @@
 # Feature: Registro de Manutenção
 
 **Sprint:** 3
-**Status:** Em progresso
+**Status:** Concluído
 **Data início:** 2026-02-06
-**Data conclusão:** -
+**Data conclusão:** 2026-02-13
 
 ## Contexto de Negócio
 O sistema de gestão de ativos (SGAITI) precisa rastrear o histórico de manutenções (preventivas e corretivas) para controle de custos, garantias e vida útil dos equipamentos. Atualmente não há interface para registrar essas intervenções.
@@ -11,11 +11,12 @@ O sistema de gestão de ativos (SGAITI) precisa rastrear o histórico de manuten
 ## Requisitos
 
 ### Funcionais
-- [ ] Registrar manutenções preventivas e corretivas vinculadas a um ativo.
-- [ ] Informar data, tipo, custo, descrição, quem realizou e observações.
-- [ ] Visualizar histórico de manutenções na ficha do ativo.
-- [ ] Calcular custo total de manutenções do ativo.
-- [ ] Agendar próxima manutenção (opcional).
+- [x] Registrar manutenções preventivas e corretivas vinculadas a um ativo.
+- [x] Informar data, tipo, custo, descrição, quem realizou e observações.
+- [x] Visualizar histórico de manutenções na ficha do ativo.
+- [x] Calcular custo total de manutenções do ativo.
+- [x] Agendar próxima manutenção (opcional).
+- [x] Rastrear upgrades/modificações em ativos (is_upgrade, parts_replaced).
 
 ### Regras de Negócio
 - O custo deve ser registrado em decimal.
@@ -55,10 +56,18 @@ O sistema de gestão de ativos (SGAITI) precisa rastrear o histórico de manuten
 - `test: add maintenance feature tests`
 
 ## Testes
-- [ ] Criar manutenção válida.
-- [ ] Validar campos obrigatórios.
-- [ ] Verificar relacionamento com Asset.
-- [ ] Verificar cálculo de totais.
+- [x] Criar manutenção válida (corretiva e preventiva).
+- [x] Validar campos obrigatórios.
+- [x] Verificar relacionamento com Asset.
+- [x] Verificar cálculo de totais.
+- [x] Filtro por tipo.
+- [x] Exclusão de registro.
+- [x] Scopes: upcoming() e overdue().
+- [x] Validação de data (next_maintenance_date > date).
+
+**Arquivo:** `backend/tests/Feature/MaintenanceTest.php` (11 testes)
 
 ## Lições Aprendidas
-[A preencher]
+- Componente embeddable (`isEmbedded`) permite reutilizar a listagem dentro da aba do ativo.
+- Exclusão deferida evita erros de morphing do Livewire.
+- Scopes no model facilitam consultas futuras para alertas no dashboard.

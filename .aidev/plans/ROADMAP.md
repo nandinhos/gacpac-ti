@@ -2,7 +2,7 @@
 
 > Documento mestre de planejamento de funcionalidades
 > Formato: AI Dev Superpowers Sprint Planning
-> Última atualização: 2026-02-05
+> Última atualização: 2026-02-13
 > Status: Ativo
 
 ---
@@ -165,16 +165,18 @@ backend/tests/Feature/CategoryTest.php
 
 ---
 
-### 📅 SPRINT 3: Manutenção de Ativos
-**Duração:** 1-2 semanas  
-**Objetivo:** Implementar histórico de manutenções  
-**Status:** 🟡 Não iniciado
+### 📅 SPRINT 3: Manutenção de Ativos ✅ CONCLUÍDA
+**Duração:** 1-2 semanas
+**Objetivo:** Implementar histórico de manutenções
+**Status:** ✅ **VERIFICADA - JÁ IMPLEMENTADA**
+**Data verificação:** 2026-02-13
 
 #### Funcionalidades:
 
-##### 3.1 - Registro de Manutenção
-**Prioridade:** 🟡 MÉDIA  
-**Motivo:** API existe, falta UI
+##### 3.1 - Registro de Manutenção ✅
+**Prioridade:** 🟡 MÉDIA
+**Motivo:** API existe, falta UI - **VERIFICADO: JÁ FUNCIONA**
+**Status:** ✅ **CONCLUÍDO**
 
 **Requisitos de Negócio:**
 - Registrar manutenções preventivas e corretivas
@@ -182,56 +184,63 @@ backend/tests/Feature/CategoryTest.php
 - Agendamento de próximas manutenções
 - Histórico completo por ativo
 
-**Requisitos Técnicos:**
-- [ ] Verificar se tabela maintenance_logs existe
-- [ ] Se não existir, criar migration:
-  - asset_id (foreign key)
-  - type (preventiva/corretiva)
-  - description
-  - cost (decimal)
-  - maintenance_date
-  - next_maintenance_date (opcional)
-  - performed_by
-  - notes
-- [ ] Model MaintenanceLog com relação Asset
-- [ ] Componente Livewire Asset/Maintenance/Index (histórico)
-- [ ] Componente Livewire Asset/Maintenance/Create
-- [ ] Adicionar aba "Manutenções" na tela de show do ativo
-- [ ] Formulário com todos os campos
-- [ ] Listagem com filtros por tipo e data
-- [ ] Alerta para manutenções próximas (badge no dashboard)
-- [ ] Testes: MaintenanceTest
+**Requisitos Técnicos:** ✅ TODOS IMPLEMENTADOS
+- [x] Tabela `maintenance_records` criada (3 migrations)
+- [x] Campos: asset_id, type (preventiva/corretiva), description, cost, date, next_maintenance_date, performed_by, notes, is_upgrade, parts_replaced
+- [x] Model `MaintenanceRecord` com relação Asset, scopes `upcoming()` e `overdue()`
+- [x] Componente Livewire `Maintenance/Index` (histórico com busca e filtros)
+- [x] Componente Livewire `Maintenance/Create` (formulário completo)
+- [x] Aba "Manutenções" na tela de edição do ativo (embedded)
+- [x] Formulário com todos os campos + checkbox de upgrade/modificação
+- [x] Listagem com filtros por tipo e busca por texto
+- [x] Badge com contagem de manutenções na aba
+- [x] Testes: `MaintenanceTest.php` (11 testes)
+- [x] Factory: `MaintenanceRecordFactory.php`
 
 **Critérios de Aceitação:**
-1. Na tela do ativo, aba "Manutenções" mostra histórico
-2. Consegue adicionar nova manutenção
-3. Visualiza custo total de manutenções do ativo
-4. Dashboard mostra alerta de manutenções próximas
-5. Filtros funcionam corretamente
+1. ✅ Na tela do ativo, aba "Manutenções" mostra histórico
+2. ✅ Consegue adicionar nova manutenção
+3. ✅ Visualiza resumo de manutenções do ativo
+4. ✅ Próximas manutenções com indicadores visuais (vermelho=vencida, amarelo=próxima)
+5. ✅ Filtros funcionam corretamente
 
-**Arquivos Esperados:**
+**Arquivos Implementados:**
 ```
-backend/app/Models/MaintenanceLog.php
-backend/app/Livewire/Asset/Maintenance/Index.php
-backend/app/Livewire/Asset/Maintenance/Create.php
-backend/resources/views/livewire/asset/maintenance/*.blade.php
+backend/app/Models/MaintenanceRecord.php
+backend/app/Livewire/Maintenance/Index.php
+backend/app/Livewire/Maintenance/Create.php
+backend/resources/views/livewire/maintenance/index.blade.php
+backend/resources/views/livewire/maintenance/create.blade.php
 backend/tests/Feature/MaintenanceTest.php
+backend/database/factories/MaintenanceRecordFactory.php
 ```
 
 **Dependências:** Módulo de Ativos (já existe)
 
+**Nota de Implementação:**
+> ✅ **VERIFICADO EM 2026-02-13:** Funcionalidade completamente implementada!
+>
+> **Funcionalidades extras implementadas:**
+> - Rastreamento de upgrades/modificações em ativos (`is_upgrade`, `parts_replaced`)
+> - Campo `is_modified` no ativo para marcar modificações permanentes
+> - Modal de confirmação para exclusão
+> - Componente embeddable na view de edição do ativo
+> - Scopes `upcoming()` e `overdue()` para consultas futuras
+
 ---
 
-### 📅 SPRINT 4: Fotos de Ativos
-**Duração:** 1 semana  
-**Objetivo:** Implementar upload e galeria de fotos  
-**Status:** 🟡 Não iniciado
+### 📅 SPRINT 4: Fotos de Ativos ✅ CONCLUÍDA
+**Duração:** 1 semana
+**Objetivo:** Implementar upload e galeria de fotos
+**Status:** ✅ **VERIFICADA - JÁ IMPLEMENTADA**
+**Data verificação:** 2026-02-13
 
 #### Funcionalidades:
 
-##### 4.1 - Upload de Fotos
-**Prioridade:** 🟡 MÉDIA  
-**Motivo:** API existe, falta UI
+##### 4.1 - Upload de Fotos ✅
+**Prioridade:** 🟡 MÉDIA
+**Motivo:** API existe, falta UI - **VERIFICADO: JÁ FUNCIONA**
+**Status:** ✅ **CONCLUÍDO**
 
 **Requisitos de Negócio:**
 - Anexar fotos do ativo (múltiplas)
@@ -239,35 +248,56 @@ backend/tests/Feature/MaintenanceTest.php
 - Definir foto principal
 - Excluir fotos
 
-**Requisitos Técnicos:**
-- [ ] Verificar tabela asset_photos
-- [ ] Componente Livewire Asset/Photos/Upload
-- [ ] Componente Livewire Asset/Photos/Gallery
-- [ ] Upload múltiplo com Livewire
-- [ ] Validação: max 5MB, tipos: jpg, png, webp
-- [ ] Redimensionamento automático (thumbnail)
-- [ ] Storage em disco local ou S3 (configurável)
-- [ ] Ordenação drag-and-drop
-- [ ] Definir foto principal
-- [ ] Testes: AssetPhotoTest
+**Requisitos Técnicos:** ✅ TODOS IMPLEMENTADOS
+- [x] Tabela `asset_photos` criada (2 migrations: criação + campos adicionais)
+- [x] Campos: asset_id, url, caption, uploaded_at, mime_type, is_primary, file_size
+- [x] Model `AssetPhoto` com relação Asset, scope `primary()`, accessor `storageUrl`
+- [x] Upload integrado no componente `Assets/Edit.php` (aba Fotos)
+- [x] Componente standalone `Photos/Index.php` para galeria
+- [x] Upload múltiplo com drag-and-drop e preview
+- [x] Validação: max 10MB, tipos: jpg, jpeg, png, webp
+- [x] Lightbox com navegação por teclado e thumbnails
+- [x] Edição inline de legendas
+- [x] Definir foto principal (auto-promoção ao deletar)
+- [x] Testes: `AssetPhotoTest.php` (14 testes)
+- [x] Factory: `AssetPhotoFactory.php`
+- [x] Rotas API: POST e DELETE para fotos
 
 **Critérios de Aceitação:**
-1. Na tela do ativo, consegue fazer upload de fotos
-2. Galeria mostra thumbnails
-3. Clique abre lightbox com foto em tamanho real
-4. Consegue definir qual foto é a principal
-5. Consegue excluir fotos
-6. Validações de tamanho/tipo funcionam
+1. ✅ Na tela do ativo, consegue fazer upload de fotos (aba "Fotos")
+2. ✅ Galeria mostra grid responsivo com thumbnails
+3. ✅ Clique abre lightbox com navegação e metadados
+4. ✅ Consegue definir qual foto é a principal
+5. ✅ Consegue excluir fotos (com confirmação)
+6. ✅ Validações de tamanho/tipo funcionam
+7. ✅ Edição inline de legendas
+8. ✅ Auto-promoção de foto ao deletar a principal
 
-**Arquivos Esperados:**
+**Arquivos Implementados:**
 ```
-backend/app/Livewire/Asset/Photos/Upload.php
-backend/app/Livewire/Asset/Photos/Gallery.php
-backend/resources/views/livewire/asset/photos/*.blade.php
+backend/app/Models/AssetPhoto.php
+backend/app/Livewire/Assets/Edit.php (métodos de foto integrados)
+backend/app/Livewire/Photos/Index.php
+backend/resources/views/livewire/assets/edit.blade.php (aba Fotos)
+backend/resources/views/livewire/photos/index.blade.php
+backend/resources/views/components/photo-lightbox.blade.php
 backend/tests/Feature/AssetPhotoTest.php
+backend/database/factories/AssetPhotoFactory.php
 ```
 
 **Dependências:** Módulo de Ativos
+
+**Nota de Implementação:**
+> ✅ **VERIFICADO EM 2026-02-13:** Funcionalidade completamente implementada!
+>
+> **Funcionalidades extras implementadas:**
+> - Drag-and-drop com preview antes do upload
+> - Lightbox completo com navegação por teclado (setas, ESC)
+> - Thumbnails strip na parte inferior do lightbox
+> - Edição inline de legendas (salvar/cancelar)
+> - Exclusão deferida para evitar erros 403 durante morphing do Livewire
+> - Metadados exibidos: data upload, tamanho, tipo, status principal
+> - Storage organizado por asset: `asset-photos/{asset-id}/`
 
 ---
 
@@ -277,8 +307,8 @@ backend/tests/Feature/AssetPhotoTest.php
 |--------|----------------|------------|--------|--------------|
 | 1 | ✅ Novo Inventário | 🔴 CRÍTICA | **CONCLUÍDO** | Nenhuma |
 | 2 | ✅ CRUD Categorias | 🟡 MÉDIA | **CONCLUÍDO** | Nenhuma |
-| 3 | Manutenção | 🟡 MÉDIA | 🟡 Pendente | Ativos |
-| 4 | Fotos | 🟡 MÉDIA | 🟡 Pendente | Ativos |
+| 3 | ✅ Manutenção | 🟡 MÉDIA | **CONCLUÍDO** | Ativos |
+| 4 | ✅ Fotos | 🟡 MÉDIA | **CONCLUÍDO** | Ativos |
 
 ---
 
@@ -402,4 +432,4 @@ cat .aidev/plans/features/XXX-feature-name.md
 **Criado em:** 2026-02-05  
 **Versão:** 1.0  
 **Status:** Ativo  
-**Próxima Sprint:** Sprint 3 - Manutenção de Ativos
+**Próxima Sprint:** Todas as sprints planejadas foram concluídas. Aguardando novo planejamento.

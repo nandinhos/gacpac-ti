@@ -37,5 +37,5 @@ if is_inside_docker || ! command_exists docker; then
     cd "$TARGET_DIR" && php artisan boost:mcp "$@"
 else
     # We are on the host and Docker is available
-    docker exec -i "$CONTAINER_NAME" php artisan boost:mcp "$@"
+    docker compose exec -T laravel.test php artisan boost:mcp "$@"
 fi

@@ -153,39 +153,39 @@ Flash message: "Inventário criado!"
 ## ✅ Checklist de Implementação
 
 ### Fase 1: Preparação
-- [ ] Verificar estrutura da tabela `inventories`
-- [ ] Verificar se existe tabela pivot `inventory_members`
-- [ ] Verificar model Inventory existente
-- [ ] Analisar rota atual (que está com href="#")
+- [x] Verificar estrutura da tabela `inventories`
+- [x] Verificar se existe tabela pivot `inventory_members`
+- [x] Verificar model Inventory existente
+- [x] Analisar rota atual (que está com href="#")
 
 ### Fase 2: Backend
-- [ ] Criar InventoryCreateRequest (Form Request)
-- [ ] Criar componente Livewire Inventory/Create
-- [ ] Implementar método mount()
-- [ ] Implementar método save()
-- [ ] Implementar validações customizadas
-- [ ] Implementar verificação de inventário ativo por setor
+- [x] Criar InventoryCreateRequest (Form Request) - `StoreInventoryRecordRequest.php`
+- [x] Criar componente Livewire Inventory/Create
+- [x] Implementar método mount()
+- [x] Implementar método save()
+- [x] Implementar validações customizadas
+- [x] Implementar verificação de inventário ativo por setor
 
 ### Fase 3: Frontend
-- [ ] Criar view create.blade.php
-- [ ] Implementar select de setores
-- [ ] Implementar campo comissão
-- [ ] Implementar select múltiplo de responsáveis
-- [ ] Implementar datepicker para data de início
-- [ ] Estilizar formulário (seguir padrão do sistema)
+- [x] Criar view create.blade.php
+- [x] Implementar select de setores
+- [x] Implementar campo comissão
+- [x] Implementar select múltiplo de responsáveis
+- [x] Implementar datepicker para data de início
+- [x] Estilizar formulário (seguir padrão do sistema)
 
 ### Fase 4: Integração
-- [ ] Atualizar link "Novo Inventário" em inventory/index.blade.php
-- [ ] Remover href="#" e adicionar route('inventory.create')
-- [ ] Testar fluxo completo
+- [x] Atualizar link "Novo Inventário" em inventory/index.blade.php
+- [x] Remover href="#" e adicionar route('inventory.create')
+- [x] Testar fluxo completo
 
 ### Fase 5: Testes
-- [ ] Criar InventoryCreateTest
-- [ ] Testar criação com dados válidos
-- [ ] Testar validações (campos obrigatórios)
-- [ ] Testar validação de comissão única
-- [ ] Testar validação de inventário ativo por setor
-- [ ] Testar cancelamento
+- [x] Criar InventoryFeatureTest (`tests/Feature/InventoryFeatureTest.php` - 9 testes)
+- [x] Testar criação com dados válidos
+- [x] Testar validações (campos obrigatórios)
+- [x] Testar validação de comissão única
+- [x] Testar validação de inventário ativo por setor
+- [x] Testar cancelamento
 
 ---
 
@@ -375,13 +375,13 @@ public function test_cannot_create_if_active_inventory_exists()
 
 ## 🎯 Critérios de Conclusão
 
-- [ ] Formulário acessível via botão "Novo Inventário"
-- [ ] Todas as validações funcionando
-- [ ] Inventário sendo criado no banco
-- [ ] Redirecionamento correto
-- [ ] Testes passando
-- [ ] Documentação atualizada
-- [ ] Code review (se aplicável)
+- [x] Formulário acessível via botão "Novo Inventário"
+- [x] Todas as validações funcionando
+- [x] Inventário sendo criado no banco
+- [x] Redirecionamento correto
+- [x] Testes passando
+- [x] Documentação atualizada
+- [x] Code review (se aplicável)
 
 ---
 
@@ -394,4 +394,4 @@ public function test_cannot_create_if_active_inventory_exists()
 ---
 
 *Documento criado seguindo padrão AI Dev Superpowers*  
-*Última atualização: 2026-02-05*
+*Última atualização: 2026-02-13*
