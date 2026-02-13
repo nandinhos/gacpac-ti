@@ -25,8 +25,8 @@ Este documento rastreia as tarefas de desenvolvimento em andamento para o projet
   - Status: `COMPLETED`
   - Notas: Removido `project-docs/lessons-learned/` após migração para `.aidev/memory/kb/`.
 - [x] **Sincronização de Roadmap**
-  - Status: `IN PROGRESS`
-  - Notas: Atualizando ROADMAP.md após conclusão das sprints.
+  - Status: `COMPLETED`
+  - Notas: Atualizado ROADMAP.md após conclusão das sprints.
 
 ## Melhorias Futuras (Backlog)
 

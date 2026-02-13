@@ -432,7 +432,8 @@ cat .aidev/plans/features/XXX-feature-name.md
 **Criado em:** 2026-02-05  
 **Versão:** 1.0  
 **Status:** Ativo  
-**Próxima Sprint:** Sprint 5 - Refinamento de UI e Notificações.
+**Status:** Ativo  
+**Próxima Sprint:** A definir (ver Backlog em TASKS.md).
 
 ---
 
