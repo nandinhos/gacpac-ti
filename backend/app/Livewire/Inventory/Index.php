@@ -88,7 +88,7 @@ class Index extends Component
     {
         $inventories = InventoryRecord::with(['sector', 'responsibleUser'])
             ->when($this->search, function ($query) {
-                $query->where('commission_number', 'ilike', '%' . $this->search . '%');
+                $query->where('commission_number', 'like', '%' . $this->search . '%');
             })
             ->when($this->status, function ($query) {
                 $query->where('status', $this->status);

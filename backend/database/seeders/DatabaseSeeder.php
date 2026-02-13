@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             AssetSeeder::class,
             CustodyLogSeeder::class,
             InventorySeeder::class,
+            MaintenanceRecordSeeder::class,
         ]);
     }
 }

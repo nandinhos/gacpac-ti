@@ -35,9 +35,9 @@ class Create extends Component
     {
         return Asset::where('status', 'DISPONIVEL')
             ->where(function ($query) {
-                $query->where('name', 'ilike', '%' . $this->searchAsset . '%')
-                      ->orWhere('qr_code', 'ilike', '%' . $this->searchAsset . '%')
-                      ->orWhere('patrimony_number', 'ilike', '%' . $this->searchAsset . '%');
+                $query->where('name', 'like', '%' . $this->searchAsset . '%')
+                      ->orWhere('qr_code', 'like', '%' . $this->searchAsset . '%')
+                      ->orWhere('patrimony_number', 'like', '%' . $this->searchAsset . '%');
             })
             ->limit(50) // Limit to prevent overload
             ->get();

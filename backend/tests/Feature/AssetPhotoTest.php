@@ -126,7 +126,7 @@ class AssetPhotoTest extends TestCase
         $user = User::factory()->create();
         $asset = Asset::factory()->create();
 
-        $file = UploadedFile::fake()->image('huge.jpg')->size(6000); // 6MB > 5MB limit
+        $file = UploadedFile::fake()->image('huge.jpg')->size(11000); // 11MB > 10MB limit
 
         Livewire::actingAs($user)
             ->test(Edit::class, ['asset' => $asset])

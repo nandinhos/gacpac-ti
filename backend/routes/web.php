@@ -11,8 +11,8 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
     Route::livewire('/dashboard', App\Livewire\Dashboard::class)->name('dashboard');
 
     Route::livewire('/users', App\Livewire\Users\Index::class)->name('users.index');
-    Route::livewire('/users/{user}', App\Livewire\Users\Show::class)->name('users.show');
     Route::livewire('/users/create', App\Livewire\Users\Create::class)->name('users.create');
+    Route::livewire('/users/{user}', App\Livewire\Users\Show::class)->name('users.show');
     Route::livewire('/users/{user}/edit', App\Livewire\Users\Edit::class)->name('users.edit');
 
     Route::livewire('/sectors', App\Livewire\Sectors\Index::class)->name('sectors.index');
@@ -41,6 +41,9 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 
     Route::livewire('/assets/{asset}/maintenance', App\Livewire\Maintenance\Index::class)->name('maintenance.index');
     Route::livewire('/assets/{asset}/maintenance/create', App\Livewire\Maintenance\Create::class)->name('maintenance.create');
+
+    Route::livewire('/notifications', App\Livewire\Notifications\Index::class)->name('notifications.index');
+    Route::livewire('/reports', App\Livewire\Reports\Index::class)->name('reports.index');
 
 });
 

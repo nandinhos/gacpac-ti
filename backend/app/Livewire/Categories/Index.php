@@ -45,6 +45,7 @@ class Index extends Component
         }
 
         $category->delete();
+        $this->dispatch('category-deleted');
         session()->flash('message', 'Categoria excluída com sucesso.');
     }
 
@@ -54,7 +55,7 @@ class Index extends Component
             ->withCount('assets');
 
         if ($this->search) {
-            $query->where('name', 'ilike', '%' . $this->search . '%');
+            $query->where('name', 'like', '%' . $this->search . '%');
         }
 
         if ($this->parentId === 'root') {

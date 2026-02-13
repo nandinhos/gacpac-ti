@@ -50,7 +50,13 @@
                         <p class="text-2xl font-semibold text-gray-900">{{ $records->total() }}</p>
                     </div>
                 </div>
- 
+
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-green-500">
+                    <div class="p-4">
+                        <p class="text-sm font-medium text-gray-600 uppercase">{{ __('Custo Total') }}</p>
+                        <p class="text-2xl font-semibold text-gray-900">R$ {{ number_format($totalCost, 2, ',', '.') }}</p>
+                    </div>
+                </div>
 
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-yellow-500">
                     <div class="p-4">

@@ -88,10 +88,10 @@ class Index extends Component
         return view('livewire.assets.index', [
             'assets' => Asset::with('sector')
                 ->where(function ($query) {
-                    $query->where('name', 'ilike', '%'.$this->search.'%')
-                        ->orWhere('serial_number', 'ilike', '%'.$this->search.'%')
-                        ->orWhere('patrimony_number', 'ilike', '%'.$this->search.'%')
-                        ->orWhere('qr_code', 'ilike', '%'.$this->search.'%');
+                    $query->where('name', 'like', '%'.$this->search.'%')
+                        ->orWhere('serial_number', 'like', '%'.$this->search.'%')
+                        ->orWhere('patrimony_number', 'like', '%'.$this->search.'%')
+                        ->orWhere('qr_code', 'like', '%'.$this->search.'%');
                 })
                 ->when($this->sector_id, function ($query) {
                     $query->where('sector_id', $this->sector_id);

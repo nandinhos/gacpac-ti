@@ -46,6 +46,20 @@ class Create extends Component
         return redirect()->route('categories.index');
     }
 
+    public function getContrastColor($hexColor)
+    {
+        if (!$hexColor || strlen($hexColor) < 7) return '#000000';
+        
+        $hex = str_replace('#', '', $hexColor);
+        $r = hexdec(substr($hex, 0, 2));
+        $g = hexdec(substr($hex, 2, 2));
+        $b = hexdec(substr($hex, 4, 2));
+        
+        $brightness = (($r * 299) + ($g * 587) + ($b * 114)) / 1000;
+        
+        return ($brightness > 155) ? '#000000' : '#FFFFFF';
+    }
+
     public function render()
     {
         // Busca categorias disponíveis para serem pai

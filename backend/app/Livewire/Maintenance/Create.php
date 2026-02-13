@@ -19,6 +19,7 @@ class Create extends Component
     public bool $is_upgrade = false;
     public ?string $parts_replaced = null;
     public ?int $sector_id = null;
+    public float $cost = 0;
 
     public function mount(Asset $asset)
     {
@@ -39,10 +40,11 @@ class Create extends Component
             'notes' => ['nullable', 'string', 'max:2000'],
             'is_upgrade' => ['boolean'],
             'parts_replaced' => ['nullable', 'string', 'max:2000'],
+            'cost' => ['nullable', 'numeric', 'min:0'],
         ]);
 
         $validated['asset_id'] = $this->asset->id;
-        $validated['cost'] = 0; // Custo zero conforme solicitado (equipe própria)
+        $validated['cost'] = $this->cost;
 
         MaintenanceRecord::create($validated);
 

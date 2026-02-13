@@ -54,9 +54,9 @@ class Index extends Component
 
         if ($this->search) {
             $query->where(function ($q) {
-                $q->where('description', 'ilike', '%' . $this->search . '%')
-                  ->orWhere('performed_by', 'ilike', '%' . $this->search . '%')
-                  ->orWhere('notes', 'ilike', '%' . $this->search . '%');
+                $q->where('description', 'like', '%' . $this->search . '%')
+                  ->orWhere('performed_by', 'like', '%' . $this->search . '%')
+                  ->orWhere('notes', 'like', '%' . $this->search . '%');
             });
         }
 
@@ -65,9 +65,11 @@ class Index extends Component
         }
 
         $records = $query->orderByDesc('date')->paginate(10);
+        $totalCost = $query->sum('cost');
 
         return view('livewire.maintenance.index', [
             'records' => $records,
+            'totalCost' => $totalCost,
         ]);
     }
 }

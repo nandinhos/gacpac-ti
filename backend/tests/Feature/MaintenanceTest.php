@@ -16,6 +16,12 @@ class MaintenanceTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->seed(\Database\Seeders\SectorSeeder::class);
+    }
+
     #[Test]
     public function can_view_maintenance_list_for_asset()
     {

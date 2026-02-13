@@ -432,4 +432,59 @@ cat .aidev/plans/features/XXX-feature-name.md
 **Criado em:** 2026-02-05  
 **Versão:** 1.0  
 **Status:** Ativo  
-**Próxima Sprint:** Todas as sprints planejadas foram concluídas. Aguardando novo planejamento.
+**Próxima Sprint:** Sprint 5 - Refinamento de UI e Notificações.
+
+---
+
+### 📅 SPRINT 5: Refinamento de UI e Notificações ✅ CONCLUÍDA
+**Duração:** 1 semana
+**Objetivo:** Ativar menus pendentes e implementar sistema de notificações visual
+**Status:** ✅ **CONCLUÍDA**
+**Data conclusão:** 2026-02-13
+
+#### Funcionalidades:
+
+##### 5.1 - Navegação e Menus ✅
+**Prioridade:** 🟡 MÉDIA
+**Status:** ✅ **CONCLUÍDO**
+**Requisitos Técnicos:**
+- [x] Ativar link "Categorias" no menu principal.
+- [x] Ativar/Estruturar link "Relatórios" (placeholder).
+- [x] Garantir `wire:navigate` em todos os links.
+
+##### 5.2 - Centro de Notificações ✅
+**Prioridade:** 🔴 ALTA
+**Status:** ✅ **CONCLUÍDO**
+**Requisitos Técnicos:**
+- [x] Criar componente Livewire `Notifications/Dropdown`.
+- [x] Integrar dropdown no layout principal.
+- [x] Ícone de sino com contador de não lidas.
+- [x] Lista rápida de notificações com link para ação.
+- [x] Marcar como lida ao clicar.
+- [x] Testes: `NotificationTest.php` (PASSOU).
+
+---
+
+### 📅 SPRINT 6: Dados e Manutenção ✅ CONCLUÍDA
+**Duração:** 1 semana
+**Objetivo:** Robustez de dados e limpeza de sistema
+**Status:** ✅ **CONCLUÍDA**
+**Data conclusão:** 2026-02-13
+
+#### Funcionalidades:
+
+##### 6.1 - Seeders Avançados ✅
+**Prioridade:** 🟡 MÉDIA
+**Status:** ✅ **CONCLUÍDO**
+**Requisitos Técnicos:**
+- [x] Refatorar `InventorySeeder` para criar dados históricos.
+- [x] Criar e implementar `MaintenanceRecordSeeder` para testar alertas.
+- [x] Comando `migrate:fresh --seed` operacional.
+
+##### 6.2 - Housekeeping e Limpeza ✅
+**Prioridade:** 🔵 BAIXA
+**Status:** ✅ **CONCLUÍDO**
+**Requisitos Técnicos:**
+- [x] Remover `project-docs/lessons-learned/` (migrados).
+- [x] Atualizar `TASKS.md` com status real.
+- [x] Corrigir bugs de testes antigos (ilike no SQLite, limites de upload).

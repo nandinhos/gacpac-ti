@@ -1,49 +1,39 @@
-# TASKS.md - SGAITI-UM Development Tasks
+# TASKS.md - SGAITI Development Tasks
 
-This document tracks ongoing development tasks for the SGAITI-UM project.
+Este documento rastreia as tarefas de desenvolvimento em andamento para o projeto SGAITI.
 
-## Current Development Cycle
+## Ciclo de Desenvolvimento Atual (Sprints 5 e 6)
 
-### Database Testing and Seeding
-
-- [ ] **Analisar problema de criação de usuários no banco de dados**
+### UI e Experiência do Usuário (UX)
+- [x] **Ativar links de navegação pendentes**
   - Status: `COMPLETED`
-  - Notes: Initial analysis performed. Identified need for comprehensive database testing.
+  - Notas: Categorias e Relatórios adicionados ao menu.
+- [x] **Implementar Centro de Notificações**
+  - Status: `COMPLETED`
+  - Notas: Dropdown de notificações em tempo real e página de histórico `/notifications`.
 
-- [ ] **Criar seeders completos para todos os recursos do sistema**
+### Banco de Dados e Qualidade
+- [x] **Criar seeders robustos e realistas**
+  - Status: `COMPLETED`
+  - Notas: Implementado `MaintenanceRecordSeeder` e atualizado `InventorySeeder` com dados históricos.
+- [x] **Testar operações CRUD principais**
+  - Status: `COMPLETED`
+  - Notas: Verificado via testes de Feature automatizados (Inventory, Maintenance, Photos, Category).
+
+### Manutenção e Housekeeping
+- [x] **Limpeza de documentação legada**
+  - Status: `COMPLETED`
+  - Notas: Removido `project-docs/lessons-learned/` após migração para `.aidev/memory/kb/`.
+- [x] **Sincronização de Roadmap**
   - Status: `IN PROGRESS`
-  - Notes: Seed script (`backend/scripts/seed.js`) needs to be updated to include more comprehensive data for all entities, especially inventory and custody logs with various states.
+  - Notas: Atualizando ROADMAP.md após conclusão das sprints.
 
-- [ ] **Testar operações CRUD de usuários no banco**
-  - Status: `PENDING`
-  - Notes: Will use `backend/scripts/test-database.js` to verify user CRUD operations.
+## Melhorias Futuras (Backlog)
 
-- [ ] **Testar operações CRUD de ativos no banco**
-  - Status: `PENDING`
-  - Notes: Will use `backend/scripts/test-database.js` to verify asset CRUD operations.
-
-- [ ] **Testar operações CRUD de setores no banco**
-  - Status: `PENDING`
-  - Notes: Will use `backend/scripts/test-database.js` to verify sector CRUD operations.
-
-- [ ] **Criar arquivo de tarefas (TASKS.md) para acompanhamento em tempo real**
-  - Status: `IN PROGRESS`
-  - Notes: This file is being created.
-
-- [ ] **Verificar integridade das tabelas e constraints**
-  - Status: `PENDING`
-  - Notes: Will use `backend/scripts/test-database.js` to verify database constraints and relationships.
-
-- [ ] **Testar relacionamentos entre tabelas**
-  - Status: `PENDING`
-  - Notes: Will use `backend/scripts/test-database.js` to verify foreign key relationships.
-
-### Future Enhancements
-
-- [ ] Implementar autenticação JWT
-- [ ] Adicionar testes unitários e E2E
-- [ ] Configurar deploy em produção com HTTPS
-- [ ] Implementar backup automático
-- [ ] Adicionar notificações por e-mail
-- [ ] Melhorar performance com paginação
-- [ ] Implementar permissões baseadas em papéis
+- [ ] **Implementar Autenticação JWT para API Mobile**
+- [ ] **Módulo de Relatórios em PDF (DomPDF)**
+  - Notas: Já estruturado o link e componente placeholder.
+- [ ] **Configurar Backup Automático do Banco**
+- [ ] **Integração com Sistema de E-mail (Notificações Externas)**
+- [ ] **Melhorar Performance (Cache de Categorias/Ativos)**
+- [ ] **Gestão de Permissões Baseadas em Papéis (Roles/ACL)**
