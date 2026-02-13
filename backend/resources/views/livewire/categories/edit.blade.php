@@ -7,111 +7,123 @@
 
     <div class="py-12">
         <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 bg-white border-b border-gray-200">
+            <div class="overflow-hidden bg-white/70 backdrop-blur-md shadow-sm sm:rounded-lg border border-white/20">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <p class="text-sm text-gray-500 italic font-semibold uppercase tracking-widest leading-tight">Atualizar Classificação</p>
+                        <a href="{{ route('categories.index') }}" 
+                           wire:navigate
+                           class="inline-flex items-center px-3 py-1 bg-gray-100 border border-transparent rounded-xl font-bold text-[10px] text-gray-500 uppercase tracking-widest hover:bg-gray-200 transition ease-in-out duration-150">
+                            {{ __('Voltar') }}
+                        </a>
+                    </div>
                     @if (session()->has('error'))
-                        <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+                        <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded shadow-sm flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                            </svg>
                             {{ session('error') }}
                         </div>
                     @endif
 
                     <form wire:submit="save" class="space-y-6">
                         <div>
-                            <label for="name" class="block text-sm font-medium text-gray-700">
-                                Nome <span class="text-red-500">*</span>
-                            </label>
-                            <input type="text" 
-                                   wire:model="name" 
-                                   id="name" 
-                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                                   required>
-                            @error('name')
-                                <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
-                            @enderror
+                            <x-input-label for="name" :value="__('Nome da Categoria')" />
+                            <x-text-input id="name" type="text" class="mt-1 block w-full" wire:model="name" required autofocus />
+                            <x-input-error :messages="$errors->get('name')" class="mt-2" />
                         </div>
 
                         <div>
-                            <label for="description" class="block text-sm font-medium text-gray-700">
-                                Descricao
-                            </label>
+                            <x-input-label for="description" :value="__('Descrição')" />
                             <textarea wire:model="description" 
                                       id="description" 
                                       rows="3"
-                                      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"></textarea>
-                            @error('description')
-                                <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
-                            @enderror
+                                      class="mt-1 block w-full rounded-xl border-gray-200 shadow-sm focus:border-fab-blue focus:ring-fab-blue bg-white/50 transition-all"></textarea>
+                            <x-input-error :messages="$errors->get('description')" class="mt-2" />
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label for="parent_id" class="block text-sm font-medium text-gray-700">
-                                    Categoria Pai
-                                </label>
+                                <x-input-label for="parent_id" :value="__('Categoria Pai')" />
                                 <select wire:model="parent_id" 
                                         id="parent_id"
-                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                        class="mt-1 block w-full rounded-xl border-gray-200 shadow-sm focus:border-fab-blue focus:ring-fab-blue bg-white/50 transition-all">
                                     <option value="">Nenhuma (Categoria Raiz)</option>
                                     @foreach($availableParents as $parent)
                                         <option value="{{ $parent->id }}">{{ $parent->name }}</option>
                                     @endforeach
                                 </select>
-                                @error('parent_id')
-                                    <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
-                                @enderror
-                                <p class="text-xs text-gray-500 mt-1">
-                                    Categorias que criariam ciclos estao ocultas.
+                                <x-input-error :messages="$errors->get('parent_id')" class="mt-2" />
+                                <p class="text-[10px] text-gray-300 mt-1 italic uppercase tracking-tighter font-bold">
+                                    Categorias que criariam ciclos estão ocultas.
                                 </p>
                             </div>
 
                             <div>
-                                <label for="color" class="block text-sm font-medium text-gray-700">
-                                    Cor
-                                </label>
+                                <x-input-label for="color" :value="__('Cor de Identificação')" />
                                 <div class="mt-1 flex items-center space-x-3">
                                     <input type="color" 
-                                           wire:model="color" 
+                                           wire:model.live="color" 
                                            id="color"
-                                           class="h-10 w-20 rounded border-gray-300">
-                                    <input type="text" 
-                                           wire:model="color" 
-                                           class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                                           placeholder="#3B82F6">
+                                           class="h-10 w-16 rounded cursor-pointer border-gray-300">
+                                    <x-text-input type="text" class="flex-1 font-mono uppercase text-sm" wire:model.live="color" placeholder="#HEXCODE" />
                                 </div>
-                                @error('color')
-                                    <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
-                                @enderror
+                                <x-input-error :messages="$errors->get('color')" class="mt-2" />
                             </div>
                         </div>
 
-                        <div class="p-4 bg-gray-50 rounded-md">
-                            <span class="text-sm font-medium text-gray-700">Pre-visualizacao:</span>
-                            <span class="ml-2 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium text-white" 
-                                  style="background-color: {{ $color }}">
+                        <div class="p-4 bg-gray-50/50 rounded-xl border border-gray-100 flex items-center">
+                            <span class="text-xs font-bold uppercase tracking-tighter text-gray-500 mr-4 italic leading-tight">Pré-visualização:</span>
+                            <span class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold shadow-lg shadow-black/5 border border-black/5" 
+                                  style="background-color: {{ $color ?: '#E5E7EB' }}; color: {{ $this->getContrastColor($color) }}">
                                 {{ $name ?: 'Nome da Categoria' }}
                             </span>
                         </div>
 
-                        <div class="p-4 bg-blue-50 rounded-md">
-                            <h4 class="text-sm font-medium text-blue-900 mb-2">Informacoes da Categoria</h4>
-                            <div class="text-xs text-blue-800 space-y-1">
-                                <p><strong>Criada em:</strong> {{ $category->created_at->format('d/m/Y H:i') }}</p>
-                                @if($category->updated_at != $category->created_at)
-                                    <p><strong>Ultima atualizacao:</strong> {{ $category->updated_at->format('d/m/Y H:i') }}</p>
-                                @endif
-                                <p><strong>Ativos vinculados:</strong> {{ $category->assets()->count() }}</p>
+                        <div class="p-4 bg-gray-50/30 rounded-xl border border-gray-100">
+                            <h4 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 flex items-center italic">
+                                <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Metadados da Categoria
+                            </h4>
+                            <div class="grid grid-cols-2 gap-4 text-[11px]">
+                                <div>
+                                    <p class="text-gray-400 font-bold uppercase tracking-tighter italic">Criada em</p>
+                                    <p class="text-gray-600 font-medium">{{ $category->created_at->format('d/m/Y H:i') }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-400 font-bold uppercase tracking-tighter italic">Última atualização</p>
+                                    <p class="text-gray-600 font-medium">{{ $category->updated_at->format('d/m/Y H:i') }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-400 font-bold uppercase tracking-tighter italic">Ativos vinculados</p>
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 font-bold">
+                                        {{ $category->assets()->count() }}
+                                    </span>
+                                </div>
                                 @if($category->children()->count() > 0)
-                                    <p><strong>Subcategorias:</strong> {{ $category->children()->count() }}</p>
+                                    <div>
+                                        <p class="text-gray-400 font-bold uppercase tracking-tighter italic">Subcategorias</p>
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 font-bold">
+                                            {{ $category->children()->count() }}
+                                        </span>
+                                    </div>
                                 @endif
                             </div>
                         </div>
 
-                        <div class="flex items-center justify-end gap-4 pt-4 border-t">
-                            <button type="button" wire:click="cancel" class="text-gray-600 hover:text-gray-900">
+                        <div class="flex items-center justify-end gap-4 pt-6 border-t border-gray-100">
+                            <a href="{{ route('categories.index') }}" 
+                               wire:navigate
+                               class="text-xs font-bold uppercase text-gray-400 hover:text-gray-600 transition-colors tracking-widest italic">
                                 {{ __('Cancelar') }}
-                            </button>
-                            <x-primary-button>
-                                {{ __('Salvar Alteracoes') }}
+                            </a>
+                            <x-primary-button class="bg-fab-blue hover:bg-fab-blue-hover active:bg-fab-blue-hover border-transparent rounded-xl font-bold shadow-lg shadow-fab-blue/20">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                {{ __('Salvar Alterações') }}
                             </x-primary-button>
                         </div>
                     </form>
