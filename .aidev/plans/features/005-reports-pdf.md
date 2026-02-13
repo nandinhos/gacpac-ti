@@ -1,9 +1,9 @@
 # Feature: Módulo de Relatórios PDF
 
 **Sprint:** 7
-**Status:** Em progresso
+**Status:** Concluído
 **Data início:** 2026-02-13
-**Data conclusão:** -
+**Data conclusão:** 2026-02-13
 
 ## Contexto de Negócio
 Necessidade de extrair dados do sistema para conferência física, auditorias e arquivamento documental (ofício). O formato PDF é exigido para formalização.
@@ -26,9 +26,13 @@ Necessidade de extrair dados do sistema para conferência física, auditorias e 
 - Totalizadores: Custo total no período
 
 #### C. Relatório de Termo de Responsabilidade (Cautela)
-- Filtro: Responsável (Militar)
+- Filtro: Responsável (Militar selecionado via banco)
 - Conteúdo: Texto padrão de termo de responsabilidade + lista de ativos
 - Assinaturas: Responsável e Chefe do Setor
+
+## Decisões Técnicas
+- **Performed By**: No relatório de manutenção, optou-se por usar o campo `performed_by` (string) em vez de relacionamento direto com usuários, permitindo registro de técnicos externos ou legados.
+- **DomPDF**: Configurado para papel A4, com quebras de página automáticas e cabeçalho fixo via CSS.
 
 ## Arquitetura
 - **Lib**: `barryvdh/laravel-dompdf` (já instalada)
@@ -55,6 +59,8 @@ Necessidade de extrair dados do sistema para conferência física, auditorias e 
 - `feat(reports): implementa termo de responsabilidade`
 
 ## Testes
-- [ ] Gerar PDF de ativos filtrado por setor
-- [ ] Gerar PDF de manutenção por período
-- [ ] Verificar layout e quebra de página
+## Testes
+- [x] Gerar PDF de ativos filtrado por setor
+- [x] Gerar PDF de manutenção por período
+- [x] Validar layout e quebra de página
+- [x] Testes automatizados (`tests/Feature/ReportTest.php`) aprovados.
