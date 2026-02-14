@@ -37,9 +37,10 @@ Quando uma sprint for concluída:
 ## 📊 Status
 
 - **Sprint atual:** Nenhuma
-- **Fase:** -  
+- **Última sprint concluída:** Sprint 10 (Interface Admin/Users - 14/02/2026)
+- **Próxima sprint:** A definir
 - **Progresso:** 0%
 
 ---
 
-*Última atualização: {{DATE}}*
+*Última atualização: 2026-02-14*
