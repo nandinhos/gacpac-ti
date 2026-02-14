@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\Auditable;
 
 class InventoryRecord extends Model
 {
-    use HasFactory;
+    use HasFactory, Auditable;
     protected $table = 'inventory_records';
 
     protected $fillable = [
@@ -36,7 +37,7 @@ class InventoryRecord extends Model
 
     public function responsibleUser()
     {
-        return $this->belongsTo(MilitaryUser::class, 'responsible_user_id');
+        return $this->belongsTo(User::class, 'responsible_user_id');
     }
 
     public function inventoryAssets()
@@ -131,6 +132,6 @@ class InventoryRecord extends Model
 
     public function commissionMembers()
     {
-        return $this->belongsToMany(MilitaryUser::class, 'inventory_commission_members', 'inventory_record_id', 'military_user_id');
+        return $this->belongsToMany(User::class, 'inventory_commission_members', 'inventory_record_id', 'military_user_id');
     }
 }

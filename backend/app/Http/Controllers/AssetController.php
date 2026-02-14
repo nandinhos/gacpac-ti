@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Notification;
 use App\Models\Asset;
-use App\Models\MilitaryUser;
+use App\Models\User;
 use App\Http\Requests\StoreAssetRequest;
 use App\Http\Requests\UpdateAssetRequest;
 use App\Notifications\AssetCreatedNotification;
@@ -100,7 +100,8 @@ class AssetController extends Controller
             Cache::forget('dashboard_stats');
 
             // Notificar almoxarifado/admin sobre novo ativo
-            $adminUsers = MilitaryUser::whereIn('user_role', ['admin', 'commission'])->get();
+            // Usando scope role() do Spatie Permission
+            $adminUsers = User::role(['admin', 'commission'])->get(); // Updated query
             Notification::send($adminUsers, new AssetCreatedNotification($asset));
 
             return response()->json([

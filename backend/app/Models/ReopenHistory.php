@@ -26,6 +26,6 @@ class ReopenHistory extends Model
 
     public function reopenedBy()
     {
-        return $this->belongsTo(MilitaryUser::class, 'reopened_by_user_id');
+        return $this->belongsTo(User::class, 'reopened_by_user_id');
     }
 }

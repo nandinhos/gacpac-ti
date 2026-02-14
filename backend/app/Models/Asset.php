@@ -5,11 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\Auditable;
 
 
 class Asset extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, Auditable;
 
     protected $fillable = [
         // Identificação Principal
@@ -79,7 +80,7 @@ class Asset extends Model
 
     public function custodian()
     {
-        return $this->belongsTo(MilitaryUser::class, 'custodian_user_id');
+        return $this->belongsTo(User::class, 'custodian_user_id');
     }
 
     public function photos()

@@ -17,12 +17,13 @@ class DatabaseSeeder extends Seeder
         $this->call([
             SectorSeeder::class,
             CategorySeeder::class,
-            MilitaryUserSeeder::class,
+            UserSeeder::class,
             AdminUserSeeder::class,
             AssetSeeder::class,
             CustodyLogSeeder::class,
             InventorySeeder::class,
             MaintenanceRecordSeeder::class,
+            RolesAndPermissionsSeeder::class,
         ]);
     }
 }

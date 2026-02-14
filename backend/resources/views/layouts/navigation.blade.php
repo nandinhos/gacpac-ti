@@ -15,9 +15,6 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Painel') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
-                        {{ __('Usuários') }}
-                    </x-nav-link>
                     <x-nav-link :href="route('sectors.index')" :active="request()->routeIs('sectors.*')">
                         {{ __('Setores') }}
                     </x-nav-link>
@@ -33,9 +30,18 @@
                     <x-nav-link :href="route('categories.index')" :active="request()->routeIs('categories.*')">
                         {{ __('Categorias') }}
                     </x-nav-link>
-                    <x-nav-link href="#" :active="false">
+                    <x-nav-link :href="route('reports.index')" :active="request()->routeIs('reports.*')">
                         {{ __('Relatórios') }}
                     </x-nav-link>
+
+                    @role('admin')
+                    <x-nav-link :href="route('admin.users')" :active="request()->routeIs('admin.users')">
+                        {{ __('Usuários') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('admin.audit-logs')" :active="request()->routeIs('admin.audit-logs')">
+                        {{ __('Logs de Auditoria') }}
+                    </x-nav-link>
+                    @endrole
                 </div>
             </div>
 
@@ -108,9 +114,6 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Painel') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
-                {{ __('Usuários') }}
-            </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('sectors.index')" :active="request()->routeIs('sectors.*')">
                 {{ __('Setores') }}
             </x-responsive-nav-link>
@@ -126,9 +129,19 @@
             <x-responsive-nav-link :href="route('categories.index')" :active="request()->routeIs('categories.*')">
                 {{ __('Categorias') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link href="#" :active="false">
+            <x-responsive-nav-link :href="route('reports.index')" :active="request()->routeIs('reports.*')">
                 {{ __('Relatórios') }}
             </x-responsive-nav-link>
+
+            @role('admin')
+            <x-responsive-nav-link :href="route('admin.users')" :active="request()->routeIs('admin.users')">
+                {{ __('Usuários') }}
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('admin.audit-logs')" :active="request()->routeIs('admin.audit-logs')">
+                {{ __('Logs de Auditoria') }}
+            </x-responsive-nav-link>
+            @endrole
         </div>
 
         <!-- Responsive Settings Options -->

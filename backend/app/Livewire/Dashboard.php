@@ -7,7 +7,7 @@ use Livewire\Component;
 use App\Models\Asset;
 use App\Models\CustodyLog;
 use App\Models\MaintenanceRecord;
-use App\Models\MilitaryUser;
+use App\Models\User;
 use App\Models\Sector;
 
 class Dashboard extends Component
@@ -28,7 +28,7 @@ class Dashboard extends Component
             'totalAssets' => Asset::count(),
             'assetsInUse' => Asset::where('status', 'EM_USO')->count(),
             'activeCustodies' => CustodyLog::open()->count(),
-            'totalMilUsers' => MilitaryUser::count(),
+            'totalMilUsers' => User::count(), // Changed from MilitaryUser::count()
             'totalSectors' => Sector::count(),
             'recentCustodies' => CustodyLog::latest()->take(5)->get(),
             'overdueMaintenances' => $overdueMaintenances,

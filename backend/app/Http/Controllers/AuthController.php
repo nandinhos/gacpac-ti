@@ -7,7 +7,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
-use App\Models\MilitaryUser;
+use App\Models\User;
 use App\Http\Requests\LoginRequest;
 
 class AuthController extends Controller
@@ -18,22 +18,20 @@ class AuthController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-    public function login(Request $request): JsonResponse
+    public function login(Request $request)
     {
         $request->validate([
-            'military_id' => 'required|string',
-            'password' => 'required|string',
+            'military_id' => 'required',
+            'password' => 'required',
         ]);
 
         try {
-            $user = MilitaryUser::where('military_id', $request->military_id)
-                                ->where('is_active', true)
-                                ->first();
+            $user = User::where('military_id', $request->military_id)->first();
 
-            if (!$user || !Hash::check($request->password, $user->password)) {
-                return response()->json([
-                    'message' => 'Credenciais inválidas'
-                ], 401);
+            if (! $user || ! Hash::check($request->password, $user->password)) {
+                throw ValidationException::withMessages([
+                    'military_id' => ['As credenciais fornecidas estão incorretas.'],
+                ]);
             }
 
             // Revoke existing tokens

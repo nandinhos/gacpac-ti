@@ -26,15 +26,12 @@ class Sector extends Model
         return $query->where('is_active', true);
     }
 
-    public function militaryUsers()
-    {
-        return $this->hasMany(MilitaryUser::class);
-    }
-
     public function users()
     {
-        return $this->hasMany(MilitaryUser::class);
+        return $this->hasMany(User::class);
     }
+
+
 
     public function assets()
     {

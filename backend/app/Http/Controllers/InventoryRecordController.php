@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
 use App\Models\InventoryRecord;
-use App\Models\MilitaryUser;
+use App\Models\User;
+use App\Models\Asset;
+use App\Models\Inventory;
 use App\Http\Requests\StoreInventoryRecordRequest;
 use App\Notifications\InventoryAssignedNotification;
 
@@ -37,7 +39,7 @@ class InventoryRecordController extends Controller
 
             // Notificar comissão responsável sobre inventário atribuído
             if ($inventory->responsible_user_id) {
-                $responsibleUser = MilitaryUser::find($inventory->responsible_user_id);
+                $responsibleUser = User::find($inventory->responsible_user_id);
                 if ($responsibleUser) {
                     $responsibleUser->notify(new InventoryAssignedNotification($inventory));
                 }

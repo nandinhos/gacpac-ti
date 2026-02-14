@@ -41,7 +41,7 @@ class CustodyLog extends Model
     // Relationships
     public function user()
     {
-        return $this->belongsTo(MilitaryUser::class, 'user_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function assets()

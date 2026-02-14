@@ -2,14 +2,14 @@
 
 namespace App\Livewire\Users;
 
-use App\Models\MilitaryUser;
+use App\Models\User;
 use Livewire\Component;
 
 class Show extends Component
 {
-    public MilitaryUser $user;
+    public User $user;
 
-    public function mount(MilitaryUser $user)
+    public function mount(User $user)
     {
         // Eager loading das relações necessárias
         $this->user = $user->load(['sector', 'assets']);

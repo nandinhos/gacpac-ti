@@ -39,9 +39,11 @@ class Index extends Component
         return view('livewire.sectors.index', [
             'sectors' => Sector::where('name', 'like', '%'.$this->search.'%')
                 ->orWhere('description', 'like', '%'.$this->search.'%')
-                ->withCount('militaryUsers')
-                ->with(['militaryUsers' => function($query) {
-                    $query->active();
+                ->withCount(['users' => function ($query) {
+                    $query->where('is_active', true);
+                }])
+                ->with(['users' => function($query) {
+                    $query->where('is_active', true);
                 }])
                 ->paginate(10),
         ])->layout('layouts.sgaiti');

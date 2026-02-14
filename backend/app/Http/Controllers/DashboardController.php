@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use App\Models\Asset;
-use App\Models\MilitaryUser;
+use App\Models\User;
 use App\Models\Sector;
 use App\Models\CustodyLog;
 use App\Models\InventoryRecord;
@@ -24,7 +24,7 @@ class DashboardController extends Controller
     {
         return Cache::remember('dashboard_stats', 300, function () { // Cache por 5 minutos
             $assets = Asset::all();
-            $users = MilitaryUser::all();
+            $users = User::all();
             $sectors = Sector::all();
             $custodyLogs = CustodyLog::all();
             $inventoryRecords = InventoryRecord::all();

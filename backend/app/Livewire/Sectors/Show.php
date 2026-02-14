@@ -17,12 +17,12 @@ class Show extends Component
     public function render()
     {
         // Carrega usuários do setor
-        $this->sector->load(['militaryUsers' => function ($query) {
-            $query->active();
+        $this->sector->load(['users' => function ($query) {
+            $query->where('is_active', true);
         }]);
 
         // Para cada usuário, buscamos os ativos de setor e cautelas separadamente
-        $usersData = $this->sector->militaryUsers->map(function ($user) {
+        $usersData = $this->sector->users->map(function ($user) {
             return [
                 'user' => $user,
                 'sectorAssets' => $user->assets()->where('sector_id', $this->sector->id)->get(),

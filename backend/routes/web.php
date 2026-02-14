@@ -49,6 +49,15 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
     Route::get('/reports/maintenance', [App\Http\Controllers\ReportController::class, 'maintenance'])->name('reports.maintenance');
     Route::get('/reports/term', [App\Http\Controllers\ReportController::class, 'term'])->name('reports.term');
 
+    // Rotas Administrativas
+    Route::middleware(['can:users.manage'])->group(function () {
+        Route::get('/admin/users', \App\Livewire\Admin\UserManagement::class)->name('admin.users');
+    });
+
+    Route::middleware(['can:audit.view'])->group(function () {
+        Route::get('/admin/audit-logs', \App\Livewire\Admin\AuditLogs::class)->name('admin.audit-logs');
+    });
+
 });
 
 Route::middleware('auth')->group(function () {

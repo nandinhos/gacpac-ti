@@ -55,7 +55,7 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-center">
                                             <span class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-fab-blue bg-blue-100 rounded-full min-w-[24px]">
-                                                {{ $sector->military_users_count }}
+                                                {{ $sector->users_count }}
                                             </span>
                                         </td>
                                         <td class="px-6 py-4">
@@ -104,9 +104,9 @@
                                                 </svg>
                                                 {{ __('Efetivo do Setor') }}
                                             </div>
-                                            @if($sector->militaryUsers->count() > 0)
+                                            @if($sector->users->count() > 0)
                                                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                                                    @foreach($sector->militaryUsers as $user)
+                                                    @foreach($sector->users as $user)
                                                         <a href="{{ route('users.show', $user) }}" class="flex items-center p-2 rounded-md hover:bg-white hover:shadow-sm border border-transparent hover:border-gray-200 transition-all group/user" wire:navigate>
                                                             <div class="w-8 h-8 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-500 text-[10px] font-bold uppercase mr-2 group-hover/user:bg-indigo-500 group-hover/user:text-white transition-colors">
                                                                 {{ substr($user->rank ?: 'M', 0, 2) }}

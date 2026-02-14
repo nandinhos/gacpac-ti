@@ -8,8 +8,11 @@ use App\Http\Requests\StoreCustodyLogRequest;
 use App\Http\Requests\UpdateCustodyLogRequest;
 use App\Http\Requests\CheckinCustodyLogRequest;
 use App\Models\CustodyLog;
-use App\Models\MilitaryUser;
+use App\Models\User; // Replaced MilitaryUser with User
+use App\Models\Asset; // Added Asset model
 use App\Notifications\CustodyCreatedNotification;
+use Barryvdh\DomPDF\Facade\Pdf; // Added Pdf facade
+use Illuminate\Support\Facades\DB; // Added DB facade
 
 class CustodyLogController extends Controller
 {
@@ -60,7 +63,7 @@ class CustodyLogController extends Controller
             });
 
             // Notification
-            $adminUsers = MilitaryUser::whereIn('user_role', ['admin', 'commission'])->get();
+            $adminUsers = User::whereIn('user_role', ['admin', 'commission'])->get();
             Notification::send($adminUsers, new CustodyCreatedNotification($custody));
 
             return response()->json([

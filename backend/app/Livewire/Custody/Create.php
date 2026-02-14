@@ -4,7 +4,7 @@ namespace App\Livewire\Custody;
 
 use App\Models\Asset;
 use App\Models\CustodyLog;
-use App\Models\MilitaryUser;
+use App\Models\User; // Changed from MilitaryUser
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
@@ -94,7 +94,7 @@ class Create extends Component
     public function render()
     {
         return view('livewire.custody.create', [
-            'users' => MilitaryUser::orderBy('name')->get(),
+            'users' => User::orderBy('name')->get(),
             'assetsList' => $this->availableAssets, // Use computed property
         ])->layout('layouts.sgaiti');
     }

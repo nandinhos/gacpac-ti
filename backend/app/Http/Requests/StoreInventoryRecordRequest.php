@@ -25,7 +25,7 @@ class StoreInventoryRecordRequest extends FormRequest
             'commission_number' => ['nullable', 'string', 'max:50', 'unique:inventory_records,commission_number'],
             'start_date' => ['required', 'date'],
             'sector_id' => ['nullable', 'integer', 'exists:sectors,id'],
-            'responsible_user_id' => ['required', 'integer', 'exists:military_users,id'],
+            'responsible_user_id' => ['required', 'integer', 'exists:users,id'],
             'status' => ['nullable', 'string', 'in:Concluído,Reaberto,Em Andamento'],
             'notes' => ['nullable', 'string', 'max:1000'],
         ];

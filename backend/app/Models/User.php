@@ -7,12 +7,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
+use App\Traits\Auditable;
 
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, HasRoles, Auditable;
 
     /**
      * The attributes that are mass assignable.
@@ -23,7 +25,22 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'is_military',
+        'force',
+        'rank',
+        'military_id',
+        'organization',
+        'sector_id',
+        'is_active',
+        'profile_photo_path',
     ];
+
+    public function getProfilePhotoUrlAttribute()
+    {
+        return $this->profile_photo_path
+            ? \Illuminate\Support\Facades\Storage::url($this->profile_photo_path)
+            : 'https://ui-avatars.com/api/?name='.urlencode($this->name).'&color=7F9CF5&background=EBF4FF';
+    }
 
     /**
      * The attributes that should be hidden for serialization.
@@ -45,6 +62,29 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_military' => 'boolean',
+            'is_active' => 'boolean',
         ];
+    }
+
+    public function sector()
+    {
+        return $this->belongsTo(Sector::class);
+    }
+
+    // Relacionamentos migrados do MilitaryUser
+    public function assets()
+    {
+        return $this->hasMany(Asset::class, 'custodian_user_id');
+    }
+
+    public function inventoryRecords()
+    {
+        return $this->hasMany(InventoryRecord::class, 'responsible_user_id');
+    }
+
+    public function custodyLogs()
+    {
+        return $this->hasMany(CustodyLog::class, 'user_id');
     }
 }

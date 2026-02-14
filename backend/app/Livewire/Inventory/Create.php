@@ -3,7 +3,7 @@
 namespace App\Livewire\Inventory;
 
 use App\Models\InventoryRecord;
-use App\Models\MilitaryUser;
+use App\Models\User;
 use App\Models\Sector;
 use App\Notifications\InventoryAssignedNotification;
 use Livewire\Component;
@@ -37,7 +37,7 @@ class Create extends Component
             'commission_number' => 'required|string|max:50|unique:inventory_records,commission_number',
             'start_date' => 'required|date',
             'sector_id' => 'nullable|exists:sectors,id',
-            'responsible_user_id' => 'required|exists:military_users,id',
+            'responsible_user_id' => 'required|exists:users,id',
             'notes' => 'nullable|string|max:2000',
             'selected_members' => $this->is_commission ? 'required|array|min:1' : 'nullable',
         ], [
@@ -66,7 +66,7 @@ class Create extends Component
         // Notificar o responsável (se o sistema de notificações estiver disponível)
         try {
             if ($inventory->responsible_user_id) {
-                $responsibleUser = MilitaryUser::find($inventory->responsible_user_id);
+                $responsibleUser = User::find($inventory->responsible_user_id);
                 if ($responsibleUser) {
                     $responsibleUser->notify(new InventoryAssignedNotification($inventory));
                 }
@@ -84,8 +84,8 @@ class Create extends Component
     public function render()
     {
         return view('livewire.inventory.create', [
-            'sectors' => Sector::where('is_active', true)->orderBy('name')->get(),
-            'users' => MilitaryUser::orderBy('name')->get(),
+            'sectors' => Sector::where('is_active', true)->orderBy('code')->get(),
+            'users' => User::orderBy('name')->get(),
         ])->layout('layouts.sgaiti');
     }
 }

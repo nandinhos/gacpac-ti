@@ -15,7 +15,7 @@ class StoreCustodyLogRequest extends FormRequest
     {
         return [
             'cautelaNumber' => 'required|string|max:50|unique:custody_logs,cautela_number',
-            'userId' => 'required|string|exists:military_users,id',
+            'userId' => 'required|string|exists:users,id',
             'checkoutDate' => 'required|date',
             'assetIds' => 'required|array|min:1',
             'assetIds.*' => 'string|exists:assets,id',

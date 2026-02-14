@@ -2,32 +2,30 @@
 
 namespace App\Livewire\Reports;
 
-use Livewire\Component;
+use App\Models\User;
+use App\Models\Sector;
 use App\Models\Category;
-use App\Models\MilitaryUser;
+use Livewire\Component;
 
 class Index extends Component
 {
-    public $assetFilters = [
-        'category_id' => '',
-        'status' => ''
-    ];
-
-    public $maintenanceFilters = [
-        'type' => '',
-        'start_date' => '',
-        'end_date' => ''
-    ];
-
-    public $termFilters = [
-        'user_id' => ''
-    ];
+    public $reportType = 'assets_by_sector';
+    public $format = 'pdf'; // pdf, xlsx, csv
+    
+    // Filtros
+    public $sector_id;
+    public $category_id;
+    public $status;
+    public $start_date;
+    public $end_date;
+    public $user_id;
 
     public function render()
     {
         return view('livewire.reports.index', [
-            'categories' => Category::all(),
-            'users' => MilitaryUser::orderBy('name')->get()
+            'sectors' => Sector::orderBy('code')->get(),
+            'categories' => Category::orderBy('name')->get(),
+            'users' => User::orderBy('name')->get()
         ]);
     }
 }

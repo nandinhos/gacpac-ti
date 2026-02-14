@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Asset;
+use App\Models\User; // Added this use statement
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -70,10 +71,10 @@ class ReportController extends Controller
     public function term(Request $request)
     {
         $request->validate([
-            'user_id' => 'required|exists:military_users,id' // ou users, dependendo da tabela
+            'user_id' => 'required|exists:users,id'
         ]);
 
-        $user = \App\Models\MilitaryUser::find($request->user_id);
+        $user = User::find($request->user_id);
         
         // Buscar ativos sob a guarda deste usuário
         // Assumindo que Asset tem custodian_user_id

@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Users;
 
-use App\Models\MilitaryUser;
+use App\Models\User;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -11,38 +11,28 @@ class Index extends Component
     use WithPagination;
 
     public $search = '';
-    public $confirmingDelete = null;
+    public $confirmingDelete = false;
 
     public function confirmDelete($id)
     {
         $this->confirmingDelete = $id;
-        $this->dispatch('open-confirm-delete-modal');
     }
 
     public function delete()
     {
         if ($this->confirmingDelete) {
-            MilitaryUser::find($this->confirmingDelete)?->delete();
-            $this->confirmingDelete = null;
+            User::find($this->confirmingDelete)?->delete(); // Soft delete if trait exists, or hard delete
+            $this->confirmingDelete = false;
+            session()->flash('message', 'Usuário excluído com sucesso.');
         }
-        $this->dispatch('close-confirm-delete-modal');
-    }
-
-    public function cancelDelete()
-    {
-        $this->confirmingDelete = null;
-        $this->dispatch('close-confirm-delete-modal');
     }
 
     public function render()
     {
         return view('livewire.users.index', [
-            'users' => MilitaryUser::with(['sector'])
-                ->where(function($query) {
-                    $query->where('name', 'like', '%'.$this->search.'%')
-                        ->orWhere('email', 'like', '%'.$this->search.'%')
-                        ->orWhere('military_id', 'like', '%'.$this->search.'%');
-                })
+            'users' => User::with(['sector'])
+                ->where('name', 'like', '%'.$this->search.'%')
+                ->orWhere('email', 'like', '%'.$this->search.'%') // Added email search as it is standard for User
                 ->paginate(10),
         ])->layout('layouts.sgaiti');
     }
