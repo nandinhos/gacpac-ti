@@ -1,7 +1,7 @@
 {
   "version": "1.0",
   "created_at": "2026-02-05",
-  "total_lessons": 14,
+  "total_lessons": 15,
   "lessons": [
     {
       "id": "2025-11-06-sgti-gac-rename",
@@ -142,6 +142,16 @@
       "stack": ["Laravel", "PHP", "Livewire", "Alpine.js"],
       "severity": "Médio",
       "tags": ["livewire", "alpinejs", "modal", "ui", "ux"]
+    },
+    {
+      "id": "2026-02-14-admin-users-unified-interface",
+      "title": "Interface Unificada Admin/Users - Padrões Livewire",
+      "file": "2026-02-14-admin-users-unified-interface.md",
+      "date": "2026-02-14",
+      "category": "architecture",
+      "stack": ["Laravel", "PHP", "Livewire"],
+      "severity": "Médio",
+      "tags": ["livewire", "eloquent", "routing", "ui-patterns", "defensive-programming"]
     }
   ],
   "categories": {
@@ -149,7 +159,7 @@
     "config": 6,
     "performance": 0,
     "security": 0,
-    "architecture": 2,
+    "architecture": 3,
     "integration": 0,
     "deployment": 0
   },
@@ -166,7 +176,8 @@
     "workflow",
     "livewire",
     "alpinejs",
-    "modal"
+    "modal",
+    "ui-patterns"
   ],
-  "last_updated": "2026-02-05"
+  "last_updated": "2026-02-14"
 }
