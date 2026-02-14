@@ -1,31 +1,46 @@
-# 📦 Arquivo de Features Concluídas
+# 📦 Archive - Documentos Legados
 
-> Histórico de funcionalidades implementadas e validadas no SGAITI.
-
----
-
-## ✅ Features Implementadas (Sprints 1-10)
-
-| ID | Feature | Sprint | Data Conclusão |
-|----|---------|--------|----------------|
-| 001 | Novo Inventário | 1 | 2026-02-05 |
-| 002 | CRUD Categorias | 2 | 2026-02-05 |
-| 003 | Registro de Manutenção | 3 | 2026-02-13 |
-| 004 | Upload de Fotos | 4 | 2026-02-13 |
-| 005 | Refinamento UI/Notificações | 5 | 2026-02-13 |
-| 005 | Relatórios PDF | 7 | 2026-02-13 |
-| 006 | Gestão de Acesso e Auditoria | 8 | 2026-02-13 |
-| 007 | Unificação de Identidade (Users) | 9 | 2026-02-13 |
-| 008 | Interface Admin/Users Unificada | 10 | 2026-02-14 |
+> Documentos de planejamento antigos e templates do projeto.
 
 ---
 
-## 📂 Localização dos Arquivos
+## 📁 Conteúdo
 
-- **Sprints 1-8:** Arquivadas nesta pasta (`archive/`)
-- **Sprints 9-10:** Movidas para `../history/2026-02/`
-- **Features:** Documentação permanente em `../features/`
+### Documentos de Planejamento
+- **PLANO_IMPLEMENTACAO.md** - Plano antigo de migração de lições aprendidas (2026-02-13)
+
+### Templates
+- **templates/** - Templates antigos de documentação
 
 ---
 
-*Estes documentos servem para consulta técnica e rastreabilidade.*
+## 📋 Reorganização (2026-02-14)
+
+Todos os documentos de **features** foram movidos para `../features/`:
+
+| Arquivo Original | Novo Local |
+|-----------------|------------|
+| 001-inventory-create.md | ../features/001-inventory-create.md |
+| 002-ui-refinement-notifications.md | ../features/002-ui-refinement-notifications.md |
+| 003-maintenance-log.md | ../features/003-maintenance-log.md |
+| 004-asset-photos.md | ../features/004-asset-photos.md |
+| 005-reports-pdf.md | ../features/005-reports-pdf.md |
+| 006-access-control-audit.md | ../features/006-access-control-audit.md |
+
+**Motivo:** Features devem permanecer em `features/` como documentação permanente. Apenas sprints concluídas vão para `history/`.
+
+---
+
+## 📊 Estrutura Correta do Projeto
+
+```
+.aidev/plans/
+├── features/       → Documentação PERMANENTE de todas as funcionalidades (001-008)
+├── current/        → Sprint em andamento (vazio atualmente)
+├── history/        → Sprints concluídas organizadas por mês (YYYY-MM/)
+└── archive/        → Documentos legados e templates (esta pasta)
+```
+
+---
+
+*Última atualização: 2026-02-14*

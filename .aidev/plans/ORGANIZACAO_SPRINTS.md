@@ -11,10 +11,10 @@
 
 ```
 .aidev/plans/
-├── features/          → Documentação PERMANENTE de features
+├── features/          → Documentação PERMANENTE de todas as features (001-008)
 ├── current/           → Sprint ativa (apenas 1 por vez)
-├── history/YYYY-MM/   → Sprints concluídas (organizadas por mês)
-├── archive/           → Sprints antigas (formato legado, sprints 1-8)
+├── history/YYYY-MM/   → Sprints concluídas organizadas por mês (9+)
+├── archive/           → Documentos legados e templates
 ├── backlog/           → Funcionalidades planejadas para futuro
 └── ROADMAP.md         → Documento mestre de planejamento
 ```
@@ -121,10 +121,10 @@ mv .aidev/plans/current/sprint-N-nome.md \
 
 | Localização | Conteúdo | Quantidade |
 |-------------|----------|------------|
-| `features/` | Features 007, 008 (documentação permanente) | 2 |
+| `features/` | Features 001-008 (documentação permanente) | 8 |
 | `current/` | Nenhuma sprint ativa | 0 |
-| `history/2026-02/` | Sprints 9, 10 (concluídas) | 2 |
-| `archive/` | Sprints 1-8 (formato legado) | 8 |
+| `history/2026-02/` | Sprints 9, 10 concluídas | 2 |
+| `archive/` | Documentos legados e templates | - |
 | **TOTAL** | 10 sprints concluídas | 10 |
 
 ---
@@ -149,8 +149,7 @@ graph TD
 - [ ] Mover sprint de `current/` para `history/YYYY-MM/`
 - [ ] Atualizar `current/README.md`
 - [ ] Atualizar `history/README.md`
-- [ ] Atualizar `archive/README.md` (contadores)
-- [ ] Atualizar `features/README.md` (status da feature)
+- [ ] Atualizar `features/README.md` (marcar feature como concluída)
 - [ ] Atualizar `ROADMAP.md` (marcar sprint concluída)
 - [ ] Verificar que feature permanece em `features/`
 

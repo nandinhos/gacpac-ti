@@ -17,18 +17,27 @@
 
 ## 📊 Estatísticas Gerais
 
-- **Total de sprints concluídas:** 10
+- **Total de sprints concluídas:** 10 (todas as sprints do projeto)
 - **Sprints em history/:** 2 (Sprints 9-10)
-- **Sprints em archive/:** 8 (Sprints 1-8)
+- **Sprints 1-8:** Não documentadas individualmente (apenas features em `../features/`)
 - **Período mais recente:** Fevereiro 2026
 
 ---
 
 ## 📋 Organização
 
-- **Sprints 1-8:** Arquivadas em `../archive/` (formato antigo)
-- **Sprints 9+:** Organizadas por mês em `YYYY-MM/`
-- **Features:** Documentação permanente em `../features/`
+- **Sprints 9+:** Organizadas por mês em `YYYY-MM/` (esta pasta)
+- **Sprints 1-8:** Não possuem arquivos de sprint separados (apenas documentação de features)
+- **Features:** Todas as 8 features em `../features/` (documentação permanente)
+
+### Nota sobre Sprints Antigas (1-8)
+
+As sprints 1-8 foram implementadas antes da padronização do processo. Seus **documentos de feature**
+estão em `../features/` (001-008), mas não há arquivos de sprint individuais para elas.
+
+A partir da Sprint 9, cada sprint possui:
+1. **Arquivo de feature** em `../features/` (permanente)
+2. **Arquivo de sprint** movido para `../history/YYYY-MM/` após conclusão
 
 ---
 
