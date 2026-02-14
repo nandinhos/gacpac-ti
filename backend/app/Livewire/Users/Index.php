@@ -6,6 +6,9 @@ use App\Models\User;
 use Livewire\Component;
 use Livewire\WithPagination;
 
+use Livewire\Attributes\Title;
+
+#[Title('Usuários')]
 class Index extends Component
 {
     use WithPagination;

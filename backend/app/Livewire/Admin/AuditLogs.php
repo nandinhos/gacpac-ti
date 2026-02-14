@@ -7,6 +7,9 @@ use App\Models\User;
 use Livewire\Component;
 use Livewire\WithPagination;
 
+use Livewire\Attributes\Title;
+
+#[Title('Logs de Auditoria')]
 class AuditLogs extends Component
 {
     use WithPagination;
