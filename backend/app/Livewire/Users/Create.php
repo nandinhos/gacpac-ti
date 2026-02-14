@@ -2,8 +2,10 @@
 
 namespace App\Livewire\Users;
 
-use App\Models\MilitaryUser;
+use App\Models\Sector;
+use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
 use Livewire\Component;
 

@@ -15,7 +15,7 @@ class RolesAndPermissionsSeeder extends Seeder
         // Reset cached roles and permissions
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-        $guards = ['web', 'sanctum'];
+        $guard = 'web';
         $permissions = [
             'assets.view', 'assets.create', 'assets.edit', 'assets.delete',
             'inventory.view', 'inventory.create', 'inventory.approve',
@@ -25,30 +25,28 @@ class RolesAndPermissionsSeeder extends Seeder
             'audit.view',
         ];
 
-        foreach ($guards as $guard) {
-            foreach ($permissions as $permission) {
-                Permission::firstOrCreate(['name' => $permission, 'guard_name' => $guard]);
-            }
-
-            $admin = Role::firstOrCreate(['name' => 'admin', 'guard_name' => $guard]);
-            $admin->syncPermissions(Permission::where('guard_name', $guard)->get());
-
-            Role::firstOrCreate(['name' => 'operator', 'guard_name' => $guard])
-                ->syncPermissions([
-                    'assets.view', 'assets.create', 'assets.edit',
-                    'inventory.view', 'inventory.create',
-                    'maintenance.view', 'maintenance.create', 'maintenance.edit',
-                    'reports.view',
-                ]);
-
-            Role::firstOrCreate(['name' => 'auditor', 'guard_name' => $guard])
-                ->syncPermissions([
-                    'assets.view', 'inventory.view', 'maintenance.view', 'reports.view', 'audit.view',
-                ]);
-            
-            Role::firstOrCreate(['name' => 'viewer', 'guard_name' => $guard])
-                ->syncPermissions(['assets.view']);
+        foreach ($permissions as $permission) {
+            Permission::firstOrCreate(['name' => $permission, 'guard_name' => $guard]);
         }
+
+        $admin = Role::firstOrCreate(['name' => 'admin', 'guard_name' => $guard]);
+        $admin->syncPermissions(Permission::where('guard_name', $guard)->get());
+
+        Role::firstOrCreate(['name' => 'operator', 'guard_name' => $guard])
+            ->syncPermissions([
+                'assets.view', 'assets.create', 'assets.edit',
+                'inventory.view', 'inventory.create',
+                'maintenance.view', 'maintenance.create', 'maintenance.edit',
+                'reports.view',
+            ]);
+
+        Role::firstOrCreate(['name' => 'auditor', 'guard_name' => $guard])
+            ->syncPermissions([
+                'assets.view', 'inventory.view', 'maintenance.view', 'reports.view', 'audit.view',
+            ]);
+        
+        Role::firstOrCreate(['name' => 'viewer', 'guard_name' => $guard])
+            ->syncPermissions(['assets.view']);
 
         // Create Admin User
         $user = User::updateOrCreate(

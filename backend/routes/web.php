@@ -50,8 +50,11 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
     Route::get('/reports/term', [App\Http\Controllers\ReportController::class, 'term'])->name('reports.term');
 
     // Rotas Administrativas
-    Route::middleware(['can:users.manage'])->group(function () {
-        Route::get('/admin/users', \App\Livewire\Admin\UserManagement::class)->name('admin.users');
+    Route::middleware(['can:users.manage'])->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/users', \App\Livewire\Admin\Users\Index::class)->name('users.index');
+        Route::get('/users/create', \App\Livewire\Admin\Users\Create::class)->name('users.create');
+        Route::get('/users/{user}', \App\Livewire\Admin\Users\Show::class)->name('users.show');
+        Route::get('/users/{user}/edit', \App\Livewire\Admin\Users\Edit::class)->name('users.edit');
     });
 
     Route::middleware(['can:audit.view'])->group(function () {

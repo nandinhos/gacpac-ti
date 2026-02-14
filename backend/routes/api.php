@@ -33,10 +33,10 @@ Route::name('api.')->middleware(['auth:sanctum'])->group(function () {
     // Sectors routes
     Route::apiResource('sectors', App\Http\Controllers\SectorController::class);
     
-    // Users routes  
-    Route::apiResource('users', App\Http\Controllers\MilitaryUserController::class);
-    Route::get('users/active', [App\Http\Controllers\MilitaryUserController::class, 'getActiveUsers'])->name('users.active');
-    Route::get('users/sector/{sectorId}', [App\Http\Controllers\MilitaryUserController::class, 'getUsersBySector'])->name('users.sector');
+    // Users routes - TODO: Criar UserController
+    // Route::apiResource('users', App\Http\Controllers\UserController::class);
+    // Route::get('users/active', [App\Http\Controllers\UserController::class, 'getActiveUsers'])->name('users.active');
+    // Route::get('users/sector/{sectorId}', [App\Http\Controllers\UserController::class, 'getUsersBySector'])->name('users.sector');
     
     // Assets routes
     Route::apiResource('assets', App\Http\Controllers\AssetController::class);

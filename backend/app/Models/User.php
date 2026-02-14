@@ -3,18 +3,17 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
-use App\Traits\Auditable;
-
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable, HasRoles, Auditable;
+    use Auditable, HasApiTokens, HasFactory, HasRoles, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -86,5 +85,13 @@ class User extends Authenticatable
     public function custodyLogs()
     {
         return $this->hasMany(CustodyLog::class, 'user_id');
+    }
+
+    public function currentCustodyAssets()
+    {
+        return Asset::whereHas('custodyLogs', function ($query) {
+            $query->where('user_id', $this->id)
+                ->whereNull('checkin_date');
+        });
     }
 }
