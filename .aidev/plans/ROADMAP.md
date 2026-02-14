@@ -455,6 +455,50 @@ cat .aidev/plans/features/XXX-feature-name.md
 
 ---
 
+### 📅 SPRINT 8: Gestão de Acesso e Auditoria ✅ CONCLUÍDA
+**Duração:** 1 semana
+**Objetivo:** Implementar RBAC (Roles) e Logs de Auditoria.
+**Status:** ✅ **CONCLUÍDA**
+**Data conclusão:** 2026-02-13
+
+#### Funcionalidades:
+
+##### 8.1 - Controle de Acesso (ACL) ✅
+**Status:** ✅ **CONCLUÍDO**
+
+##### 8.2 - Trilha de Auditoria ✅
+**Status:** ✅ **CONCLUÍDO**
+
+---
+
+### 📅 SPRINT 9: Unificação e Expansão de Identidade (A Iniciar)
+**Duração:** 1-2 semanas
+**Objetivo:** Consolidar `MilitaryUser` e `User` e expandir para estrutura GAC-PAC/ECPs.
+**Status:** 📅 AGUARDANDO INÍCIO
+**Data início:** 2026-02-13
+
+#### Funcionalidades:
+
+##### 9.1 - Expansão do Schema de Usuário
+**Prioridade:** 🔴 CRÍTICA
+**Requisitos Técnicos:**
+- [ ] Migration `add_extended_fields_to_users_table`.
+- [ ] Campos: `is_military`, `force`, `rank`, `organization`, `military_id`.
+
+##### 9.2 - Migração e Unificação de Dados
+**Prioridade:** 🔴 CRÍTICA
+**Requisitos Técnicos:**
+- [ ] Script de migração `military_users` -> `users`.
+- [ ] Atualização de FKs em Ativos/Inventários.
+
+##### 9.3 - Painel de Permissões Multi-Unidade
+**Prioridade:** 🟡 MÉDIA
+**Requisitos Técnicos:**
+- [ ] Filtros por Organização e Força no Admin.
+- [ ] Gestão de Roles unificada.
+
+---
+
 ### 📅 SPRINT 5: Refinamento de UI e Notificações ✅ CONCLUÍDA
 **Duração:** 1 semana
 **Objetivo:** Ativar menus pendentes e implementar sistema de notificações visual

@@ -1,40 +1,21 @@
-# 📚 Archive - Documentação e Templates
+# 📦 Arquivo de Features Concluídas
 
-> Documentação, templates, padrões e referências
-
----
-
-## 📁 Conteúdo
-
-### Templates
-*Nenhum template documentado no momento.*
+> Histórico de funcionalidades implementadas e validadas no SGAITI.
 
 ---
 
-## 📝 Uso desta pasta
+## ✅ Features Implementadas (Sprints 1-8)
 
-Esta pasta contém **documentação de suporte**, não planos de desenvolvimento.
-
-**Incluir aqui:**
-- Templates de documentação
-- Padrões e convenções
-- Guias de referência
-- Documentação técnica
-- Exemplos e tutoriais
-
-**NÃO incluir aqui:**
-- Planos de features (vão em `../features/`)
-- Sprints ativas (vão em `../current/`)
-- Ideias futuras (vão em `../backlog/`)
+| ID | Feature | Sprint | Data Conclusão |
+|----|---------|--------|----------------|
+| 001 | Novo Inventário | 1 | 2026-02-05 |
+| 002 | CRUD Categorias | 2 | 2026-02-05 |
+| 003 | Registro de Manutenção | 3 | 2026-02-13 |
+| 004 | Upload de Fotos | 4 | 2026-02-13 |
+| 005 | Refinamento UI/Notificações | 5 | 2026-02-13 |
+| 005 | Relatórios PDF | 7 | 2026-02-13 |
+| 006 | Gestão de Acesso e Auditoria | 8 | 2026-02-13 |
 
 ---
 
-## 📊 Conteúdo
-
-- **Templates:** 0
-- **Documentação:** 0
-- **Referências:** 0
-
----
-
-*Última atualização: {{DATE}}*
+*Estes documentos servem para consulta técnica e rastreabilidade.*

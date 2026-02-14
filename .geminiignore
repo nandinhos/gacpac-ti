@@ -1,0 +1,15 @@
+# Dependências
+backend/vendor/
+backend/node_modules/
+vendor/
+node_modules/
+
+# Dados e Logs
+backend/storage/
+storage/
+*.log
+
+# Backups e State
+.aidev/backups/
+.git/
+.serena/

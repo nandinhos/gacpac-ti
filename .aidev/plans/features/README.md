@@ -1,32 +1,22 @@
-# 🚀 Features - Planejados
+# 🚀 Features - Em Desenvolvimento
 
-> Features com planejamento completo, prontos para execução
-
----
-
-## 📋 Features em Planejamento
-
-*Nenhuma feature planejada no momento.*
+> Funcionalidades em fase de planejamento detalhado ou implementação.
 
 ---
 
-## 🎯 Próximos Passos
+## 🛠️ Feature Ativa (Sprint 9)
 
-Quando uma feature for priorizada para execução:
-
-1. **Definir** sprint no ROADMAP.md
-2. **Criar** entrada em `../current/`
-3. **Atualizar** este README (mover para seção "Em Execução")
-4. **Iniciar** desenvolvimento
-
----
-
-## 📊 Estatísticas
-
-- **Features planejadas:** 0
-- **Prontas para execução:** 0
-- **Em execução:** 0
+### 1. Unificação e Expansão de Identidade
+- **ID:** 007
+- **Arquivo:** [007-user-unification-expansion.md](007-user-unification-expansion.md)
+- **Status:** 📅 Aguardando Início (Migration de Schema)
+- **Objetivo:** Unificar militares e civis em todas as unidades (GAC-PAC/ECPs).
 
 ---
 
-*Última atualização: {{DATE}}*
+## 📋 Fluxo
+Após a conclusão e validação, os arquivos desta pasta são movidos para `../archive/`.
+
+---
+
+*Última atualização: 2026-02-13*

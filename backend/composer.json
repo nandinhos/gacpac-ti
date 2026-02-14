@@ -15,6 +15,7 @@
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1",
         "livewire/livewire": "^4.0",
+        "spatie/laravel-permission": "^7.0",
         "tightenco/ziggy": "^2.0"
     },
     "require-dev": {
