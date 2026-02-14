@@ -2,7 +2,7 @@
 
 > Documento mestre de planejamento de funcionalidades
 > Formato: AI Dev Superpowers Sprint Planning
-> Última atualização: 2026-02-13
+> Última atualização: 2026-02-14
 > Status: Ativo
 
 ---
@@ -309,6 +309,12 @@ backend/database/factories/AssetPhotoFactory.php
 | 2 | ✅ CRUD Categorias | 🟡 MÉDIA | **CONCLUÍDO** | Nenhuma |
 | 3 | ✅ Manutenção | 🟡 MÉDIA | **CONCLUÍDO** | Ativos |
 | 4 | ✅ Fotos | 🟡 MÉDIA | **CONCLUÍDO** | Ativos |
+| 5 | ✅ UI e Notificações | 🔴 ALTA | **CONCLUÍDO** | Nenhuma |
+| 6 | ✅ Seeders e Limpeza | 🟡 MÉDIA | **CONCLUÍDO** | Nenhuma |
+| 7 | ✅ Relatórios PDF | 🔴 ALTA | **CONCLUÍDO** | Nenhuma |
+| 8 | ✅ Acesso e Auditoria | 🔴 ALTA | **CONCLUÍDO** | Nenhuma |
+| 9 | ✅ Unificação User | 🔴 CRÍTICA | **CONCLUÍDO** | Nenhuma |
+| 10 | ✅ Interface Admin/Users | 🔴 ALTA | **CONCLUÍDO** | Sprint 9 |
 
 ---
 
@@ -399,7 +405,11 @@ cat .aidev/plans/features/XXX-feature-name.md
 │       ├── 001-inventory-create.md
 │       ├── 002-category-crud.md
 │       ├── 003-maintenance-log.md
-│       └── 004-asset-photos.md
+│       ├── 004-asset-photos.md
+│       ├── 005-ui-notifications.md
+│       ├── 006-seeders-cleanup.md
+│       ├── 007-user-unification-expansion.md
+│       └── 008-admin-users-unified-interface.md
 ├── state/
 │   └── current-sprint.json           # Sprint em andamento
 └── memory/
@@ -430,10 +440,9 @@ cat .aidev/plans/features/XXX-feature-name.md
 ---
 
 **Criado em:** 2026-02-05  
-**Versão:** 1.0  
+**Versão:** 1.1  
 **Status:** Ativo  
-**Status:** Ativo  
-**Próxima Sprint:** Sprint 7 - Módulo de Relatórios PDF
+**Próxima Sprint:** A definir - Análise de prioridades pós-Sprint 10
 
 ---
 
@@ -471,31 +480,34 @@ cat .aidev/plans/features/XXX-feature-name.md
 
 ---
 
-### 📅 SPRINT 9: Unificação e Expansão de Identidade (A Iniciar)
+### 📅 SPRINT 9: Unificação e Expansão de Identidade ✅ CONCLUÍDA
 **Duração:** 1-2 semanas
 **Objetivo:** Consolidar `MilitaryUser` e `User` e expandir para estrutura GAC-PAC/ECPs.
-**Status:** 📅 AGUARDANDO INÍCIO
-**Data início:** 2026-02-13
+**Status:** ✅ **CONCLUÍDA**
+**Data conclusão:** 2026-02-13
 
 #### Funcionalidades:
 
-##### 9.1 - Expansão do Schema de Usuário
+##### 9.1 - Expansão do Schema de Usuário ✅
 **Prioridade:** 🔴 CRÍTICA
+**Status:** ✅ **CONCLUÍDO**
 **Requisitos Técnicos:**
-- [ ] Migration `add_extended_fields_to_users_table`.
-- [ ] Campos: `is_military`, `force`, `rank`, `organization`, `military_id`.
+- [x] Migration `add_extended_fields_to_users_table`.
+- [x] Campos: `is_military`, `force`, `rank`, `organization`, `military_id`.
 
-##### 9.2 - Migração e Unificação de Dados
+##### 9.2 - Migração e Unificação de Dados ✅
 **Prioridade:** 🔴 CRÍTICA
+**Status:** ✅ **CONCLUÍDO**
 **Requisitos Técnicos:**
-- [ ] Script de migração `military_users` -> `users`.
-- [ ] Atualização de FKs em Ativos/Inventários.
+- [x] Script de migração `military_users` -> `users`.
+- [x] Atualização de FKs em Ativos/Inventários.
 
-##### 9.3 - Painel de Permissões Multi-Unidade
+##### 9.3 - Painel de Permissões Multi-Unidade ✅
 **Prioridade:** 🟡 MÉDIA
+**Status:** ✅ **CONCLUÍDO**
 **Requisitos Técnicos:**
-- [ ] Filtros por Organização e Força no Admin.
-- [ ] Gestão de Roles unificada.
+- [x] Filtros por Organização e Força no Admin.
+- [x] Gestão de Roles unificada.
 
 ---
 
@@ -551,3 +563,53 @@ cat .aidev/plans/features/XXX-feature-name.md
 - [x] Remover `project-docs/lessons-learned/` (migrados).
 - [x] Atualizar `TASKS.md` com status real.
 - [x] Corrigir bugs de testes antigos (ilike no SQLite, limites de upload).
+
+---
+
+### 📅 SPRINT 10: Interface Unificada Admin/Users ✅ CONCLUÍDA
+**Duração:** 1 semana
+**Objetivo:** Criar interface completa de gestão de usuários em `/admin/users`
+**Status:** ✅ **CONCLUÍDA**
+**Data conclusão:** 2026-02-14
+**Documentação:** [sprint-10-admin-users-interface.md](./current/sprint-10-admin-users-interface.md)
+
+#### Funcionalidades:
+
+##### 10.1 - Listagem com Filtros Avançados ✅
+**Prioridade:** 🔴 ALTA
+**Status:** ✅ **CONCLUÍDO**
+**Requisitos Técnicos:**
+- [x] Componente `Admin/Users/Index` com filtros.
+- [x] Filtros: Força, Organização, Role, Setor, Status.
+- [x] Busca por nome, email, ID militar.
+- [x] Paginação e ordenação.
+
+##### 10.2 - CRUD Completo de Usuários ✅
+**Prioridade:** 🔴 ALTA
+**Status:** ✅ **CONCLUÍDO**
+**Requisitos Técnicos:**
+- [x] Componente `Admin/Users/Create` (página).
+- [x] Componente `Admin/Users/Edit` (edição completa).
+- [x] Validações de formulário.
+- [x] Gestão de roles e permissões.
+- [x] Reset de senha.
+
+##### 10.3 - Visualização com Abas ✅
+**Prioridade:** 🔴 ALTA
+**Status:** ✅ **CONCLUÍDO**
+**Requisitos Técnicos:**
+- [x] Componente `Admin/Users/Show` com sistema de abas.
+- [x] Aba "Perfil": dados pessoais e organizacionais.
+- [x] Aba "Ativos": itens do setor fora de cautela.
+- [x] Aba "Cautelas": logs de cautela com ativos agrupados.
+- [x] Persistência de aba via `#[Url]`.
+- [x] Links clicáveis para edição de ativos.
+
+##### 10.4 - Padronização Visual ✅
+**Prioridade:** 🟡 MÉDIA
+**Status:** ✅ **CONCLUÍDO**
+**Requisitos Técnicos:**
+- [x] Cores `fab-blue` consistentes.
+- [x] Layout padronizado com cards.
+- [x] Mensagens com Alpine.js fade out.
+- [x] Ícones Heroicons.
