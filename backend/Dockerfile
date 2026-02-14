@@ -62,18 +62,31 @@ RUN php artisan route:cache
 RUN php artisan view:cache
 
 # Build frontend assets
-RUN npm run build
+# RUN npm run build
 
 # Copy nginx configuration
 COPY docker/nginx.conf /etc/nginx/sites-available/default
 
 # Copy supervisor configuration
+COPY docker/nginx.conf /etc/nginx/sites-available/default
+COPY docker/nginx-main.conf /etc/nginx/nginx.conf
+
+# Copy supervisor configuration
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
+# Copy and setup entrypoint script
 # Copy and setup entrypoint script
 COPY docker/start-container.sh /usr/local/bin/start-container
 RUN chmod +x /usr/local/bin/start-container
 
-EXPOSE 80
+# Prepare directories for rootless execution
+RUN mkdir -p /var/log/supervisor /var/run /tmp/laravel_views /var/www/html/storage/logs /var/lib/nginx /var/cache/nginx \
+    && chown -R sail:sail /var/log/supervisor /var/run /tmp/laravel_views /var/www/html /var/lib/nginx /var/cache/nginx \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache /tmp/laravel_views
+
+# Switch to non-root user
+USER sail
+
+EXPOSE 8000
 
 ENTRYPOINT ["start-container"]
