@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\InventoryRecord;
-use App\Models\MilitaryUser;
+use App\Models\User;
 use App\Models\Sector;
 use App\Models\Asset;
 use App\Models\InventoryAsset;
@@ -17,7 +17,7 @@ class InventorySeeder extends Seeder
      */
     public function run(): void
     {
-        $users = MilitaryUser::all();
+        $users = User::all();
         $sectors = Sector::all();
         $assets = Asset::all();
 

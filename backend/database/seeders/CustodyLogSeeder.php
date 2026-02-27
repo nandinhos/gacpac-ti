@@ -12,7 +12,7 @@ class CustodyLogSeeder extends Seeder
      */
     public function run(): void
     {
-        $users = \App\Models\MilitaryUser::all();
+        $users = \App\Models\User::all();
         $assets = \App\Models\Asset::all();
 
         $custodyLogs = [

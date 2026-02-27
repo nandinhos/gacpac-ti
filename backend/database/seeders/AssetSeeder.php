@@ -13,7 +13,7 @@ class AssetSeeder extends Seeder
     public function run(): void
     {
         $sectors = \App\Models\Sector::all();
-        $users = \App\Models\MilitaryUser::all();
+        $users = \App\Models\User::all();
 
         $assets = [
             ['qr_code' => 'SGTI-0001', 'patrimony_id' => 'FAB-1001', 'serial_number' => 'BR-A1B2C3D', 'category' => 'Computação', 'name' => 'Desktop Dell Vostro 3888', 'sector_id' => $sectors[0]->id, 'custodian_user_id' => $users[0]->id, 'status' => 'Em Uso', 'acquisition_date' => '2023-02-10', 'warranty_expiry' => '2026-02-10'],
