@@ -40,15 +40,15 @@ Este documento serve como **fonte única de verdade** para implementação de fu
 - Status inicial: "Em Andamento"
 
 **Requisitos Técnicos:** ✅ TODOS IMPLEMENTADOS
-- [x] Criar rota POST /inventory - **backend/routes/web.php (linha 32)**
-- [x] Criar componente Livewire Inventory/Create - **backend/app/Livewire/Inventory/Create.php**
+- [x] Criar rota POST /inventory - **routes/web.php (linha 32)**
+- [x] Criar componente Livewire Inventory/Create - **app/Livewire/Inventory/Create.php**
 - [x] Formulário com:
   - Select de Setor (obrigatório) ✅
   - Número da Comissão (opcional, unique) ✅
   - Data de Início (default: hoje) ✅
   - Select de Responsáveis (múltiplos militares) ✅
 - [x] Validação: apenas um inventário "Em Andamento" por setor ✅
-- [x] Testes: InventoryCreateTest ✅ **backend/tests/Feature/InventoryCreateTest.php**
+- [x] Testes: InventoryCreateTest ✅ **tests/Feature/InventoryCreateTest.php**
 
 **Critérios de Aceitação:**
 1. Usuário consegue clicar "Novo Inventário" e abrir formulário
@@ -59,9 +59,9 @@ Este documento serve como **fonte única de verdade** para implementação de fu
 
 **Arquivos Esperados:**
 ```
-backend/app/Livewire/Inventory/Create.php
-backend/resources/views/livewire/inventory/create.blade.php
-backend/tests/Feature/InventoryCreateTest.php
+app/Livewire/Inventory/Create.php
+resources/views/livewire/inventory/create.blade.php
+tests/Feature/InventoryCreateTest.php
 ```
 
 **Dependências:** Nenhuma (base para outras features)
@@ -70,10 +70,10 @@ backend/tests/Feature/InventoryCreateTest.php
 > ✅ **VERIFICADO EM 2026-02-05:** A funcionalidade já estava completamente implementada!
 > 
 > **Arquivos encontrados:**
-> - `backend/app/Livewire/Inventory/Create.php` - Componente funcional
-> - `backend/resources/views/livewire/inventory/create.blade.php` - View completa
-> - `backend/routes/web.php` - Rota configurada
-> - `backend/resources/views/livewire/inventory/index.blade.php` - Botão já aponta para rota correta
+> - `app/Livewire/Inventory/Create.php` - Componente funcional
+> - `resources/views/livewire/inventory/create.blade.php` - View completa
+> - `routes/web.php` - Rota configurada
+> - `resources/views/livewire/inventory/index.blade.php` - Botão já aponta para rota correta
 > 
 > **O que funciona:**
 > - Geração automática de número de comissão
@@ -129,12 +129,12 @@ backend/tests/Feature/InventoryCreateTest.php
 
 **Arquivos Esperados:**
 ```
-backend/app/Models/Category.php (se não existir)
-backend/app/Livewire/Category/Index.php
-backend/app/Livewire/Category/Create.php
-backend/app/Livewire/Category/Edit.php
-backend/resources/views/livewire/category/*.blade.php
-backend/tests/Feature/CategoryTest.php
+app/Models/Category.php (se não existir)
+app/Livewire/Category/Index.php
+app/Livewire/Category/Create.php
+app/Livewire/Category/Edit.php
+resources/views/livewire/category/*.blade.php
+tests/Feature/CategoryTest.php
 ```
 
 **Dependências:** Nenhuma
@@ -143,15 +143,15 @@ backend/tests/Feature/CategoryTest.php
 > ✅ **IMPLEMENTADO EM 2026-02-05:** CRUD completo de categorias com hierarquia!
 > 
 > **Arquivos criados/modificados:**
-> - `backend/database/migrations/2026_02_05_000000_add_hierarchy_to_categories_table.php` - Migration
-> - `backend/app/Models/Category.php` - Modelo atualizado com parent/children
-> - `backend/app/Livewire/Categories/Index.php` - Listagem com filtros
-> - `backend/app/Livewire/Categories/Create.php` - Criação
-> - `backend/app/Livewire/Categories/Edit.php` - Edição
-> - `backend/resources/views/livewire/categories/index.blade.php` - View listagem
-> - `backend/resources/views/livewire/categories/create.blade.php` - View criação
-> - `backend/resources/views/livewire/categories/edit.blade.php` - View edição
-> - `backend/routes/web.php` - Rotas atualizadas
+> - `database/migrations/2026_02_05_000000_add_hierarchy_to_categories_table.php` - Migration
+> - `app/Models/Category.php` - Modelo atualizado com parent/children
+> - `app/Livewire/Categories/Index.php` - Listagem com filtros
+> - `app/Livewire/Categories/Create.php` - Criação
+> - `app/Livewire/Categories/Edit.php` - Edição
+> - `resources/views/livewire/categories/index.blade.php` - View listagem
+> - `resources/views/livewire/categories/create.blade.php` - View criação
+> - `resources/views/livewire/categories/edit.blade.php` - View edição
+> - `routes/web.php` - Rotas atualizadas
 > 
 > **Funcionalidades implementadas:**
 > - Hierarquia de categorias (pai/filho)
@@ -206,13 +206,13 @@ backend/tests/Feature/CategoryTest.php
 
 **Arquivos Implementados:**
 ```
-backend/app/Models/MaintenanceRecord.php
-backend/app/Livewire/Maintenance/Index.php
-backend/app/Livewire/Maintenance/Create.php
-backend/resources/views/livewire/maintenance/index.blade.php
-backend/resources/views/livewire/maintenance/create.blade.php
-backend/tests/Feature/MaintenanceTest.php
-backend/database/factories/MaintenanceRecordFactory.php
+app/Models/MaintenanceRecord.php
+app/Livewire/Maintenance/Index.php
+app/Livewire/Maintenance/Create.php
+resources/views/livewire/maintenance/index.blade.php
+resources/views/livewire/maintenance/create.blade.php
+tests/Feature/MaintenanceTest.php
+database/factories/MaintenanceRecordFactory.php
 ```
 
 **Dependências:** Módulo de Ativos (já existe)
@@ -275,14 +275,14 @@ backend/database/factories/MaintenanceRecordFactory.php
 
 **Arquivos Implementados:**
 ```
-backend/app/Models/AssetPhoto.php
-backend/app/Livewire/Assets/Edit.php (métodos de foto integrados)
-backend/app/Livewire/Photos/Index.php
-backend/resources/views/livewire/assets/edit.blade.php (aba Fotos)
-backend/resources/views/livewire/photos/index.blade.php
-backend/resources/views/components/photo-lightbox.blade.php
-backend/tests/Feature/AssetPhotoTest.php
-backend/database/factories/AssetPhotoFactory.php
+app/Models/AssetPhoto.php
+app/Livewire/Assets/Edit.php (métodos de foto integrados)
+app/Livewire/Photos/Index.php
+resources/views/livewire/assets/edit.blade.php (aba Fotos)
+resources/views/livewire/photos/index.blade.php
+resources/views/components/photo-lightbox.blade.php
+tests/Feature/AssetPhotoTest.php
+database/factories/AssetPhotoFactory.php
 ```
 
 **Dependências:** Módulo de Ativos

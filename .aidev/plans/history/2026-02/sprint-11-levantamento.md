@@ -17,13 +17,13 @@ gacpac-ti/
 ├── .gemini/          # ✅ MANTER - Configurações Gemini
 ├── .git/             # ✅ MANTER - Controle de versão
 ├── .serena/          # ✅ MANTER - MCP Serena
-├── backend/          # 🔄 MOVER CONTEÚDO PARA RAIZ - Sistema Laravel
+├──           # 🔄 MOVER CONTEÚDO PARA RAIZ - Sistema Laravel
 ├── docs/             # [?] A investigar - documentação antiga?
 ├── lessons/          # [?] A investigar - lições aprendidas antigas?
 ├── project-docs/     # [?] A investigar - docs do projeto antigo?
 ├── public/           # ❌ REMOVER - provavelmente React antigo
 ├── scripts/          # [?] A investigar - scripts do projeto antigo?
-└── vendor/           # ❌ REMOVER - vendor na raiz (Laravel está em backend/vendor)
+└── vendor/           # ❌ REMOVER - vendor na raiz (Laravel está em vendor)
 ```
 
 ### Arquivos na Raiz:
@@ -47,9 +47,9 @@ gacpac-ti/
 
 ## 🔍 Investigação Necessária
 
-### 1. Diretório `backend/` (Laravel - MOVER PARA RAIZ)
+### 1. Diretório `` (Laravel - MOVER PARA RAIZ)
 ```bash
-backend/
+
 ├── app/              # → app/
 ├── bootstrap/        # → bootstrap/
 ├── config/           # → config/
@@ -94,13 +94,13 @@ backend/
 
 ### 5. Diretório `public/` NA RAIZ - INVESTIGAR
 - **Ação:** Verificar se é da versão React
-- **Decisão:** Provavelmente remover e usar `backend/public/`
+- **Decisão:** Provavelmente remover e usar `public/`
 
 ### 6. Diretório `scripts/` - A INVESTIGAR
 - **Ação:** Verificar se são úteis ou da versão antiga
 
 ### 7. Diretório `vendor/` NA RAIZ - REMOVER
-- **Ação:** Remover (vendor do PHP deve estar em backend/vendor e será movido)
+- **Ação:** Remover (vendor do PHP deve estar em vendor e será movido)
 
 ### 8. Arquivos `deploy.sh` e `dev-rebuild.sh` - A INVESTIGAR
 - **Ação:** Verificar se são úteis para o Laravel ou da versão antiga

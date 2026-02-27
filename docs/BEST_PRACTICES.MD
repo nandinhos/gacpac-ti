@@ -23,7 +23,7 @@ O objetivo é comparar a estrutura de dados em cada etapa do caminho.
   - Verifique os nomes exatos das colunas (`snake_case`, ex: `military_id`, `is_active`) e seus tipos.
 
 - **API Backend (O Mensageiro):**
-  - Abra o arquivo de rota correspondente em `backend/routes/` (ex: `users.js`).
+  - Abra o arquivo de rota correspondente em `routes/` (ex: `users.js`).
   - Analise a query SQL. Veja se a API retorna os campos como estão ou se usa aliases (ex: `SELECT s.name as sector_name`).
   - Verifique se o backend transforma algum dado antes de enviar (ex: `is_active: Boolean(user.is_active)`).
 

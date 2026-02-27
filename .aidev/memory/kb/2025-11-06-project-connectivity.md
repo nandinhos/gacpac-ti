@@ -94,7 +94,7 @@ Script automatiza a troca de configurações baseado no ambiente desejado, elimi
 
 ### Validação
 - [ ] Teste adicionado/atualizado
-- [x] Comando de verificação: `./switch-env.sh local && cat backend/.env | grep DB_HOST`
+- [x] Comando de verificação: `./switch-env.sh local && cat .env | grep DB_HOST`
 
 ---
 

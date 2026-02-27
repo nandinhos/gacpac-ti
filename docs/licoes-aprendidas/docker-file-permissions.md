@@ -16,13 +16,13 @@ EACCES: permission denied, open '/path/to/file.php'
 ### Correção Imediata
 Após executar qualquer `make:*` no Docker:
 ```bash
-sudo chown -R $USER:$USER backend/
+sudo chown -R $USER:$USER 
 ```
 
 ### Para diretórios específicos:
 ```bash
-sudo chown -R $USER:$USER backend/app/Livewire/
-sudo chown -R $USER:$USER backend/resources/views/livewire/
+sudo chown -R $USER:$USER app/Livewire/
+sudo chown -R $USER:$USER resources/views/livewire/
 ```
 
 ### Storage e Links Simbólicos
@@ -41,7 +41,7 @@ alias sail-chown='sudo chown -R $USER:$USER .'
 
 Ou executar após cada `make:*`:
 ```bash
-docker compose exec laravel.test php artisan make:livewire Foo && sudo chown -R $USER:$USER backend/app/Livewire/
+docker compose exec laravel.test php artisan make:livewire Foo && sudo chown -R $USER:$USER app/Livewire/
 ```
 
 ## Referências

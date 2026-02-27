@@ -19,9 +19,9 @@
 
 | Palavra-chave | Skill | Agente Principal |
 |---------------|-------|------------------|
-| "nova feature", "criar", "adicionar" | brainstorming -> writing-plans -> tdd | architect -> backend/frontend |
-| "bug", "erro", "nao funciona" | systematic-debugging | backend/frontend -> qa |
-| "refatorar", "melhorar", "limpar" | writing-plans -> tdd | architect -> backend/frontend |
+| "nova feature", "criar", "adicionar" | brainstorming -> writing-plans -> tdd | architect -> frontend |
+| "bug", "erro", "nao funciona" | systematic-debugging | frontend -> qa |
+| "refatorar", "melhorar", "limpar" | writing-plans -> tdd | architect -> frontend |
 | "revisar", "review", "PR" | code-review | code-reviewer |
 | "teste", "testar", "coverage" | test-driven-development | qa |
 | "seguranca", "vulnerabilidade" | - | security-guardian |

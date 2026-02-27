@@ -85,7 +85,7 @@ composer run dev  # Laravel + Vite + Queue + Logs
 **FASE 3: Validação Docker (Pre-Commit)**
 ```bash
 # 1. Salvar configuração local
-cp backend/.env backend/.env.local
+cp .env .env.local
 
 # 2. Configurar para Docker
 docker exec sgaiti-backend sed -i 's/DB_HOST=127.0.0.1/DB_HOST=mysql/' .env
@@ -96,8 +96,8 @@ sleep 5
 curl -I http://localhost:5050
 
 # 4. Restaurar configuração local
-cp backend/.env.local backend/.env
-rm backend/.env.local
+cp .env.local .env
+rm .env.local
 ```
 
 **FASE 4: Testes Finais**

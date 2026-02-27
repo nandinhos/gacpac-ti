@@ -28,7 +28,7 @@ Este documento mapeia **como os dados fluem entre o backend (MySQL + Express) e 
                       │
 ┌─────────────────────▼────────────────────────────────────┐
 │              BACKEND API (Express.js)                     │
-│  - Routes: backend/routes/*.js                            │
+│  - Routes: routes/*.js                            │
 │  - Conversão: snake_case ↔ camelCase                      │
 │  - Validação e lógica de negócio                          │
 └─────────────────────┬────────────────────────────────────┘
@@ -37,7 +37,7 @@ Este documento mapeia **como os dados fluem entre o backend (MySQL + Express) e 
                       │
 ┌─────────────────────▼────────────────────────────────────┐
 │               DATABASE (MySQL)                            │
-│  - Schema: backend/init.sql                               │
+│  - Schema: init.sql                               │
 │  - Nomenclatura: snake_case                               │
 │  - Constraints e validações                               │
 └──────────────────────────────────────────────────────────┘
@@ -407,7 +407,7 @@ const users = rows.map(user => ({
 }));
 ```
 
-**Arquivo:** `backend/routes/users.js` (linhas 32-35, 57-60, 99-102, 150-153)
+**Arquivo:** `routes/users.js` (linhas 32-35, 57-60, 99-102, 150-153)
 
 **Status:** ✅ JÁ IMPLEMENTADO
 
@@ -420,9 +420,9 @@ const users = rows.map(user => ({
 **Solução:** Backend executa múltiplas queries e monta objetos compostos.
 
 **Arquivos:**
-- `backend/routes/assets.js` (linhas 75-81)
-- `backend/routes/custody.js` (linhas 36-47)
-- `backend/routes/inventory.js` (linhas 34-70)
+- `routes/assets.js` (linhas 75-81)
+- `routes/custody.js` (linhas 36-47)
+- `routes/inventory.js` (linhas 34-70)
 
 **Status:** ✅ JÁ IMPLEMENTADO
 

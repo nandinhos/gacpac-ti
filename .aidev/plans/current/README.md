@@ -46,10 +46,10 @@ Quando uma sprint for concluída:
 ## ✅ Sprint 11 Concluída
 
 **Data:** 27/02/2026
-**Objetivo:** Reorganização da estrutura do projeto (backend/ → raiz)
+**Objetivo:** Reorganização da estrutura do projeto ( → raiz)
 
 **Alterações realizadas:**
-- Move conteúdo de `backend/` para raiz do projeto
+- Move conteúdo de `` para raiz do projeto
 - Consolida arquivos `.env` e `.gitignore`
 - Atualiza `docker-compose.yml` com portas altas (8900, 54320, 8950)
 - Cria link simbólico para storage

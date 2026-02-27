@@ -4,7 +4,7 @@
 
 ENV_TYPE=$1
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-BACKEND_DIR="$PROJECT_ROOT/backend"
+BACKEND_DIR="$PROJECT_ROOT"
 
 echo "🎯 SGAITI-UM Environment Switcher"
 echo "=================================="
@@ -17,11 +17,9 @@ if [ "$ENV_TYPE" = "local" ]; then
         cp "$BACKEND_DIR/.env.example" "$BACKEND_DIR/.env"
     fi
     
-    cd "$BACKEND_DIR"
-    
     # Configurações de database
-    sed -i 's/DB_HOST=mysql/DB_HOST=127.0.0.1/' .env
-    sed -i 's/DB_PORT=3306/DB_PORT=53106/' .env
+    sed -i 's/DB_HOST=pgsql/DB_HOST=127.0.0.1/' .env
+    sed -i 's/DB_PORT=5432/DB_PORT=54320/' .env
     
     # Configurações de URL
     sed -i 's|APP_URL=.*|APP_URL=http://127.0.0.1:8000|' .env
@@ -31,23 +29,19 @@ if [ "$ENV_TYPE" = "local" ]; then
     sed -i 's/LOG_CHANNEL=.*/LOG_CHANNEL=stderr/' .env
     
     echo "✅ Configurado para desenvolvimento local"
-    echo "🚀 Execute: cd backend && php artisan serve"
+    echo "🚀 Execute: php artisan serve"
     
 elif [ "$ENV_TYPE" = "docker" ]; then
-    echo "🐳 Configurando para Docker..."
-    
-    cd "$BACKEND_DIR"
-    
     # Configurações de database  
-    sed -i 's/DB_HOST=127.0.0.1/DB_HOST=mysql/' .env
-    sed -i 's/DB_PORT=53106/DB_PORT=3306/' .env
+    sed -i 's/DB_HOST=127.0.0.1/DB_HOST=pgsql/' "$BACKEND_DIR/.env"
+    sed -i 's/DB_PORT=54320/DB_PORT=5432/' "$BACKEND_DIR/.env"
     
     # Configurações de URL
-    sed -i 's|APP_URL=.*|APP_URL=http://localhost:5050|' .env
-    sed -i 's|VITE_APP_URL=.*|VITE_APP_URL=http://localhost:5050|' .env
+    sed -i 's|APP_URL=.*|APP_URL=http://localhost:8900|' "$BACKEND_DIR/.env"
+    sed -i 's|VITE_APP_URL=.*|VITE_APP_URL=http://localhost:8900|' "$BACKEND_DIR/.env"
     
     echo "✅ Configurado para Docker"
-    echo "🚀 Execute: docker-compose restart sgaiti-backend"
+    echo "🚀 Execute: docker compose restart laravel.test"
     
 elif [ "$ENV_TYPE" = "status" ]; then
     echo "📊 Status atual da configuração:"
@@ -63,7 +57,7 @@ elif [ "$ENV_TYPE" = "status" ]; then
         
         if [ "$DB_HOST" = "127.0.0.1" ]; then
             echo "📍 Modo: DESENVOLVIMENTO LOCAL"
-        elif [ "$DB_HOST" = "mysql" ]; then
+        elif [ "$DB_HOST" = "pgsql" ]; then
             echo "📍 Modo: DOCKER"
         else
             echo "📍 Modo: PERSONALIZADO"
@@ -81,6 +75,6 @@ else
     echo "  ./switch-env.sh status   - Mostra configuração atual"
     echo ""
     echo "Exemplos:"
-    echo "  ./switch-env.sh local && cd backend && php artisan serve"
-    echo "  ./switch-env.sh docker && docker-compose restart sgaiti-backend"
+    echo "  ./switch-env.sh local && php artisan serve"
+    echo "  ./switch-env.sh docker && docker compose restart laravel.test"
 fi

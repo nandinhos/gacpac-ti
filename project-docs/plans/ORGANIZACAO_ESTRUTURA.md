@@ -12,7 +12,7 @@
 
 | Diretório/Arquivo | Status | Ação Recomendada |
 |-------------------|--------|------------------|
-| `backend/` | ✅ Ativo | Manter - Código Laravel atual |
+| `` | ✅ Ativo | Manter - Código Laravel atual |
 | `project-docs/` | ✅ Ativo | Manter - Documentação consolidada |
 | `docs/` | ⚠️ Legado | Arquivar/Deletar após consolidação |
 | `vendor/` | ⚠️ Legado | **DELETAR** - Resquício antigo |
@@ -27,9 +27,9 @@
 
 | Tipo | Quantidade | Localização | Status |
 |------|------------|-------------|--------|
-| Arquivos React/JSX | 54 | `backend/resources/js/` | **LEGADO - Marcar para deleção** |
-| Views Livewire | 17 | `backend/resources/views/livewire/` | ✅ Ativo |
-| Componentes Livewire | 7 | `backend/app/Livewire/` | ✅ Ativo |
+| Arquivos React/JSX | 54 | `resources/js/` | **LEGADO - Marcar para deleção** |
+| Views Livewire | 17 | `resources/views/livewire/` | ✅ Ativo |
+| Componentes Livewire | 7 | `app/Livewire/` | ✅ Ativo |
 
 ### 1.3 Documentação
 
@@ -93,7 +93,7 @@ rm -rf /home/nandodev/projects/gacpac-ti/vendor/
 
 #### 2.2 Avaliar Pasta `public/` da Raiz
 - Contém apenas `favicon.svg`
-- Pode ser movido para `backend/public/` se necessário
+- Pode ser movido para `public/` se necessário
 
 #### 2.3 Criar Pasta de Legado para Arquivamento
 ```bash
@@ -127,13 +127,13 @@ mv /home/nandodev/projects/gacpac-ti/docs /home/nandodev/projects/gacpac-ti/_leg
 #### 4.1 Mover para Legado (NÃO deletar ainda)
 ```bash
 mkdir -p /home/nandodev/projects/gacpac-ti/_legacy/inertia-react
-mv /home/nandodev/projects/gacpac-ti/backend/resources/js /home/nandodev/projects/gacpac-ti/_legacy/inertia-react/
+mv /home/nandodev/projects/gacpac-ti/resources/js /home/nandodev/projects/gacpac-ti/_legacy/inertia-react/
 ```
 
 #### 4.2 Criar Nova Estrutura JS Mínima
 O Livewire + Alpine não requer a estrutura React, apenas:
 ```
-backend/resources/js/
+resources/js/
 ├── app.js          (Alpine init)
 └── bootstrap.js    (Axios, etc)
 ```
@@ -155,7 +155,7 @@ gacpac-ti/
 ├── .claude/                # Config Claude
 ├── .gemini/                # Config Gemini
 ├── .serena/                # Config Serena
-├── backend/                # Laravel TALL Stack
+├──                 # Laravel TALL Stack
 │   ├── app/
 │   │   └── Livewire/       # Componentes Livewire
 │   ├── resources/

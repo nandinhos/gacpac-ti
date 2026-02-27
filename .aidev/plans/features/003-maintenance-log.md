@@ -65,7 +65,7 @@ O sistema de gestão de ativos (SGAITI) precisa rastrear o histórico de manuten
 - [x] Scopes: upcoming() e overdue().
 - [x] Validação de data (next_maintenance_date > date).
 
-**Arquivo:** `backend/tests/Feature/MaintenanceTest.php` (11 testes)
+**Arquivo:** `tests/Feature/MaintenanceTest.php` (11 testes)
 
 ## Lições Aprendidas
 - Componente embeddable (`isEmbedded`) permite reutilizar a listagem dentro da aba do ativo.

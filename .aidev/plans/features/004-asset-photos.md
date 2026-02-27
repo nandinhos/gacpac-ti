@@ -47,15 +47,15 @@ O SGAITI precisa permitir o registro fotográfico dos ativos para documentação
 
 ### Arquivos:
 ```
-backend/app/Models/AssetPhoto.php
-backend/app/Livewire/Assets/Edit.php (métodos de foto)
-backend/app/Livewire/Photos/Index.php
-backend/resources/views/livewire/assets/edit.blade.php (aba Fotos)
-backend/resources/views/livewire/photos/index.blade.php
-backend/resources/views/components/photo-lightbox.blade.php
-backend/tests/Feature/AssetPhotoTest.php
-backend/database/factories/AssetPhotoFactory.php
-backend/routes/api.php (rotas POST e DELETE)
+app/Models/AssetPhoto.php
+app/Livewire/Assets/Edit.php (métodos de foto)
+app/Livewire/Photos/Index.php
+resources/views/livewire/assets/edit.blade.php (aba Fotos)
+resources/views/livewire/photos/index.blade.php
+resources/views/components/photo-lightbox.blade.php
+tests/Feature/AssetPhotoTest.php
+database/factories/AssetPhotoFactory.php
+routes/api.php (rotas POST e DELETE)
 ```
 
 ## Testes
@@ -71,7 +71,7 @@ backend/routes/api.php (rotas POST e DELETE)
 - [x] Exibir galeria com contagem e legenda.
 - [x] Troca de abas funciona corretamente.
 
-**Arquivo:** `backend/tests/Feature/AssetPhotoTest.php` (14 testes)
+**Arquivo:** `tests/Feature/AssetPhotoTest.php` (14 testes)
 
 ## Lições Aprendidas
 - Exclusão deferida (deferred deletion) evita erros 403 durante o morphing do Livewire.

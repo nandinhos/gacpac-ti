@@ -112,7 +112,7 @@ src/
 ├── types.ts             # Definições TypeScript
 └── index.css           # Estilos globais
 
-backend/
+
 ├── app/
 │   ├── Http/Controllers/  # Controllers Laravel
 │   ├── Models/           # Models Eloquent

@@ -292,7 +292,7 @@ public function test_cannot_create_if_active_inventory_exists()
 ### O que foi encontrado:
 
 **1. Componente Livewire:**
-- Arquivo: `backend/app/Livewire/Inventory/Create.php`
+- Arquivo: `app/Livewire/Inventory/Create.php`
 - Status: ✅ Funcional
 - Recursos:
   - Geração automática de número de comissão
@@ -302,7 +302,7 @@ public function test_cannot_create_if_active_inventory_exists()
   - Redirecionamento após criação
 
 **2. View Blade:**
-- Arquivo: `backend/resources/views/livewire/inventory/create.blade.php`
+- Arquivo: `resources/views/livewire/inventory/create.blade.php`
 - Status: ✅ Completa
 - Recursos:
   - Formulário com todos os campos
@@ -311,13 +311,13 @@ public function test_cannot_create_if_active_inventory_exists()
   - Botão gerar número de comissão
 
 **3. Rota:**
-- Arquivo: `backend/routes/web.php` (linha 32)
+- Arquivo: `routes/web.php` (linha 32)
 - Status: ✅ Configurada
 - Path: `/inventory/create`
 - Name: `inventory.create`
 
 **4. Botão na Listagem:**
-- Arquivo: `backend/resources/views/livewire/inventory/index.blade.php` (linha 11)
+- Arquivo: `resources/views/livewire/inventory/index.blade.php` (linha 11)
 - Status: ✅ Já aponta para rota correta
 - Link: `route('inventory.create')`
 
@@ -343,12 +343,12 @@ public function test_cannot_create_if_active_inventory_exists()
 ## 📚 Referências
 
 - **Levantamento:** `project-docs/LEVANTAMENTO_FUNCIONALIDADES.md` (seção 6.1) - **DESATUALIZADO**
-- **Modelo:** `backend/app/Models/InventoryRecord.php`
-- **Componente:** `backend/app/Livewire/Inventory/Create.php`
-- **View:** `backend/resources/views/livewire/inventory/create.blade.php`
-- **Rota:** `backend/routes/web.php` (linha 32)
+- **Modelo:** `app/Models/InventoryRecord.php`
+- **Componente:** `app/Livewire/Inventory/Create.php`
+- **View:** `resources/views/livewire/inventory/create.blade.php`
+- **Rota:** `routes/web.php` (linha 32)
 - **Tabela:** Verificar migration de inventories
-- **Exemplo similar:** `backend/app/Livewire/Custody/Create.php` (se existir)
+- **Exemplo similar:** `app/Livewire/Custody/Create.php` (se existir)
 
 ---
 

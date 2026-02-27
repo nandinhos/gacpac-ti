@@ -1,11 +1,11 @@
 # Dependências
-backend/vendor/
-backend/node_modules/
+vendor/
+node_modules/
 vendor/
 node_modules/
 
 # Dados e Logs
-backend/storage/
+storage/
 storage/
 *.log
 

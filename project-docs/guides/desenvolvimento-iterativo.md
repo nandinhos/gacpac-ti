@@ -12,7 +12,7 @@
 
 ```
 SGTI-GAC/
-├── backend/           # 🐘 Aplicação Laravel
+├──            # 🐘 Aplicação Laravel
 │   ├── app/          # Código PHP (Models, Controllers)
 │   ├── resources/    # Contém o código Frontend
 │   │   └── js/       # ⚛️ Código React (Components, Pages, Layouts)
@@ -26,10 +26,10 @@ SGTI-GAC/
 ### **Workflow de Desenvolvimento**
 
 #### **1. Backend Laravel** 🚀
-As alterações nos arquivos PHP do backend (em `backend/app`, `backend/routes`, etc.) são refletidas instantaneamente no container `backend` graças ao volume montado no `docker-compose.yml`.
+As alterações nos arquivos PHP do backend (em `app`, `routes`, etc.) são refletidas instantaneamente no container `backend` graças ao volume montado no `docker-compose.yml`.
 
 ```bash
-# Edite qualquer arquivo .php no diretório backend/
+# Edite qualquer arquivo .php no diretório 
 # As mudanças são aplicadas automaticamente.
 
 # Para executar comandos Artisan:
@@ -37,10 +37,10 @@ docker-compose exec backend php artisan <comando>
 ```
 
 #### **2. Frontend React (com Inertia)** ⚛️
-O código fonte do frontend reside em `backend/resources/js`. Como o Laravel compila e versiona esses arquivos, um passo de "build" é necessário para que as alterações apareçam no navegador.
+O código fonte do frontend reside em `resources/js`. Como o Laravel compila e versiona esses arquivos, um passo de "build" é necessário para que as alterações apareçam no navegador.
 
 ```bash
-# 1. Edite os arquivos em backend/resources/js/
+# 1. Edite os arquivos em resources/js/
 
 # 2. Entre no container do backend para compilar os assets
 docker-compose exec backend npm run build
@@ -89,7 +89,7 @@ docker-compose exec backend npm run build
 **Solução:** Limpe o cache do navegador ou use a aba anônima.
 
 #### **Erro 404 ou 500 após mudança de rota** ⚙️
-**Causa Provável:** A rota não foi definida corretamente em `backend/routes/web.php` ou o controller/closure associado tem um erro.
+**Causa Provável:** A rota não foi definida corretamente em `routes/web.php` ou o controller/closure associado tem um erro.
 **Solução:** Verifique `docker-compose logs -f backend` para ver a mensagem de erro detalhada do Laravel.
 
 ### **Próximos Passos**

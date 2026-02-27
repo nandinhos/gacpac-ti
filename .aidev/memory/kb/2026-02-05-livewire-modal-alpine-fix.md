@@ -237,9 +237,9 @@ class Show extends Component
 
 - **Commit**: faa44406622db8bcac016a461e63daf3aadc0c00
 - **Arquivos**: 
-  - `backend/app/Livewire/Custody/Show.php`
-  - `backend/resources/views/livewire/custody/show.blade.php`
-  - `backend/tests/Feature/CustodyShowTest.php`
+  - `app/Livewire/Custody/Show.php`
+  - `resources/views/livewire/custody/show.blade.php`
+  - `tests/Feature/CustodyShowTest.php`
 - **Documentação**: Livewire 3 Docs, Alpine.js Docs
 - **Módulo**: Custody (Cautela)
 

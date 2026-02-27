@@ -32,7 +32,6 @@ dist-ssr
 .env.backup
 .env.production
 *.env
-backend/.env
 
 # IDE/editor local configs
 .deepvode/
@@ -54,9 +53,9 @@ Homestead.yaml
 .phpunit.result.cache
 
 # Framework/generated runtime data
-backend/storage/
-backend/uploads/
-backend/public/storage/
+/storage/
+/uploads/
+/public/storage/
 
 # Local support bundles
 amp-support-bundle-*.json.gz

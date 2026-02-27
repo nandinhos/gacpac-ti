@@ -26,50 +26,50 @@
 - `lessons/` → 🔄 **MOVER** para `.aidev/memory/lessons-learned/`
 - `project-docs/` → ✅ **MANTER** (docs do projeto Laravel)
 - `scripts/` → ✅ **MANTER** (scripts úteis: health-check, boost-mcp, etc)
-- `README.md` raiz → 🔄 **MESCLAR** com `backend/README.md`
-- `.env` raiz → 🔄 **CONSOLIDAR** com `backend/.env`
-- `.env.example` raiz → 🔄 **CONSOLIDAR** com `backend/.env.example`
-- `.gitignore` raiz → 🔄 **MESCLAR** com `backend/.gitignore`
+- `README.md` raiz → 🔄 **MESCLAR** com `README.md`
+- `.env` raiz → 🔄 **CONSOLIDAR** com `.env`
+- `.env.example` raiz → 🔄 **CONSOLIDAR** com `.env.example`
+- `.gitignore` raiz → 🔄 **MESCLAR** com `.gitignore`
 
 ### ❌ Arquivos/Pastas REMOVER:
 - `public/` NA RAIZ (só contém favicon.svg - versão antiga)
-- `vendor/` NA RAIZ (vendor duplicado - usar backend/vendor)
+- `vendor/` NA RAIZ (vendor duplicado - usar vendor)
 - `dev-rebuild.sh` (script para frontend React - obsoleto)
 - `deploy.sh` (menciona MySQL, projeto usa PostgreSQL - desatualizado)
 
-### 🚀 Pasta `backend/` MOVER TODO CONTEÚDO PARA RAIZ:
+### 🚀 Pasta `` MOVER TODO CONTEÚDO PARA RAIZ:
 ```
-backend/app/              → app/
-backend/bootstrap/        → bootstrap/
-backend/config/           → config/
-backend/database/         → database/
-backend/docker/           → docker/
-backend/lang/             → lang/
-backend/public/           → public/ (SUBSTITUIR public/ existente)
-backend/resources/        → resources/
-backend/routes/           → routes/
-backend/storage/          → storage/
-backend/tests/            → tests/
-backend/vendor/           → vendor/ (SUBSTITUIR vendor/ existente)
-backend/.editorconfig     → .editorconfig
-backend/.gitattributes    → .gitattributes
-backend/artisan           → artisan
-backend/boost.json        → boost.json
-backend/composer.json     → composer.json
-backend/composer.lock     → composer.lock
-backend/Dockerfile        → Dockerfile
-backend/jsconfig.json     → jsconfig.json
-backend/package.json      → package.json
-backend/package-lock.json → package-lock.json
-backend/phpunit.xml       → phpunit.xml
-backend/postcss.config.js → postcss.config.js
-backend/tailwind.config.js → tailwind.config.js
-backend/vite.config.js    → vite.config.js
-backend/.env              → (mesclar com .env raiz)
-backend/.env.example      → (substituir .env.example raiz)
-backend/.gitignore        → (mesclar com .gitignore raiz)
-backend/README.md         → (mesclar com README.md raiz)
-backend/.gemini/          → (REMOVER - duplicado)
+app/              → app/
+bootstrap/        → bootstrap/
+config/           → config/
+database/         → database/
+docker/           → docker/
+lang/             → lang/
+public/           → public/ (SUBSTITUIR public/ existente)
+resources/        → resources/
+routes/           → routes/
+storage/          → storage/
+tests/            → tests/
+vendor/           → vendor/ (SUBSTITUIR vendor/ existente)
+.editorconfig     → .editorconfig
+.gitattributes    → .gitattributes
+artisan           → artisan
+boost.json        → boost.json
+composer.json     → composer.json
+composer.lock     → composer.lock
+Dockerfile        → Dockerfile
+jsconfig.json     → jsconfig.json
+package.json      → package.json
+package-lock.json → package-lock.json
+phpunit.xml       → phpunit.xml
+postcss.config.js → postcss.config.js
+tailwind.config.js → tailwind.config.js
+vite.config.js    → vite.config.js
+.env              → (mesclar com .env raiz)
+.env.example      → (substituir .env.example raiz)
+.gitignore        → (mesclar com .gitignore raiz)
+README.md         → (mesclar com README.md raiz)
+.gemini/          → (REMOVER - duplicado)
 ```
 
 ---
@@ -101,7 +101,7 @@ rmdir lessons/
 ```bash
 # Criar backup
 cp .env .env.backup
-cp backend/.env backend/.env.backup
+cp .env .env.backup
 
 # Mesclar manualmente (próximo passo)
 ```
@@ -109,58 +109,58 @@ cp backend/.env backend/.env.backup
 **`.gitignore` consolidado:**
 ```bash
 # Mesclar regras únicas de ambos
-cat .gitignore backend/.gitignore | sort | uniq > .gitignore.new
+cat .gitignore .gitignore | sort | uniq > .gitignore.new
 # Revisar e aplicar manualmente
 ```
 
 **`README.md` consolidado:**
 ```bash
 # Mesclar seções relevantes
-# Manter estrutura do backend/README.md
+# Manter estrutura do README.md
 # Adicionar informações úteis do README.md raiz
 ```
 
-#### 3.2 - Mover conteúdo do backend/ para raiz
+#### 3.2 - Mover conteúdo do  para raiz
 ```bash
 # Mover diretórios
-mv backend/app .
-mv backend/bootstrap .
-mv backend/config .
-mv backend/database .
-mv backend/docker .
-mv backend/lang .
-mv backend/public .          # Substitui public/ antigo (já removido)
-mv backend/resources .
-mv backend/routes .
-mv backend/storage .
-mv backend/tests .
-mv backend/vendor .          # Substitui vendor/ antigo (já removido)
+mv app .
+mv bootstrap .
+mv config .
+mv database .
+mv docker .
+mv lang .
+mv public .          # Substitui public/ antigo (já removido)
+mv resources .
+mv routes .
+mv storage .
+mv tests .
+mv vendor .          # Substitui vendor/ antigo (já removido)
 
 # Mover arquivos de configuração
-mv backend/.editorconfig .
-mv backend/.gitattributes .
-mv backend/artisan .
-mv backend/boost.json .
-mv backend/composer.json .
-mv backend/composer.lock .
-mv backend/Dockerfile .
-mv backend/jsconfig.json .
-mv backend/package.json .
-mv backend/package-lock.json .
-mv backend/phpunit.xml .
-mv backend/postcss.config.js .
-mv backend/tailwind.config.js .
-mv backend/vite.config.js .
+mv .editorconfig .
+mv .gitattributes .
+mv artisan .
+mv boost.json .
+mv composer.json .
+mv composer.lock .
+mv Dockerfile .
+mv jsconfig.json .
+mv package.json .
+mv package-lock.json .
+mv phpunit.xml .
+mv postcss.config.js .
+mv tailwind.config.js .
+mv vite.config.js .
 
 # Arquivos já mesclados (não mover, já tratados em 3.1)
-# backend/.env (mesclado)
-# backend/.env.example (substituir após mesclar)
-# backend/.gitignore (mesclado)
-# backend/README.md (mesclado)
+# .env (mesclado)
+# .env.example (substituir após mesclar)
+# .gitignore (mesclado)
+# README.md (mesclado)
 
-# Remover diretório backend/ vazio
-rm -rf backend/.gemini  # Duplicado
-rmdir backend/          # Deve estar vazio agora
+# Remover diretório  vazio
+rm -rf .gemini  # Duplicado
+rmdir           # Deve estar vazio agora
 ```
 
 #### 3.3 - Atualizar docker-compose.yml
@@ -185,7 +185,7 @@ VITE_PORT=5173
 FORWARD_DB_PORT=54320
 PGADMIN_PORT=8950
 
-# Variáveis Laravel (de backend/.env)
+# Variáveis Laravel (de .env)
 APP_NAME=GacpacTI
 APP_ENV=local
 APP_KEY=base64:...
@@ -258,7 +258,7 @@ curl http://localhost:8900
 git add -A
 git commit -m "refactor: reorganiza estrutura do projeto (React → Laravel)
 
-- Remove pasta backend/, move conteúdo para raiz
+- Remove pasta , move conteúdo para raiz
 - Remove artefatos da versão React
 - Consolida arquivos .env e .gitignore
 - Atualiza docker-compose.yml com portas altas

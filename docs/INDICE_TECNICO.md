@@ -273,7 +273,7 @@ Log::error('Upload failed', ['error' => $e->getMessage()]);
 ### **Problemas Comuns**
 ```yaml
 CORS Error:
-  - Verificar APP_URL no backend/.env
+  - Verificar APP_URL no .env
   - Confirmar origins no config/cors.php
 
 Schema Mismatch:

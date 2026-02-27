@@ -27,7 +27,7 @@ Implementamos um sistema completo para exportação de cautelas em PDF profissio
 ## 🎨 **Componentes Criados**
 
 ### **1. `PrintCautela.jsx`** (Novo)
-**Localização**: `backend/resources/js/Pages/Custody/PrintCautela.jsx`
+**Localização**: `resources/js/Pages/Custody/PrintCautela.jsx`
 **Funcionalidades**:
 - Template PDF profissional para impressão
 - Header oficial do Comando da Aeronáutica
@@ -35,7 +35,7 @@ Implementamos um sistema completo para exportação de cautelas em PDF profissio
 - Auto-print quando carregado
 
 ### **2. `SignedDocumentViewer.jsx`** (Novo)
-**Localização**: `backend/resources/js/Components/SignedDocumentViewer.jsx`
+**Localização**: `resources/js/Components/SignedDocumentViewer.jsx`
 **Funcionalidades**:
 - Interface para upload de documentos assinados
 - Visualização e download de documentos

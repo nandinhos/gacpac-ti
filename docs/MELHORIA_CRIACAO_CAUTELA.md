@@ -79,7 +79,7 @@ const handleToggleAll = () => {
 ## 📊 **Componentes Criados/Atualizados**
 
 ### **1. `AssetSelectorAdvanced.jsx`** (Novo)
-- **Localização**: `backend/resources/js/Components/AssetSelectorAdvanced.jsx`
+- **Localização**: `resources/js/Components/AssetSelectorAdvanced.jsx`
 - **Tamanho**: ~350 linhas
 - **Funcionalidades**:
   - Busca em tempo real

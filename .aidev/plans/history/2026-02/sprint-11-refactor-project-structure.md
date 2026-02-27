@@ -10,10 +10,10 @@
 
 ## 📋 Contexto de Negócio
 
-O projeto **gacpac-ti** passou por uma refatoração completa de **React para Laravel**, porém a estrutura de diretórios ainda reflete a arquitetura antiga. O sistema Laravel funcional está dentro da pasta `backend/`, mas existem resquícios da versão React que precisam ser removidos ou reorganizados.
+O projeto **gacpac-ti** passou por uma refatoração completa de **React para Laravel**, porém a estrutura de diretórios ainda reflete a arquitetura antiga. O sistema Laravel funcional está dentro da pasta ``, mas existem resquícios da versão React que precisam ser removidos ou reorganizados.
 
 ### Problema Atual:
-- ✅ Sistema Laravel funcional em `backend/`
+- ✅ Sistema Laravel funcional em ``
 - ❌ Estrutura de pastas confusa (mistura de React + Laravel)
 - ❌ Configuração de containers duplicada/desnecessária
 - ❌ Mapeamento de portas conflitante
@@ -24,7 +24,7 @@ O projeto **gacpac-ti** passou por uma refatoração completa de **React para La
 ## 🎯 Objetivos
 
 1. **Limpar estrutura do projeto** - Remover todos os artefatos da versão React
-2. **Reorganizar diretórios** - Mover conteúdo de `backend/` para raiz do projeto
+2. **Reorganizar diretórios** - Mover conteúdo de `` para raiz do projeto
 3. **Simplificar containers** - Manter apenas os containers necessários para Laravel
 4. **Padronizar portas** - Configurar portas de forma clara e sem conflitos
 5. **Atualizar documentação** - Refletir nova estrutura em READMEs e docs
@@ -36,7 +36,7 @@ O projeto **gacpac-ti** passou por uma refatoração completa de **React para La
 ### Estrutura Atual (Confusa):
 ```
 gacpac-ti/
-├── backend/              # Sistema Laravel (ATUAL)
+├──               # Sistema Laravel (ATUAL)
 │   ├── app/
 │   ├── database/
 │   ├── resources/
@@ -57,27 +57,27 @@ gacpac-ti/
 ### Estrutura Desejada (Limpa):
 ```
 gacpac-ti/
-├── app/                  # Movido de backend/app
-├── bootstrap/            # Movido de backend/bootstrap
-├── config/               # Movido de backend/config
-├── database/             # Movido de backend/database
-├── public/               # Movido de backend/public
-├── resources/            # Movido de backend/resources
-├── routes/               # Movido de backend/routes
-├── storage/              # Movido de backend/storage
-├── tests/                # Movido de backend/tests
-├── vendor/               # Movido de backend/vendor
+├── app/                  # Movido de app
+├── bootstrap/            # Movido de bootstrap
+├── config/               # Movido de config
+├── database/             # Movido de database
+├── public/               # Movido de public
+├── resources/            # Movido de resources
+├── routes/               # Movido de routes
+├── storage/              # Movido de storage
+├── tests/                # Movido de tests
+├── vendor/               # Movido de vendor
 ├── .aidev/               # AI Dev Superpowers (mantido)
 ├── .git/                 # Git (mantido)
 ├── docker/               # Configurações Docker organizadas
 ├── docker-compose.yml    # Containers simplificados
 ├── .env                  # Variáveis de ambiente Laravel
 ├── .env.example          # Template de variáveis
-├── artisan               # Movido de backend/artisan
-├── composer.json         # Movido de backend/composer.json
-├── package.json          # Movido de backend/package.json
-├── phpunit.xml           # Movido de backend/phpunit.xml
-├── vite.config.js        # Movido de backend/vite.config.js
+├── artisan               # Movido de artisan
+├── composer.json         # Movido de composer.json
+├── package.json          # Movido de package.json
+├── phpunit.xml           # Movido de phpunit.xml
+├── vite.config.js        # Movido de vite.config.js
 └── README.md             # Documentação atualizada
 ```
 
@@ -101,7 +101,7 @@ gacpac-ti/
 - [ ] 2.5 - Remover containers Docker desnecessários
 
 ### Fase 3: Reorganização (2h)
-- [ ] 3.1 - Mover conteúdo de `backend/*` para raiz do projeto
+- [ ] 3.1 - Mover conteúdo de `*` para raiz do projeto
 - [ ] 3.2 - Atualizar `docker-compose.yml` para nova estrutura
 - [ ] 3.3 - Ajustar volumes no Docker (remover `./backend`)
 - [ ] 3.4 - Configurar portas de forma padronizada (PORTAS ALTAS para evitar conflitos):
@@ -221,7 +221,7 @@ volumes:
 | Risco | Probabilidade | Impacto | Mitigação |
 |-------|---------------|---------|-----------|
 | Perda de arquivos importantes | Média | Alto | Fazer backup completo antes de iniciar |
-| Quebra de paths em código | Alta | Médio | Fazer busca global por `backend/` no código |
+| Quebra de paths em código | Alta | Médio | Fazer busca global por `` no código |
 | Containers não sobem | Baixa | Alto | Testar em ambiente local isolado primeiro |
 | Conflito de portas | Média | Baixo | Mapear portas em uso antes de configurar |
 | Variáveis de ambiente perdidas | Baixa | Médio | Documentar todas as variáveis antes |
@@ -230,7 +230,7 @@ volumes:
 
 ## 🎯 Critérios de Aceitação
 
-1. ✅ Pasta `backend/` não existe mais
+1. ✅ Pasta `` não existe mais
 2. ✅ Todos os arquivos Laravel estão na raiz do projeto
 3. ✅ Não há resquícios da versão React
 4. ✅ `docker-compose up -d` sobe todos os containers sem erros

@@ -516,7 +516,7 @@ As seguintes tabelas possuem índices FULLTEXT para busca:
 
 ### Otimizações Implementadas
 
-1. **Connection Pool** - Pool de conexões MySQL configurado em `backend/config/database.js`
+1. **Connection Pool** - Pool de conexões MySQL configurado em `config/database.js`
 2. **Transações** - Operações críticas (cautelas, inventário) usam transações
 3. **Cascade Deletes** - Deleções em cascata para fotos e manutenções
 4. **Prevent Deletes** - RESTRICT em foreign keys críticas (user em custody)
@@ -529,7 +529,7 @@ As seguintes tabelas possuem índices FULLTEXT para busca:
 
 1. **Sempre consulte este documento** antes de fazer alterações no schema
 2. **Mantenha sincronizado** - Qualquer mudança no schema deve ser refletida aqui
-3. **Migrations** - O arquivo `backend/init.sql` é a fonte da verdade do schema
+3. **Migrations** - O arquivo `init.sql` é a fonte da verdade do schema
 4. **Types** - O arquivo `/types.ts` deve refletir as estruturas do banco
 
 ### Checklist de Desenvolvimento

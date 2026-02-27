@@ -20,7 +20,7 @@ command_exists() {
 # Logic to determine execution context
 if is_inside_docker || ! command_exists docker; then
     # We are inside the container or Docker is not available
-    # Assuming the script is run from the project root, we need to go into backend/
+    # Assuming the script is run from the project root, we need to go into 
     
     TARGET_DIR="backend"
     
@@ -29,7 +29,7 @@ if is_inside_docker || ! command_exists docker; then
          if [ -f "artisan" ]; then
             TARGET_DIR="."
          else
-            echo "Error: Could not find 'backend/' directory or 'artisan' file."
+            echo "Error: Could not find 'artisan' file."
             exit 1
          fi
     fi

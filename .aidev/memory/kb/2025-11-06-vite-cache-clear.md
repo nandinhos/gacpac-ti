@@ -98,7 +98,7 @@ Limpeza completa do cache força regeneração dos assets com novo hash.
 
 ### Validação
 - [ ] Teste adicionado/atualizado
-- [x] Comando de verificação: `ls -la backend/public/build/`
+- [x] Comando de verificação: `ls -la public/build/`
 
 ---
 

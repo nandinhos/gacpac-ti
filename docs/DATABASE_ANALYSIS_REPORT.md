@@ -21,10 +21,10 @@ O schema do banco de dados está corretamente implementado e sincronizado com os
 ### Arquivos Verificados
 
 1. **Backend**
-   - `/backend/init.sql` - Schema MySQL (207 linhas)
-   - `/backend/config/database.js` - Configuração de conexão
-   - `/backend/routes/*.js` - 6 arquivos de rotas (assets, custody, dashboard, inventory, sectors, users)
-   - `/backend/server.js` - Servidor Express
+   - `/init.sql` - Schema MySQL (207 linhas)
+   - `/config/database.js` - Configuração de conexão
+   - `/routes/*.js` - 6 arquivos de rotas (assets, custody, dashboard, inventory, sectors, users)
+   - `/server.js` - Servidor Express
 
 2. **Frontend**
    - `/types.ts` - Definições TypeScript (152 linhas)
@@ -199,7 +199,7 @@ Todos os tipos são apropriados:
 
 3. **Uploads de arquivos**
    - Sistema de upload implementado com Multer
-   - Arquivos armazenados em `/backend/uploads/`
+   - Arquivos armazenados em `/uploads/`
    - **Status:** ✅ Funcionando
 
 ### Recomendações

@@ -95,7 +95,7 @@ npm run dev
 
 ```
 /
-├── backend/                 # API Express + MySQL
+├──                  # API Express + MySQL
 │   ├── config/             # Configurações
 │   ├── routes/             # Rotas da API
 │   ├── uploads/            # Arquivos enviados

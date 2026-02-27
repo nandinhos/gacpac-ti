@@ -47,10 +47,10 @@ Nome único e padronizado: SGTI-GAC (Sistema de Gestão de TI do GAC-PAC)
 
 ### Correção Aplicada
 ```php
-// backend/.env
+// .env
 APP_NAME="SGTI-GAC"
 
-// backend/.env.example
+// .env.example
 APP_NAME="SGTI-GAC"
 ```
 
@@ -73,7 +73,7 @@ Centralização da configuração no .env permite mudanças rápidas e consisten
 
 ### Validação
 - [x] Teste adicionado/atualizado
-- [x] Comando de verificação: `grep -r "SGAITI-UM" backend/`
+- [x] Comando de verificação: `grep -r "SGAITI-UM" `
 
 ---
 
