@@ -1,0 +1,1 @@
+preview-<?php echo e($idx); ?><?php /**PATH /var/www/html/storage/framework/views/1fb778c4caa74489a08ed506eaeea5a9.blade.php ENDPATH**/ ?>

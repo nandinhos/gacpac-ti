@@ -12,7 +12,7 @@ dist
 dist-ssr
 *.local
 
-# Editor directories and files
+# IDE/Editor directories and files
 .vscode/*
 !.vscode/extensions.json
 .idea
@@ -22,17 +22,36 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+.nova
+.fleet
+.zed
+.phpunit.cache
 
 # Environment files
 .env
+.env.backup
+.env.production
 *.env
 backend/.env
 
 # IDE/editor local configs
-.deepvcode/
+.deepvode/
 
 # Accidental flags file
 --yes
+
+# Laravel
+/vendor/
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/storage/pail
+auth.json
+Homestead.json
+Homestead.yaml
+.phpactor.json
+.phpunit.result.cache
 
 # Framework/generated runtime data
 backend/storage/
@@ -49,3 +68,6 @@ project-docs/*.tmp
 
 # AI Dev State (keep folders but ignore backups)
 .aidev/backups/
+
+# Thumbs.db
+Thumbs.db

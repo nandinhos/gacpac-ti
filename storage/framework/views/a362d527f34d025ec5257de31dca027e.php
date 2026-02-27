@@ -1,0 +1,1 @@
+record-<?php echo e($record->id); ?><?php /**PATH /var/www/html/storage/framework/views/6dd523bc71181191686fbb37f085d8e7.blade.php ENDPATH**/ ?>

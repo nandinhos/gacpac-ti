@@ -1,0 +1,1 @@
+category-row-{{ $category->id }}

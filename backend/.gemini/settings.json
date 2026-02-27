@@ -1,8 +1,0 @@
-{
-  "mcpServers": {
-    "laravel-boost": {
-      "command": "/home/nandodev/projects/gacpac-ti/scripts/boost-mcp.sh",
-      "args": []
-    }
-  }
-}
