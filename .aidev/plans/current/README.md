@@ -37,10 +37,24 @@ Quando uma sprint for concluída:
 ## 📊 Status
 
 - **Sprint atual:** Nenhuma
-- **Última sprint concluída:** Sprint 10 (Interface Admin/Users - 14/02/2026)
+- **Última sprint concluída:** Sprint 11 (Refatoração Estrutura - 27/02/2026)
 - **Próxima sprint:** A definir
 - **Progresso:** 0%
 
 ---
 
-*Última atualização: 2026-02-14*
+## ✅ Sprint 11 Concluída
+
+**Data:** 27/02/2026
+**Objetivo:** Reorganização da estrutura do projeto (backend/ → raiz)
+
+**Alterações realizadas:**
+- Move conteúdo de `backend/` para raiz do projeto
+- Consolida arquivos `.env` e `.gitignore`
+- Atualiza `docker-compose.yml` com portas altas (8900, 54320, 8950)
+- Cria link simbólico para storage
+- Aplica refatoração sem quebra de funcionalidades
+
+---
+
+*Última atualização: 2026-02-27*

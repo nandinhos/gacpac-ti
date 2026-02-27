@@ -1,10 +1,13 @@
 {
-  "current_fase": "3",
+  "current_fase": "4",
   "current_sprint": "completed",
   "current_platform": "antigravity",
   "current_stack": "generic",
   "language": "pt-BR",
   "maturity": "brownfield",
   "style": "",
-  "initialized_at": "2026-02-05T23:22:08-03:00"
+  "initialized_at": "2026-02-05T23:22:08-03:00",
+  "last_completed_sprint": "11",
+  "last_completed_sprint_date": "2026-02-27",
+  "sprint_11_summary": "Reorganização da estrutura do projeto (backend/ para raiz)"
 }
