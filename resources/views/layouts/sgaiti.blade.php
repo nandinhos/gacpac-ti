@@ -29,17 +29,14 @@
       }">
     <div class="flex min-h-screen">
         <!-- Sidebar para Desktop -->
-        <div class="hidden md:flex md:flex-col md:fixed md:inset-y-0 transition-all duration-300 ease-in-out bg-white border-r border-gray-200 shadow-sm z-30"
+        <div class="hidden md:flex md:flex-col md:fixed md:inset-y-0 bg-white border-r border-gray-200 shadow-sm z-30"
              :class="collapsed ? 'w-20' : 'w-64'">
             
             <!-- Logo -->
             <div class="flex items-center flex-shrink-0 h-16 px-4 bg-white border-b border-gray-200 overflow-hidden" :class="collapsed ? 'justify-center' : ''">
-                <x-application-logo class="w-auto h-8 text-fab-blue transition-all duration-300 flex-shrink-0" />
-                <span class="ml-3 text-lg font-bold text-gray-900 tracking-tight whitespace-nowrap overflow-hidden transition-all duration-300"
-                      x-show="!collapsed" 
-                      x-transition:enter="transition ease-out duration-100"
-                      x-transition:enter-start="opacity-0 transform -translate-x-2"
-                      x-transition:enter-end="opacity-100 transform translate-x-0">
+                <x-application-logo class="w-auto h-8 text-fab-blue flex-shrink-0" />
+                <span class="ml-3 text-lg font-bold text-gray-900 tracking-tight whitespace-nowrap overflow-hidden"
+                      x-show="!collapsed">
                     SGTI-GAC
                 </span>
             </div>
@@ -75,25 +72,22 @@
                     @foreach($navGroups as $groupName => $items)
                         <div class="space-y-1">
                             {{-- Group Header --}}
-                            <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider transition-opacity duration-300"
-                                x-show="!collapsed"
-                                x-transition:enter="transition ease-out duration-100 delay-100"
-                                x-transition:enter-start="opacity-0"
-                                x-transition:enter-end="opacity-100">
+                            <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider"
+                                x-show="!collapsed">
                                 {{ $groupName }}
                             </h3>
                             <div class="h-px bg-gray-200 mx-3 my-2" x-show="collapsed"></div> {{-- Separator for collapsed --}}
 
                             @foreach($items as $item)
                                 <a href="{{ Route::has($item['route']) ? route($item['route']) : '#' }}" 
-                                   class="group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 
+                                   class="group flex items-center px-3 py-2 text-sm font-medium rounded-md 
                                           {{ request()->routeIs($item['route'] . '*') 
                                               ? 'bg-fab-blue text-white shadow-md' 
                                               : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 hover:shadow-sm' }}"
                                    :class="collapsed ? 'justify-center' : ''"
                                    title="{{ $item['name'] }}">
                                     
-                                    <svg class="flex-shrink-0 w-6 h-6 transition-colors duration-200
+                                    <svg class="flex-shrink-0 w-6 h-6
                                                 {{ request()->routeIs($item['route'] . '*') 
                                                     ? 'text-white' 
                                                     : 'text-gray-400 group-hover:text-gray-600' }}"
@@ -101,11 +95,8 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $item['icon'] }}" />
                                     </svg>
                                     
-                                    <span class="ml-3 whitespace-nowrap overflow-hidden transition-all duration-300"
-                                          x-show="!collapsed"
-                                          x-transition:enter="transition ease-out duration-100"
-                                          x-transition:enter-start="opacity-0 w-0"
-                                          x-transition:enter-end="opacity-100 w-auto">
+                                    <span class="ml-3 whitespace-nowrap overflow-hidden"
+                                          x-show="!collapsed">
                                         {{ $item['name'] }}
                                     </span>
                                 </a>
@@ -118,8 +109,8 @@
             <!-- Toggle Button -->
             <div class="p-4 border-t border-gray-200">
                  <button @click="toggleCollapse()" 
-                         class="w-full flex items-center justify-center p-2 rounded-md hover:bg-gray-100 text-gray-500 hover:text-gray-900 transition-colors focus:outline-none">
-                     <svg class="w-6 h-6 transform transition-transform duration-300" 
+                         class="w-full flex items-center justify-center p-2 rounded-md hover:bg-gray-100 text-gray-500 hover:text-gray-900 focus:outline-none">
+                     <svg class="w-6 h-6" 
                           :class="collapsed ? 'rotate-180' : ''"
                           fill="none" viewBox="0 0 24 24" stroke="currentColor">
                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
@@ -191,7 +182,7 @@
         </div>
 
         <!-- Main content -->
-        <div class="flex flex-col flex-1 transition-all duration-300 ease-in-out" 
+        <div class="flex flex-col flex-1" 
              :class="collapsed ? 'md:pl-20' : 'md:pl-64'">
             <!-- Top navigation -->
             <div class="sticky top-0 z-10 flex flex-shrink-0 h-16 bg-white shadow">
