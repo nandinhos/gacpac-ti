@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('health', function () {
@@ -14,46 +15,44 @@ Route::name('api.')->middleware(['auth:sanctum', 'throttle:api'])->group(functio
 
     // Auth management
     Route::post('logout', [App\Http\Controllers\AuthController::class, 'logout']);
-    Route::get('me', [App\Http\Controllers\AuthController::class, 'me']);
+    Route::get('me', function (Request $request) {
+        return new App\Http\Resources\UserResource($request->user()->load('sector'));
+    })->name('me');
 
-    // Dashboard routes (all authenticated users)
-    Route::get('dashboard/stats', [App\Http\Controllers\DashboardController::class, 'getStats'])->name('dashboard.stats');
+    // Assets
+    Route::apiResource('assets', App\Http\Controllers\AssetController::class);
+    Route::get('assets/qr/{qrCode}', [App\Http\Controllers\AssetController::class, 'getByQrCode'])->name('assets.by-qr');
+    Route::get('assets/utils/next-qr-code', [App\Http\Controllers\AssetController::class, 'nextQrCode'])->name('assets.next-qr');
 
-    // Custody routes (all authenticated users can view, based on role)
-    Route::get('custody', [App\Http\Controllers\CustodyLogController::class, 'index'])->name('custody.index');
-    Route::get('custody/{id}', [App\Http\Controllers\CustodyLogController::class, 'show'])->name('custody.show');
-
-    // Admin and Commission routes
-    // Sectors routes
+    // Sectors
     Route::apiResource('sectors', App\Http\Controllers\SectorController::class);
 
-    // Users routes - TODO: Criar UserController
-    // Route::apiResource('users', App\Http\Controllers\UserController::class);
-    // Route::get('users/active', [App\Http\Controllers\UserController::class, 'getActiveUsers'])->name('users.active');
-    // Route::get('users/sector/{sectorId}', [App\Http\Controllers\UserController::class, 'getUsersBySector'])->name('users.sector');
+    // Categories
+    Route::apiResource('categories', App\Http\Controllers\CategoryController::class);
 
-    // Assets routes
-    Route::apiResource('assets', App\Http\Controllers\AssetController::class);
-    Route::get('assets/qr/{qrCode}', [App\Http\Controllers\AssetController::class, 'getByQrCode'])->name('assets.qr');
-    Route::get('assets/utils/next-qr-code', [App\Http\Controllers\AssetController::class, 'getNextQrCode'])->name('assets.next-qr');
-    Route::post('assets/{assetId}/photos', [App\Http\Controllers\AssetController::class, 'addPhoto'])->name('assets.photos.add');
-    Route::delete('assets/{assetId}/photos/{photoId}', [App\Http\Controllers\AssetController::class, 'deletePhoto'])->name('assets.photos.delete');
-    Route::post('assets/{assetId}/maintenance', [App\Http\Controllers\AssetController::class, 'addMaintenance'])->name('assets.maintenance.add');
-    Route::delete('assets/{assetId}/maintenance/{maintenanceId}', [App\Http\Controllers\AssetController::class, 'deleteMaintenance'])->name('assets.maintenance.delete');
+    // Users
+    Route::apiResource('users', App\Http\Controllers\UserController::class);
+    Route::get('users/active', [App\Http\Controllers\UserController::class, 'active'])->name('users.active');
+    Route::get('users/sector/{sectorId}', [App\Http\Controllers\UserController::class, 'bySector'])->name('users.by-sector');
 
-    // Custody management routes
-    Route::post('custody', [App\Http\Controllers\CustodyLogController::class, 'store'])->name('custody.store');
-    Route::put('custody/{id}', [App\Http\Controllers\CustodyLogController::class, 'update'])->name('custody.update');
-    Route::delete('custody/{id}', [App\Http\Controllers\CustodyLogController::class, 'destroy'])->name('custody.delete');
-    Route::get('custody/next-number', [App\Http\Controllers\CustodyLogController::class, 'getNextNumber'])->name('custody.next-number');
-    Route::put('custody/{custody}/checkin', [App\Http\Controllers\CustodyLogController::class, 'checkin'])->name('custody.checkin');
-    Route::get('custody-reports', [App\Http\Controllers\CustodyLogController::class, 'reports'])->name('custody.reports');
+    // Maintenance (nested resource)
+    Route::apiResource('assets/{asset}/maintenance', App\Http\Controllers\MaintenanceController::class)
+        ->parameters(['maintenance' => 'maintenanceRecord']);
+    Route::get('maintenance/upcoming', [App\Http\Controllers\MaintenanceController::class, 'upcoming'])->name('maintenance.upcoming');
 
-    // Inventory routes (Commission and Admin)
+    // Custody
+    Route::apiResource('custody', App\Http\Controllers\CustodyLogController::class);
+    Route::put('custody/{custodyLog}/checkin', [App\Http\Controllers\CustodyLogController::class, 'checkin'])->name('custody.checkin');
+    Route::get('custody/utils/next-number', [App\Http\Controllers\CustodyLogController::class, 'nextNumber'])->name('custody.next-number');
+
+    // Inventory
     Route::apiResource('inventory', App\Http\Controllers\InventoryRecordController::class);
-    Route::post('inventory/{id}/found', [App\Http\Controllers\InventoryRecordController::class, 'addFoundItem'])->name('inventory.found');
-    Route::post('inventory/{id}/uncatalogued', [App\Http\Controllers\InventoryRecordController::class, 'addUncataloguedItem'])->name('inventory.uncatalogued');
-    Route::put('inventory/{id}/complete', [App\Http\Controllers\InventoryRecordController::class, 'complete'])->name('inventory.complete');
-    Route::post('inventory/{id}/reopen', [App\Http\Controllers\InventoryRecordController::class, 'reopen'])->name('inventory.reopen');
-    Route::delete('inventory/{id}/uncatalogued/{uncataloguedId}', [App\Http\Controllers\InventoryRecordController::class, 'deleteUncataloguedItem'])->name('inventory.uncatalogued.delete');
+    Route::put('inventory/{inventoryRecord}/complete', [App\Http\Controllers\InventoryRecordController::class, 'complete'])->name('inventory.complete');
+    Route::put('inventory/{inventoryRecord}/reopen', [App\Http\Controllers\InventoryRecordController::class, 'reopen'])->name('inventory.reopen');
+
+    // Notifications
+    Route::get('notifications', [App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('notifications/unread-count', [App\Http\Controllers\NotificationController::class, 'unreadCount'])->name('notifications.unread-count');
+    Route::patch('notifications/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::patch('notifications/read-all', [App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
 });

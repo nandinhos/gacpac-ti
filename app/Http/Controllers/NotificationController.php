@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\NotificationResource;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
 
 class NotificationController extends Controller
@@ -10,7 +13,7 @@ class NotificationController extends Controller
     /**
      * Get user's notifications
      */
-    public function index(Request $request)
+    public function index(Request $request): AnonymousResourceCollection
     {
         $user = Auth::user();
 
@@ -31,36 +34,18 @@ class NotificationController extends Controller
         }
 
         $notifications = $query->orderBy('created_at', 'desc')
-                               ->paginate(20);
+                               ->paginate($request->get('per_page', 20));
 
-        // Transform notifications to include formatted data
-        $transformedNotifications = $notifications->getCollection()->map(function ($notification) {
-            $data = $notification->data;
-            $data['id'] = $notification->id;
-            $data['read'] = !is_null($notification->read_at);
-            $data['created_at'] = $notification->created_at;
-            $data['timeAgo'] = $notification->created_at->diffForHumans();
-            return $data;
-        });
-
-        return response()->json([
-            'notifications' => $transformedNotifications,
-            'pagination' => [
-                'current_page' => $notifications->currentPage(),
-                'last_page' => $notifications->lastPage(),
-                'per_page' => $notifications->perPage(),
-                'total' => $notifications->total(),
-            ]
-        ]);
+        return NotificationResource::collection($notifications);
     }
 
     /**
      * Mark notification as read
      */
-    public function markAsRead(Request $request, $notificationId)
+    public function markAsRead(string $id): JsonResponse
     {
         $user = Auth::user();
-        $notification = $user->notifications()->findOrFail($notificationId);
+        $notification = $user->notifications()->findOrFail($id);
 
         $notification->markAsRead();
 
@@ -70,7 +55,7 @@ class NotificationController extends Controller
     /**
      * Mark all notifications as read
      */
-    public function markAllAsRead(Request $request)
+    public function markAllAsRead(): JsonResponse
     {
         $user = Auth::user();
         $user->unreadNotifications->markAsRead();
@@ -81,7 +66,7 @@ class NotificationController extends Controller
     /**
      * Get unread count
      */
-    public function unreadCount(Request $request)
+    public function unreadCount(): JsonResponse
     {
         $user = Auth::user();
         $count = $user->unreadNotifications->count();

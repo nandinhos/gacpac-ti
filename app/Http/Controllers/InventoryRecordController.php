@@ -2,179 +2,58 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Notification;
+use App\Http\Resources\InventoryRecordResource;
 use App\Models\InventoryRecord;
-use App\Models\User;
-use App\Models\Asset;
-use App\Models\Inventory;
-use App\Http\Requests\StoreInventoryRecordRequest;
-use App\Notifications\InventoryAssignedNotification;
+use App\Services\InventoryService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class InventoryRecordController extends Controller
 {
-    public function index(Request $request)
+    public function __construct(private readonly InventoryService $service) {}
+
+    public function index(Request $request): AnonymousResourceCollection
     {
-        $query = InventoryRecord::query();
-        if ($request->has('status')) {
-            $query->where('status', $request->status);
-        }
-        if ($request->has('sectorId')) {
-            $query->where('sector_id', $request->sectorId);
-        }
+        $this->authorize('inventory.view');
         
-        // Carregar relacionamentos necessários
-        return $query->with([
-            'responsibleUser:id,name,rank,military_id,is_active',
-            'sector:id,name',
-            'inventoryAssets.asset:id,name,qr_code,serial_number,patrimony_id',
-            'uncataloguedItems'
-        ])->get();
+        $records = $this->service->list($request->only(['sector_id', 'status', 'per_page']));
+        return InventoryRecordResource::collection($records);
     }
 
-    public function store(StoreInventoryRecordRequest $request)
+    public function store(Request $request): InventoryRecordResource
     {
-        try {
-            $inventory = InventoryRecord::create($request->validated());
+        $this->authorize('inventory.create');
 
-            // Notificar comissão responsável sobre inventário atribuído
-            if ($inventory->responsible_user_id) {
-                $responsibleUser = User::find($inventory->responsible_user_id);
-                if ($responsibleUser) {
-                    $responsibleUser->notify(new InventoryAssignedNotification($inventory));
-                }
-            }
-
-            return response()->json([
-                'message' => 'Inventário criado com sucesso',
-                'data' => $inventory
-            ], 201);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Erro ao criar inventário',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-    public function show(InventoryRecord $inventory)
-    {
-        return $inventory->load([
-            'inventoryAssets.asset:id,name,qr_code,serial_number,patrimony_id,manufacturer,model,category,status', 
-            'uncataloguedItems',
-            'responsibleUser:id,name,rank,military_id,is_active',
-            'sector:id,name'
+        $validated = $request->validate([
+            'sector_id' => ['required', 'exists:sectors,id'],
+            'description' => ['required', 'string'],
         ]);
+
+        $validated['user_id'] = auth()->id();
+        $validated['status'] = 'open';
+
+        return new InventoryRecordResource($this->service->create($validated));
     }
 
-    public function update(Request $request, InventoryRecord $inventory)
+    public function show(InventoryRecord $inventoryRecord): InventoryRecordResource
     {
-        try {
-            // Validar dados básicos
-            $data = $request->validate([
-                'status' => 'nullable|string|in:Em Andamento,Concluído,Reaberto',
-                'notes' => 'nullable|string|max:2000',
-                'end_date' => 'nullable|date',
-                'found_items' => 'nullable|array',
-                'found_items.*.asset_id' => 'required|integer|exists:assets,id',
-                'found_items.*.observation' => 'nullable|string|max:500',
-                'uncatalogued_items' => 'nullable|array',
-                'uncatalogued_items.*' => 'string|max:255',
-            ]);
-
-            // Atualizar dados básicos do inventário
-            $inventory->update([
-                'status' => $data['status'] ?? $inventory->status,
-                'notes' => $data['notes'] ?? $inventory->notes,
-                'end_date' => $data['end_date'] ?? $inventory->end_date,
-            ]);
-
-            // Atualizar itens encontrados
-            if (isset($data['found_items'])) {
-                // Remover itens antigos
-                $inventory->inventoryAssets()->delete();
-                
-                // Adicionar novos itens
-                foreach ($data['found_items'] as $item) {
-                    $inventory->inventoryAssets()->create([
-                        'asset_id' => $item['asset_id'],
-                        'observation' => $item['observation'] ?? null,
-                        'found_at' => now(),
-                    ]);
-                }
-            }
-
-            // Atualizar itens não catalogados
-            if (isset($data['uncatalogued_items'])) {
-                // Remover itens antigos
-                $inventory->uncataloguedItems()->delete();
-                
-                // Adicionar novos itens
-                foreach ($data['uncatalogued_items'] as $description) {
-                    $inventory->uncataloguedItems()->create([
-                        'description' => $description,
-                        'found_at' => now(),
-                    ]);
-                }
-            }
-
-            return response()->json([
-                'message' => 'Inventário atualizado com sucesso',
-                'data' => $inventory->load(['inventoryAssets', 'uncataloguedItems'])
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Erro ao atualizar inventário',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        $this->authorize('inventory.view');
+        
+        return new InventoryRecordResource($inventoryRecord->load(['sector', 'user']));
     }
 
-    public function destroy(InventoryRecord $inventory)
+    public function complete(InventoryRecord $inventoryRecord): InventoryRecordResource
     {
-        $inventory->delete();
-        return response()->json(['message' => 'Deleted']);
+        $this->authorize('inventory.approve'); // Ou permissão específica para fechar
+        
+        return new InventoryRecordResource($this->service->complete($inventoryRecord));
     }
 
-    public function addFoundItem($id, Request $request)
+    public function reopen(InventoryRecord $inventoryRecord): InventoryRecordResource
     {
-        $inventory = InventoryRecord::findOrFail($id);
-        $inventory->inventoryAssets()->create($request->all());
-        return $inventory->load('inventoryAssets');
-    }
-
-    public function addUncataloguedItem($id, Request $request)
-    {
-        $inventory = InventoryRecord::findOrFail($id);
-        $inventory->uncataloguedItems()->create($request->all());
-        return $inventory->load('uncataloguedItems');
-    }
-
-    public function complete($id, Request $request)
-    {
-        $inventory = InventoryRecord::findOrFail($id);
-        $inventory->status = 'completed';
-        $inventory->end_date = $request->input('endDate');
-        $inventory->save();
-        return $inventory;
-    }
-
-    public function reopen($id, Request $request)
-    {
-        $inventory = InventoryRecord::findOrFail($id);
-        $inventory->status = 'Reaberto';
-        $inventory->end_date = null; // Remover data de conclusão
-        $inventory->save();
-        return response()->json([
-            'message' => 'Inventário reaberto com sucesso',
-            'data' => $inventory
-        ]);
-    }
-
-    public function deleteUncataloguedItem($id, $uncataloguedId)
-    {
-        $inventory = InventoryRecord::findOrFail($id);
-        $inventory->uncataloguedItems()->where('id', $uncataloguedId)->delete();
-        return response()->json(['message' => 'Deleted']);
+        $this->authorize('inventory.approve');
+        
+        return new InventoryRecordResource($this->service->reopen($inventoryRecord));
     }
 }

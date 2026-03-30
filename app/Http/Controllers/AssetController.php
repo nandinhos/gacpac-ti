@@ -2,330 +2,85 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Notification;
+use App\Http\Resources\AssetResource;
 use App\Models\Asset;
-use App\Models\User;
-use App\Http\Requests\StoreAssetRequest;
-use App\Http\Requests\UpdateAssetRequest;
-use App\Notifications\AssetCreatedNotification;
+use App\Services\AssetService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class AssetController extends Controller
 {
-    public function index(Request $request)
+    public function __construct(private readonly AssetService $service) {}
+
+    public function index(Request $request): AnonymousResourceCollection
     {
-        $query = Asset::query();
-        if ($request->has('category')) {
-            $query->where('category', $request->category);
-        }
-        if ($request->has('status')) {
-            $query->where('status', $request->status);
-        }
-        if ($request->has('sectorId')) {
-            $query->where('sector_id', $request->sectorId);
-        }
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('brand', 'like', "%{$search}%")
-                  ->orWhere('model', 'like', "%{$search}%")
-                  ->orWhere('serial_number', 'like', "%{$search}%")
-                  ->orWhere('qr_code', 'like', "%{$search}%");
-            });
-        }
-        return $query->with(['sector', 'custodian'])->get();
+        $this->authorize('assets.view');
+        
+        $assets = $this->service->list($request->only(['category_id', 'sector_id', 'search', 'per_page']));
+        return AssetResource::collection($assets);
     }
 
-    public function store(Request $request)
+    public function store(Request $request): AssetResource
     {
-        $request->validate([
-            'brand' => 'required|string|max:255',
-            'type' => 'required|string',
-            'category' => 'required|string',
-            'serial_number' => 'nullable|string|unique:assets',
-            'status' => 'required|string',
-            'condition' => 'required|string',
-            'sector_id' => 'required|exists:sectors,id',
+        $this->authorize('assets.create');
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'model' => ['nullable', 'string', 'max:255'],
+            'brand' => ['nullable', 'string', 'max:255'],
+            'serial_number' => ['nullable', 'string', 'unique:assets,serial_number'],
+            'category_id' => ['required', 'exists:categories,id'],
+            'sector_id' => ['required', 'exists:sectors,id'],
+            'status' => ['required', 'string'],
         ]);
 
-        try {
-            // COMPATIBILIDADE TOTAL: Aceita AMBOS os formatos
-            $data = $request->only([
-                // Campos NOVOS + ANTIGOS + COMUNS
-                'brand', 'manufacturer', 'type', 'condition', 'condition_rating',
-                'patrimony_number', 'patrimony_id', 'purchase_value', 'purchase_price',
-                'qr_code', 'name', 'model', 'category', 'subcategory', 'description',
-                'status', 'sector_id', 'acquisition_date', 'warranty_expiry', 
-                'notes', 'serial_number', 'location', 'custodian_user_id',
-                'conta', 'categoria_inventario', 'bmp', 'componente', 'situacao',
-                'qtd', 'valor_atualizado', 'deprec_acumulada', 'valor_liquido'
-            ]);
-            
-            // MAPEAMENTO INTELIGENTE
-            if (isset($data['manufacturer']) && !isset($data['brand'])) {
-                $data['brand'] = $data['manufacturer'];
-            }
-            
-            if (isset($data['condition_rating']) && !isset($data['condition'])) {
-                $data['condition'] = $this->mapConditionRatingToString($data['condition_rating']);
-            }
-            
-            if (isset($data['patrimony_id']) && !isset($data['patrimony_number'])) {
-                $data['patrimony_number'] = $data['patrimony_id'];
-            }
-            
-            if (isset($data['purchase_price']) && !isset($data['purchase_value'])) {
-                $data['purchase_value'] = $data['purchase_price'];
-            }
-            
-            // FALLBACKS obrigatórios
-            if (!isset($data['qr_code'])) {
-                $lastAsset = Asset::orderBy('id', 'desc')->first();
-                $nextNumber = $lastAsset ? ($lastAsset->id + 1) : 1;
-                $data['qr_code'] = 'SGTI-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
-            }
-            
-            if (!isset($data['name'])) {
-                $data['name'] = trim(($data['brand'] ?? $data['manufacturer'] ?? '') . ' ' . ($data['model'] ?? ''));
-            }
-            
-            if (!isset($data['type'])) {
-                $data['type'] = $this->inferTypeFromCategory($data['category'] ?? 'OUTROS');
-            }
-            
-            $asset = Asset::create($data);
-
-            // Limpar cache do dashboard após criação
-            Cache::forget('dashboard_stats');
-
-            // Notificar almoxarifado/admin sobre novo ativo
-            // Usando scope role() do Spatie Permission
-            $adminUsers = User::role(['admin', 'commission'])->get(); // Updated query
-            Notification::send($adminUsers, new AssetCreatedNotification($asset));
-
-            return response()->json([
-                'message' => 'Ativo criado com sucesso',
-                'data' => $asset
-            ], 201);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Erro ao criar ativo',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        return new AssetResource($this->service->create($validated));
     }
 
-    public function show(Asset $asset)
+    public function show(Asset $asset): AssetResource
     {
-    // Carregar relações com eager loading
-    $asset->load(['sector', 'custodian', 'photos', 'maintenanceRecords']);
-
-    return $asset;
+        $this->authorize('assets.view');
+        
+        return new AssetResource($asset->load(['category', 'sector']));
     }
 
-    public function update(Request $request, Asset $asset)
+    public function update(Request $request, Asset $asset): AssetResource
     {
-        $request->validate([
-            'brand' => 'sometimes|required|string|max:255',
-            'type' => 'sometimes|required|string',
-            'category' => 'sometimes|required|string',
-            'serial_number' => 'sometimes|nullable|string|unique:assets,serial_number,' . $asset->id,
-            'status' => 'sometimes|required|string',
-            'condition' => 'sometimes|required|string',
-            'sector_id' => 'sometimes|required|exists:sectors,id',
+        $this->authorize('assets.edit');
+
+        $validated = $request->validate([
+            'name' => ['sometimes', 'string', 'max:255'],
+            'model' => ['nullable', 'string', 'max:255'],
+            'brand' => ['nullable', 'string', 'max:255'],
+            'serial_number' => ['nullable', 'string', 'unique:assets,serial_number,' . $asset->id],
+            'category_id' => ['sometimes', 'exists:categories,id'],
+            'sector_id' => ['sometimes', 'exists:sectors,id'],
+            'status' => ['sometimes', 'string'],
         ]);
 
-        try {
-            // COMPATIBILIDADE TOTAL: Aceita AMBOS os formatos (antigo + novo)
-            $data = $request->only([
-                // Campos NOVOS (preferidos pelo backend)
-                'brand', 'type', 'condition', 'patrimony_number', 'purchase_value',
-                
-                // Campos ANTIGOS (compatibilidade com frontend atual)
-                'manufacturer', 'condition_rating', 'patrimony_id', 'purchase_price',
-                
-                // Campos COMUNS (sempre aceitos)
-                'qr_code', 'name', 'model', 'category', 'subcategory', 'description',
-                'status', 'sector_id', 'acquisition_date', 'warranty_expiry', 
-                'notes', 'serial_number', 'location', 'custodian_user_id',
-                
-                // Campos de inventário
-                'conta', 'categoria_inventario', 'bmp', 'componente', 'situacao',
-                'qtd', 'valor_atualizado', 'deprec_acumulada', 'valor_liquido'
-            ]);
-            
-            // MAPEAMENTO INTELIGENTE: Campos antigos → novos (se não existir novo)
-            if (isset($data['manufacturer']) && !isset($data['brand'])) {
-                $data['brand'] = $data['manufacturer'];
-            }
-            
-            if (isset($data['condition_rating']) && !isset($data['condition'])) {
-                $data['condition'] = $this->mapConditionRatingToString($data['condition_rating']);
-            }
-            
-            if (isset($data['patrimony_id']) && !isset($data['patrimony_number'])) {
-                $data['patrimony_number'] = $data['patrimony_id'];
-            }
-            
-            if (isset($data['purchase_price']) && !isset($data['purchase_value'])) {
-                $data['purchase_value'] = $data['purchase_price'];
-            }
-            
-            // FALLBACK para campo type obrigatório
-            if (!isset($data['type'])) {
-                $data['type'] = $this->inferTypeFromCategory($data['category'] ?? 'OUTROS');
-            }
-            
-            $asset->update($data);
-            $asset->refresh();
-
-            // Limpar cache do dashboard após atualização
-            Cache::forget('dashboard_stats');
-
-            return response()->json([
-                'message' => 'Ativo atualizado com sucesso',
-                'data' => $asset
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Erro ao atualizar ativo',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        return new AssetResource($this->service->update($asset, $validated));
     }
 
-    /**
-     * Mapear condition_rating (número) para condition (string)
-     */
-    private function mapConditionRatingToString($rating)
+    public function destroy(Asset $asset): JsonResponse
     {
-        switch ($rating) {
-            case 5: return 'NOVO';
-            case 4: return 'BOM';
-            case 3: return 'REGULAR';
-            case 2: return 'RUIM';
-            case 1: return 'INSERVIVEL';
-            default: return 'REGULAR';
-        }
-    }
-
-    /**
-     * Inferir type baseado na category
-     */
-    private function inferTypeFromCategory($category)
-    {
-        $categoryMap = [
-            'Computação' => 'COMPUTADOR',
-            'Periféricos' => 'TECLADO',
-            'Rede' => 'ROTEADOR',
-            'Comunicações' => 'TELEFONE',
-            'Audiovisual' => 'PROJETOR',
-            'Armazenamento' => 'HD_EXTERNO'
-        ];
+        $this->authorize('assets.delete');
         
-        return $categoryMap[$category] ?? 'OUTROS';
+        $this->service->delete($asset);
+        return response()->json(['message' => 'Ativo removido com sucesso.']);
     }
 
-    public function destroy(Asset $asset)
+    public function getByQrCode(string $qrCode): AssetResource
     {
-        $asset->delete();
-
-        // Limpar cache do dashboard após exclusão
-        Cache::forget('dashboard_stats');
-
-        return response()->json(['message' => 'Ativo excluído com sucesso']);
-    }
-
-    /**
-     * Add photo to asset
-     */
-    public function addPhoto(Request $request, $assetId)
-    {
-        try {
-            $request->validate([
-                'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:10240', // 10MB max
-                'caption' => 'nullable|string|max:255'
-            ]);
-
-            $asset = Asset::findOrFail($assetId);
-            
-            if ($request->hasFile('photo')) {
-                $photo = $request->file('photo');
-                $photoData = base64_encode(file_get_contents($photo->getPathname()));
-                $mimeType = $photo->getMimeType();
-                
-                $photoResponse = [
-                    'id' => uniqid(),
-                    'url' => "data:{$mimeType};base64,{$photoData}",
-                    'caption' => $request->input('caption', ''),
-                    'created_at' => now()->toISOString()
-                ];
-
-                // Armazenar foto no cache para persistir entre requests
-                $cacheKey = "asset_{$assetId}_photos";
-                $existingPhotos = cache()->get($cacheKey, []);
-                $existingPhotos[] = $photoResponse;
-                cache()->put($cacheKey, $existingPhotos, 3600); // Cache por 1 hora
-                
-                return response()->json($photoResponse, 201);
-            }
-
-            return response()->json(['error' => 'No photo uploaded'], 400);
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => 'Erro ao enviar foto: ' . $e->getMessage()
-            ], 500);
-        }
-    }
-
-    /**
-     * Delete photo from asset
-     */
-    public function deletePhoto($assetId, $photoId)
-    {
-        try {
-            // Remover foto do cache
-            $cacheKey = "asset_{$assetId}_photos";
-            $existingPhotos = cache()->get($cacheKey, []);
-            
-            // Filtrar para remover a foto com o ID especificado
-            $filteredPhotos = array_filter($existingPhotos, function($photo) use ($photoId) {
-                return $photo['id'] !== $photoId;
-            });
-            
-            // Reindexar o array
-            $filteredPhotos = array_values($filteredPhotos);
-            
-            // Atualizar cache
-            cache()->put($cacheKey, $filteredPhotos, 3600);
-            
-            return response()->json(['message' => 'Foto excluída com sucesso']);
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => 'Erro ao excluir foto: ' . $e->getMessage()
-            ], 500);
-        }
-    }
-
-    /**
-     * Get asset by QR Code
-     */
-    public function getByQrCode($qrCode)
-    {
-        $asset = Asset::where('qr_code', $qrCode)->firstOrFail();
-        return response()->json($asset);
-    }
-
-    /**
-     * Get the next available QR Code
-     */
-    public function getNextQrCode()
-    {
-        $lastAsset = Asset::orderBy('id', 'desc')->first();
-        $nextNumber = $lastAsset ? ($lastAsset->id + 1) : 1;
-        $qrCode = 'QR' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+        $this->authorize('assets.view');
         
-        return response()->json(['next_qr_code' => $qrCode]);
+        return new AssetResource($this->service->findByQrCode($qrCode));
+    }
+
+    public function nextQrCode(): JsonResponse
+    {
+        $this->authorize('assets.create');
+        
+        return response()->json(['qr_code' => $this->service->getNextQrCode()]);
     }
 }
