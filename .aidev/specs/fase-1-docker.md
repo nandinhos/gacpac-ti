@@ -1,7 +1,8 @@
 # SPEC — FASE 1: Docker e Infraestrutura
 **Status:** `[ ] Pendente`
+**Ambiente:** Laravel Sail (Docker) — o projeto usa `docker-compose.yml` customizado com serviço `laravel.test`.
 **Pré-requisito:** Fase 0 concluída.
-**Checkpoint:** `docker compose build` sem erros, container sobe e `curl -I http://localhost:8900` retorna `200 OK`.
+**Checkpoint:** `docker compose build` sem erros; container sobe e `curl -I http://localhost:8900` retorna `200 OK`.
 
 ---
 
@@ -16,6 +17,10 @@ Existem 3 problemas no `Dockerfile` e 1 conflito de versão:
 
 **Decisão de versão:** Atualizar `composer.json` para `^8.4` (o container já roda 8.4 com sucesso — é a versão de produção real).
 
+> [!IMPORTANT]
+> As edições dos arquivos `Dockerfile` e `composer.json` são feitas diretamente na máquina host (são arquivos do repositório).
+> O rebuild do container é feito via `./vendor/bin/sail build` ou `docker compose build`.
+
 ---
 
 ## Arquivos Afetados
@@ -29,7 +34,14 @@ Existem 3 problemas no `Dockerfile` e 1 conflito de versão:
 
 ## Ações Exatas
 
-### Passo 1 — Modificar `composer.json`
+### Passo 1 — Parar os containers antes de editar
+
+```bash
+# Na máquina host
+./vendor/bin/sail down
+```
+
+### Passo 2 — Modificar `composer.json`
 
 **Arquivo:** `/home/gacpac/gacpac-ti/composer.json`
 **Linha atual (12):**
@@ -41,7 +53,7 @@ Existem 3 problemas no `Dockerfile` e 1 conflito de versão:
 "php": "^8.4",
 ```
 
-### Passo 2 — Modificar `Dockerfile`
+### Passo 3 — Modificar `Dockerfile`
 
 **Arquivo:** `/home/gacpac/gacpac-ti/Dockerfile`
 
@@ -51,7 +63,7 @@ Existem 3 problemas no `Dockerfile` e 1 conflito de versão:
 +RUN npm run build
 ```
 
-**Alteração 2 — Remover COPY duplicado (linhas 68-74).**
+**Alteração 2 — Remover COPY duplicado e comentário duplicado (linhas 68–74).**
 
 Conteúdo atual:
 ```dockerfile
@@ -76,25 +88,38 @@ COPY docker/nginx-main.conf /etc/nginx/nginx.conf
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 ```
 
-### Passo 3 — Testar o Build
+### Passo 4 — Rebuild do container via Sail
 
 ```bash
-docker compose build --no-cache
+# Na máquina host — rebuild completo sem cache
+./vendor/bin/sail build --no-cache
 ```
 
-Deve completar sem erros. Verificar especialmente:
-- Etapa `npm run build` — deve compilar os assets
-- Etapa `composer install` — deve aceitar PHP 8.4
+> Se `sail build` não aceitar `--no-cache`, usar diretamente:
+> ```bash
+> docker compose build --no-cache
+> ```
 
-### Passo 4 — Testar o Container
+### Passo 5 — Subir os containers e verificar
 
 ```bash
-docker compose up -d
-sleep 5
+# Subir em background
+./vendor/bin/sail up -d
+
+# Aguardar o container estabilizar (PostgreSQL healthcheck pode levar alguns segundos)
+sleep 10
+
+# Verificar resposta da aplicação
 curl -I http://localhost:8900
 ```
 
-Resposta esperada: `HTTP/1.1 200 OK` ou redirect `301/302` para `/login`.
+Resposta esperada: `HTTP/1.1 200 OK` ou `HTTP/1.1 302 Found` (redirect para login).
+
+### Passo 6 — Verificar logs se houver erro
+
+```bash
+./vendor/bin/sail logs laravel.test
+```
 
 ---
 
@@ -104,7 +129,8 @@ Resposta esperada: `HTTP/1.1 200 OK` ou redirect `301/302` para `/login`.
 - [ ] `Dockerfile` linha 65: `RUN npm run build` (sem `#`)
 - [ ] `Dockerfile` sem COPY duplicado de `nginx.conf`
 - [ ] `Dockerfile` sem comentário `# Copy supervisor configuration` duplicado
-- [ ] `docker compose build --no-cache` retorna sucesso (exit code 0)
+- [ ] `./vendor/bin/sail build --no-cache` retorna exit code 0
+- [ ] `./vendor/bin/sail up -d` sobe sem erros
 - [ ] `curl -I http://localhost:8900` retorna `HTTP 200` ou `HTTP 302`
 
 ## Commit Esperado
@@ -114,7 +140,7 @@ fix(docker): alinha versao php, habilita build frontend e remove duplicatas
 
 - atualiza composer.json para php ^8.4 (alinhado com imagem do container)
 - descomenta RUN npm run build no Dockerfile
-- remove COPY duplicado de nginx.conf (linhas 71)
+- remove COPY duplicado de nginx.conf
 - remove comentario duplicado de supervisor
 ```
 
@@ -122,5 +148,6 @@ fix(docker): alinha versao php, habilita build frontend e remove duplicatas
 
 - ❌ Não alterar `docker-compose.yml` (está correto)
 - ❌ Não alterar configurações de serviços `pgsql` ou `pgadmin`
-- ❌ Não alterar nada em `app/`, `routes/`, `resources/` nesta fase
+- ❌ Não rodar `php` diretamente no host — toda verificação PHP usa `./vendor/bin/sail artisan`
 - ❌ Não rebaixar a imagem para `php:8.2` — a decisão é usar 8.4
+- ❌ Não alterar nada em `app/`, `routes/`, `resources/` nesta fase

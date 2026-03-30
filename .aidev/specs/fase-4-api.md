@@ -1,7 +1,20 @@
 # SPEC — FASE 4: API Completa (Finalização da Migração React → API+Livewire)
 **Status:** `[ ] Pendente`
+**Ambiente:** Laravel Sail (Docker) — todos os comandos PHP/Artisan rodam dentro do container.
 **Pré-requisito:** Fase 3 concluída (Services criados).
 **Checkpoint:** Todos os endpoints listados abaixo retornam `200 OK` com Bearer token válido.
+
+---
+
+## Referência Rápida de Comandos Sail
+
+```bash
+./vendor/bin/sail artisan [comando]             # Artisan dentro do container
+./vendor/bin/sail artisan test                  # Testes dentro do container
+./vendor/bin/sail artisan route:list            # Listar rotas dentro do container
+./vendor/bin/sail exec laravel.test [binário]   # Executar binários no container
+./vendor/bin/sail shell                         # Shell interativo no container
+```
 
 ---
 
@@ -37,9 +50,16 @@ O sistema foi migrado de React (que consumia a API) para Livewire. A API REST de
 
 ---
 
-## Contrato dos Endpoints
+## Pré-requisito: Sail rodando
 
-### Mapa de Rotas Final (após esta fase)
+```bash
+./vendor/bin/sail ps
+# Se não estiver: ./vendor/bin/sail up -d
+```
+
+---
+
+## Contrato dos Endpoints (Mapa de Rotas Final)
 
 ```
 GET    /api/health                              → status da aplicação (público)
@@ -47,21 +67,18 @@ POST   /api/login                               → autenticação (público)
 POST   /api/logout                              → logout (auth:sanctum)
 GET    /api/me                                  → usuário autenticado (auth:sanctum)
 
-GET    /api/dashboard/stats                     → estatísticas do dashboard
-
-GET    /api/assets                              → listar (paginado, filtros: sector_id, category_id, search)
+GET    /api/dashboard/stats                     → estatísticas
+GET    /api/assets                              → listar (paginado)
 POST   /api/assets                              → criar
 GET    /api/assets/{id}                         → detalhar
 PUT    /api/assets/{id}                         → atualizar
 DELETE /api/assets/{id}                         → excluir
-GET    /api/assets/qr/{qrCode}                  → buscar por QR code
-GET    /api/assets/utils/next-qr-code           → próximo QR code disponível
+GET    /api/assets/qr/{qrCode}                  → buscar por QR
+GET    /api/assets/utils/next-qr-code           → próximo QR
 POST   /api/assets/{id}/photos                  → adicionar foto
 DELETE /api/assets/{id}/photos/{photoId}        → remover foto
-POST   /api/assets/{id}/maintenance             → adicionar manutenção
-DELETE /api/assets/{id}/maintenance/{id}        → remover manutenção
 
-GET    /api/sectors                             → listar setores
+GET    /api/sectors                             → listar
 POST   /api/sectors                             → criar
 GET    /api/sectors/{id}                        → detalhar
 PUT    /api/sectors/{id}                        → atualizar
@@ -81,8 +98,8 @@ DELETE /api/users/{id}                          ← NOVO
 GET    /api/users/active                        ← NOVO
 GET    /api/users/sector/{sectorId}             ← NOVO
 
-GET    /api/assets/{assetId}/maintenance        ← NOVO (listar)
-POST   /api/assets/{assetId}/maintenance        ← NOVO (criar — unificar com rota existente)
+GET    /api/assets/{assetId}/maintenance        ← NOVO
+POST   /api/assets/{assetId}/maintenance        ← NOVO
 GET    /api/assets/{assetId}/maintenance/{id}   ← NOVO
 PUT    /api/assets/{assetId}/maintenance/{id}   ← NOVO
 DELETE /api/assets/{assetId}/maintenance/{id}   ← NOVO
@@ -93,19 +110,19 @@ GET    /api/custody/{id}                        → detalhar
 PUT    /api/custody/{id}                        → atualizar
 DELETE /api/custody/{id}                        → excluir
 PUT    /api/custody/{id}/checkin                → fazer check-in
-GET    /api/custody/next-number                 → próximo número de cautela
-GET    /api/custody-reports                     → relatórios de custódia
+GET    /api/custody/next-number                 → próximo número
+GET    /api/custody-reports                     → relatórios
 
 GET    /api/inventory                           → listar
 POST   /api/inventory                           → criar
 GET    /api/inventory/{id}                      → detalhar
 PUT    /api/inventory/{id}                      → atualizar
 DELETE /api/inventory/{id}                      → excluir
-POST   /api/inventory/{id}/found                → marcar item encontrado
-POST   /api/inventory/{id}/uncatalogued         → adicionar item não catalogado
-PUT    /api/inventory/{id}/complete             → completar inventário
-POST   /api/inventory/{id}/reopen              → reabrir inventário
-DELETE /api/inventory/{id}/uncatalogued/{uid}   → remover item não catalogado
+POST   /api/inventory/{id}/found                → item encontrado
+POST   /api/inventory/{id}/uncatalogued         → item não catalogado
+PUT    /api/inventory/{id}/complete             → completar
+POST   /api/inventory/{id}/reopen              → reabrir
+DELETE /api/inventory/{id}/uncatalogued/{uid}   → remover não catalogado
 
 GET    /api/notifications                       ← NOVO
 PATCH  /api/notifications/{id}/read             ← NOVO
@@ -184,7 +201,7 @@ class UserController extends Controller
 }
 ```
 
-## Padrão de Resource (seguir rigorosamente)
+## Padrão de Resource
 
 ```php
 <?php
@@ -211,7 +228,7 @@ class UserResource extends JsonResource
 }
 ```
 
-## Padrão de Teste (seguir rigorosamente)
+## Padrão de Teste
 
 ```php
 <?php
@@ -267,7 +284,7 @@ class UserControllerTest extends TestCase
 
 ## Registro de Rotas em `routes/api.php`
 
-Adicionar após os blocos existentes, dentro do grupo `auth:sanctum`:
+Adicionar dentro do grupo `auth:sanctum`, após as rotas existentes:
 
 ```php
 // Users
@@ -290,10 +307,13 @@ Route::patch('notifications/read-all', [App\Http\Controllers\NotificationControl
 
 ---
 
-## Validação Manual dos Endpoints
+## Validação dos Endpoints (dentro do container via Sail)
 
 ```bash
-# Obter token
+# Listar todas as rotas de API registradas
+./vendor/bin/sail artisan route:list --path=api
+
+# Obter token de autenticação (na máquina host)
 TOKEN=$(curl -s -X POST http://localhost:8900/api/login \
   -H "Content-Type: application/json" \
   -d '{"email":"admin@gacpac.test","password":"password"}' | jq -r '.token')
@@ -304,24 +324,42 @@ curl -s -H "Authorization: Bearer $TOKEN" http://localhost:8900/api/users/active
 curl -s -H "Authorization: Bearer $TOKEN" http://localhost:8900/api/categories | jq
 curl -s -H "Authorization: Bearer $TOKEN" http://localhost:8900/api/notifications | jq
 
-# Todos devem retornar 200 com estrutura { data: [...], meta: {...} }
+# Testar que request sem token retorna 401
+curl -s http://localhost:8900/api/users | jq '.message'
+# Esperado: "Unauthenticated."
+```
+
+---
+
+## Execução dos Testes (dentro do container)
+
+```bash
+# Todos os testes
+./vendor/bin/sail artisan test
+
+# Apenas os novos controllers
+./vendor/bin/sail artisan test --filter=UserControllerTest
+./vendor/bin/sail artisan test --filter=CategoryControllerTest
+./vendor/bin/sail artisan test --filter=MaintenanceControllerTest
+./vendor/bin/sail artisan test --filter=NotificationApiTest
+
+# Verificar estilo de código
+./vendor/bin/sail exec laravel.test ./vendor/bin/pint --test
 ```
 
 ---
 
 ## Critérios de Aceite
 
+- [ ] `./vendor/bin/sail artisan route:list --path=api` mostra todos os endpoints do contrato
 - [ ] `GET /api/users` retorna `200` com paginação
 - [ ] `GET /api/users/active` retorna `200`
-- [ ] `GET /api/users/sector/{id}` retorna `200`
 - [ ] `GET /api/categories` retorna `200` com paginação
-- [ ] `POST /api/categories` retorna `201`
 - [ ] `GET /api/assets/{id}/maintenance` retorna `200`
 - [ ] `GET /api/notifications` retorna `200`
 - [ ] `PATCH /api/notifications/{id}/read` retorna `200`
 - [ ] Request sem token retorna `401` em todos os endpoints protegidos
-- [ ] `php artisan test` — todos os testes passam (incluindo novos)
-- [ ] `php artisan route:list | grep api` mostra todos os endpoints esperados
+- [ ] `./vendor/bin/sail artisan test` — todos os testes passam
 
 ## Commit Esperado
 
@@ -338,13 +376,11 @@ feat(api): completa endpoints rest para todos os modulos do sistema
 
 ## NÃO FAZER
 
+- ❌ Não rodar `php artisan` diretamente no host — usar `./vendor/bin/sail artisan`
 - ❌ Não alterar as rotas `web.php` (Livewire — já funciona)
 - ❌ Não alterar componentes Livewire existentes
 - ❌ Não criar migrations novas (usar models existentes)
 - ❌ Não remover nenhum endpoint existente da API
 - ❌ Não usar `DB::` direto nos controllers — usar Services
 - ❌ Não retornar arrays `[]` brutos — sempre usar Resources
-
-## NÃO CONFUNDIR
-
-O `NotificationController.php` já existe em `app/Http/Controllers/`. Verificar seu conteúdo antes de criar novo. Apenas adicionar os métodos `markAsRead` e `markAllAsRead` se ausentes.
+- ❌ O `NotificationController.php` já existe — verificar antes de recriar

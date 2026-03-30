@@ -1,7 +1,8 @@
 # SPEC — FASE 2: Limpeza da Stack Frontend (React Residual)
 **Status:** `[ ] Pendente`
-**Pré-requisito:** Fase 1 concluída.
-**Checkpoint:** `npm run build` sucesso sem referências a React no bundle de saída.
+**Ambiente:** Laravel Sail (Docker) — comandos npm rodam dentro do container via `./vendor/bin/sail npm`.
+**Pré-requisito:** Fase 1 concluída (containers rodando).
+**Checkpoint:** `./vendor/bin/sail npm run build` sucesso sem referências a React no bundle de saída.
 
 ---
 
@@ -10,7 +11,7 @@
 O sistema foi originalmente desenvolvido em React e está sendo migrado para Laravel + Livewire + Blade. A migração do frontend está **completa** — toda a UI hoje é Blade/Livewire. Porém, resquícios do React ainda estão presentes:
 
 - `package.json` contém `@headlessui/react ^2.0.0` e `@vitejs/plugin-react ^4.2.0`
-- `vite.config.js` **NÃO** importa o plugin React (já está limpo)
+- `vite.config.js` **NÃO** importa o plugin React (já está limpo — **não alterar**)
 - Nenhum arquivo `.jsx` ou `.tsx` existe em uso produtivo
 
 Essas dependências aumentam o `bundle` desnecessariamente e geram confusão para novos desenvolvedores.
@@ -22,7 +23,7 @@ Essas dependências aumentam o `bundle` desnecessariamente e geram confusão par
 | Arquivo | Tipo | Ação |
 |---|---|---|
 | `package.json` | MODIFY | Remover 2 dependências React |
-| `package-lock.json` | MODIFY | Atualizado automaticamente pelo `npm install` |
+| `package-lock.json` | MODIFY | Atualizado automaticamente pelo `sail npm install` |
 | `vite.config.js` | VERIFY | Confirmar que NÃO tem import do plugin React (não editar) |
 
 ---
@@ -68,11 +69,18 @@ export default defineConfig({
 
 ## Ações Exatas
 
-### Passo 1 — Remover dependências React de `package.json`
+### Passo 1 — Verificar que Sail está rodando
 
-**Arquivo:** `/home/gacpac/gacpac-ti/package.json`
+```bash
+./vendor/bin/sail ps
+```
 
-Remover as linhas:
+Se não estiver: `./vendor/bin/sail up -d`
+
+### Passo 2 — Remover dependências React de `package.json`
+
+Editar o arquivo `/home/gacpac/gacpac-ti/package.json` diretamente (é um arquivo do repositório, editar no host):
+
 ```diff
 -"@headlessui/react": "^2.0.0",
 -"@vitejs/plugin-react": "^4.2.0",
@@ -92,26 +100,26 @@ O arquivo final de `devDependencies` deve ficar:
 }
 ```
 
-### Passo 2 — Atualizar lockfile
+### Passo 3 — Atualizar lockfile dentro do container
 
 ```bash
-npm install
+./vendor/bin/sail npm install
 ```
 
-### Passo 3 — Verificar build
+### Passo 4 — Verificar build dentro do container
 
 ```bash
-npm run build
+./vendor/bin/sail npm run build
 ```
 
 Deve concluir sem erros.
 
-### Passo 4 — Verificar ausência de React no bundle
+### Passo 5 — Verificar ausência de React no bundle
 
 ```bash
+# Executar na máquina host (verifica arquivos gerados em public/build/)
 ls public/build/assets/
-# Não deve conter arquivos com "react" no nome
-grep -r "react" public/build/assets/ || echo "Sem React no bundle"
+grep -ri "react" public/build/assets/ 2>/dev/null && echo "PROBLEMA: React encontrado no bundle" || echo "OK: Sem React no bundle"
 ```
 
 ---
@@ -120,8 +128,8 @@ grep -r "react" public/build/assets/ || echo "Sem React no bundle"
 
 - [ ] `package.json` não contém `@headlessui/react`
 - [ ] `package.json` não contém `@vitejs/plugin-react`
-- [ ] `npm install` executa sem erros
-- [ ] `npm run build` executa sem erros
+- [ ] `./vendor/bin/sail npm install` executa sem erros
+- [ ] `./vendor/bin/sail npm run build` executa sem erros
 - [ ] Nenhum arquivo `.jsx` ou `.tsx` é referenciado no build
 - [ ] `vite.config.js` não foi alterado (continua sem plugin React)
 
@@ -139,5 +147,6 @@ chore(frontend): remove dependencias react residuais da migracao
 
 - ❌ Não alterar `vite.config.js` (já está correto)
 - ❌ Não remover `tailwindcss`, `axios`, `autoprefixer`, `postcss` ou `concurrently`
+- ❌ Não rodar `npm` diretamente no host — usar `./vendor/bin/sail npm`
 - ❌ Não alterar `resources/js/app.js` ou `resources/css/app.css`
 - ❌ Não alterar nada em `app/`, `routes/` nesta fase

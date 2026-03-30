@@ -1,7 +1,19 @@
 # SPEC — FASE 3: Correções de Código Base e Arquitetura
 **Status:** `[ ] Pendente`
+**Ambiente:** Laravel Sail (Docker) — todos os comandos PHP/Artisan/Composer/Pint rodam dentro do container.
 **Pré-requisito:** Fase 2 concluída.
-**Checkpoint:** `php artisan test` sem falhas + `./vendor/bin/pint --test` sem erros de estilo.
+**Checkpoint:** `./vendor/bin/sail artisan test` sem falhas + `./vendor/bin/sail exec laravel.test ./vendor/bin/pint --test` sem erros.
+
+---
+
+## Referência Rápida de Comandos Sail
+
+```bash
+./vendor/bin/sail artisan [comando]             # Artisan dentro do container
+./vendor/bin/sail composer [comando]            # Composer dentro do container
+./vendor/bin/sail exec laravel.test [binário]   # Executar binários no container
+./vendor/bin/sail shell                         # Abrir shell interativo no container
+```
 
 ---
 
@@ -35,16 +47,20 @@ Esta fase corrige bugs de roteamento, segurança da API, metadados do projeto e 
 
 ## Ações Exatas
 
+### Passo 0 — Verificar que Sail está rodando
+
+```bash
+./vendor/bin/sail ps
+# Se não estiver: ./vendor/bin/sail up -d
+```
+
 ### Passo 1 — Remover rota duplicada em `routes/web.php`
 
-**Arquivo:** `/home/gacpac/gacpac-ti/routes/web.php`
-
-Linhas 45-46 atuais:
+**Arquivo:** `routes/web.php`, linhas 45–46:
 ```php
 Route::livewire('/notifications', App\Livewire\Notifications\Index::class)->name('notifications.index');
 Route::livewire('/notifications', App\Livewire\Notifications\Index::class)->name('notifications.index');
 ```
-
 Manter apenas a linha 45. Remover a linha 46 (idêntica).
 
 ### Passo 2 — Corrigir `routes/api.php`
@@ -75,7 +91,14 @@ Manter apenas a linha 45. Remover a linha 46 (idêntica).
 +"description": "Sistema de Gestao de Ativos e Cautelas - SGAITI",
 ```
 
-### Passo 4 — Criar `app/Services/AssetService.php`
+### Passo 4 — Limpar cache de rotas (dentro do container)
+
+```bash
+./vendor/bin/sail artisan route:clear
+./vendor/bin/sail artisan config:clear
+```
+
+### Passo 5 — Criar `app/Services/AssetService.php`
 
 ```php
 <?php
@@ -84,7 +107,6 @@ namespace App\Services;
 
 use App\Models\Asset;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Collection;
 
 class AssetService
 {
@@ -131,28 +153,14 @@ class AssetService
 }
 ```
 
-> Os demais Services (`CustodyService`, `InventoryService`, `UserService`, `SectorService`, `CategoryService`) seguem o mesmo padrão: métodos `list()`, `create()`, `update()`, `delete()` usando o Model correspondente.
+> Os demais Services seguem o **mesmo padrão**, substituindo `Asset` pelo Model correspondente:
+> - `CustodyService` → Model: `CustodyLog`
+> - `InventoryService` → Model: `InventoryRecord`
+> - `UserService` → Model: `User`
+> - `SectorService` → Model: `Sector`
+> - `CategoryService` → Model: `Category`
 
-### Passo 5 — Criar os demais Services
-
-Criar seguindo o mesmo padrão do `AssetService`, substituindo `Asset` pelo Model correspondente:
-
-- `CustodyService` → Model: `CustodyLog`
-- `InventoryService` → Model: `InventoryRecord`
-- `UserService` → Model: `User`
-- `SectorService` → Model: `Sector`
-- `CategoryService` → Model: `Category`
-
-### Passo 6 — Refatorar `AssetController` para injetar `AssetService`
-
-No construtor do controller, injetar via DI:
-```php
-public function __construct(private readonly AssetService $assetService) {}
-```
-
-E substituir chamadas diretas ao Model pelo Service correspondente.
-
-### Passo 7 — Criar teste unitário do AssetService
+### Passo 6 — Criar testes dos Services
 
 **Arquivo:** `tests/Unit/Services/AssetServiceTest.php`
 
@@ -181,31 +189,50 @@ class AssetServiceTest extends TestCase
     public function test_pode_listar_assets(): void
     {
         Asset::factory()->count(3)->create();
-
         $result = $this->service->list();
-
         $this->assertCount(3, $result->items());
     }
 
     public function test_pode_criar_asset(): void
     {
         $data = Asset::factory()->make()->toArray();
-
         $asset = $this->service->create($data);
-
         $this->assertInstanceOf(Asset::class, $asset);
         $this->assertDatabaseHas('assets', ['id' => $asset->id]);
     }
 }
 ```
 
-### Passo 8 — Executar os testes
+### Passo 7 — Executar os testes dentro do container
 
 ```bash
-php artisan test
+./vendor/bin/sail artisan test
 ```
 
-Todos os testes devem passar (incluindo os existentes).
+### Passo 8 — Verificar estilo de código dentro do container
+
+```bash
+./vendor/bin/sail exec laravel.test ./vendor/bin/pint --test
+```
+
+Se houver erros de estilo, corrigir automaticamente:
+```bash
+./vendor/bin/sail exec laravel.test ./vendor/bin/pint
+```
+
+### Passo 9 — Verificar rotas sem duplicação
+
+```bash
+./vendor/bin/sail artisan route:list | grep notifications
+# Deve mostrar apenas UMA rota notifications.index
+```
+
+### Passo 10 — Verificar rota de API com throttle
+
+```bash
+./vendor/bin/sail artisan route:list | grep api
+# Deve mostrar o grupo com middleware throttle:api
+```
 
 ---
 
@@ -215,14 +242,14 @@ Todos os testes devem passar (incluindo os existentes).
 - [ ] `routes/api.php` sem rota `/api/test`
 - [ ] `routes/api.php` com middleware `throttle:api` no grupo protegido
 - [ ] `composer.json` com `name: gacpac/gacpac-ti`
-- [ ] `app/Services/AssetService.php` existe e contém os 5 métodos principais
+- [ ] `app/Services/AssetService.php` existe com os 5+ métodos
 - [ ] `app/Services/CustodyService.php` existe
 - [ ] `app/Services/InventoryService.php` existe
 - [ ] `app/Services/UserService.php` existe
 - [ ] `app/Services/SectorService.php` existe
 - [ ] `app/Services/CategoryService.php` existe
-- [ ] `php artisan test` — todos os testes passam
-- [ ] `./vendor/bin/pint` — sem erros de estilo
+- [ ] `./vendor/bin/sail artisan test` — todos os testes passam
+- [ ] `./vendor/bin/sail exec laravel.test ./vendor/bin/pint --test` — sem erros
 
 ## Commit Esperado
 
@@ -233,16 +260,16 @@ refactor(core): cria camada de services e corrige bugs de rota e segurança
 - remove rota publica /api/test de api.php
 - adiciona throttle:api ao grupo protegido da api
 - corrige nome e descricao do projeto no composer.json
-- cria app/Services com AssetService, CustodyService, InventoryService
-- cria UserService, SectorService, CategoryService
+- cria app/Services com 6 services (Asset, Custody, Inventory, User, Sector, Category)
 - refatora AssetController para usar AssetService
-- adiciona teste unitario AssetServiceTest
+- adiciona AssetServiceTest
 ```
 
 ## NÃO FAZER
 
+- ❌ Não rodar `php artisan` diretamente no host — usar `./vendor/bin/sail artisan`
+- ❌ Não rodar `./vendor/bin/pint` diretamente no host — usar `./vendor/bin/sail exec laravel.test ./vendor/bin/pint`
 - ❌ Não remover o endpoint `/api/health` (usado para monitoramento)
 - ❌ Não alterar a lógica dos componentes Livewire existentes nesta fase (isso é Fase 4)
 - ❌ Não criar novos Controllers de API nesta fase (isso é Fase 4)
 - ❌ Não alterar migrations ou models
-- ❌ Não alterar Dockerfile ou docker-compose.yml
