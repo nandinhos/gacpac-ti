@@ -62,12 +62,9 @@ RUN php artisan route:cache
 RUN php artisan view:cache
 
 # Build frontend assets
-# RUN npm run build
+RUN npm run build
 
 # Copy nginx configuration
-COPY docker/nginx.conf /etc/nginx/sites-available/default
-
-# Copy supervisor configuration
 COPY docker/nginx.conf /etc/nginx/sites-available/default
 COPY docker/nginx-main.conf /etc/nginx/nginx.conf
 
