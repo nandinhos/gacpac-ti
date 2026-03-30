@@ -1,8 +1,11 @@
 {
-  "mcpServers": {
-    "laravel-boost": {
-      "command": "/home/nandodev/projects/gacpac-ti/scripts/boost-mcp.sh",
-      "args": []
+    "mcpServers": {
+        "laravel-boost": {
+            "command": "vendor/bin/sail",
+            "args": [
+                "artisan",
+                "boost:mcp"
+            ]
+        }
     }
-  }
 }

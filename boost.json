@@ -1,0 +1,10 @@
+{
+    "agents": [
+        "gemini"
+    ],
+    "editors": [
+        "gemini"
+    ],
+    "guidelines": [],
+    "sail": true
+}

@@ -30,21 +30,21 @@
       }">
     <div class="flex min-h-screen">
         <!-- Sidebar para Desktop -->
-        <div class="hidden md:flex md:flex-col md:fixed md:inset-y-0 transition-all duration-300 ease-in-out bg-white border-r border-gray-200 shadow-sm z-30"
+        <div class="hidden md:flex md:flex-col md:fixed md:inset-y-0 bg-white border-r border-gray-200 shadow-sm z-30"
              :class="collapsed ? 'w-20' : 'w-64'">
             
             <!-- Logo -->
             <div class="flex items-center flex-shrink-0 h-16 px-4 bg-white border-b border-gray-200 overflow-hidden" :class="collapsed ? 'justify-center' : ''">
                 <?php if (isset($component)) { $__componentOriginal8892e718f3d0d7a916180885c6f012e7 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginal8892e718f3d0d7a916180885c6f012e7 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.application-logo','data' => ['class' => 'w-auto h-8 text-fab-blue transition-all duration-300 flex-shrink-0']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.application-logo','data' => ['class' => 'w-auto h-8 text-fab-blue flex-shrink-0']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('application-logo'); ?>
 <?php if ($component->shouldRender()): ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
 <?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
-<?php $component->withAttributes(['class' => 'w-auto h-8 text-fab-blue transition-all duration-300 flex-shrink-0']); ?>
+<?php $component->withAttributes(['class' => 'w-auto h-8 text-fab-blue flex-shrink-0']); ?>
 <?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::processComponentKey($component); ?>
 
 <?php echo $__env->renderComponent(); ?>
@@ -57,11 +57,8 @@
 <?php $component = $__componentOriginal8892e718f3d0d7a916180885c6f012e7; ?>
 <?php unset($__componentOriginal8892e718f3d0d7a916180885c6f012e7); ?>
 <?php endif; ?>
-                <span class="ml-3 text-lg font-bold text-gray-900 tracking-tight whitespace-nowrap overflow-hidden transition-all duration-300"
-                      x-show="!collapsed" 
-                      x-transition:enter="transition ease-out duration-100"
-                      x-transition:enter-start="opacity-0 transform -translate-x-2"
-                      x-transition:enter-end="opacity-100 transform translate-x-0">
+                <span class="ml-3 text-lg font-bold text-gray-900 tracking-tight whitespace-nowrap overflow-hidden"
+                      x-show="!collapsed">
                     SGTI-GAC
                 </span>
             </div>
@@ -97,11 +94,8 @@
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $navGroups; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $groupName => $items): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                         <div class="space-y-1">
                             
-                            <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider transition-opacity duration-300"
-                                x-show="!collapsed"
-                                x-transition:enter="transition ease-out duration-100 delay-100"
-                                x-transition:enter-start="opacity-0"
-                                x-transition:enter-end="opacity-100">
+                            <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider"
+                                x-show="!collapsed">
                                 <?php echo e($groupName); ?>
 
                             </h3>
@@ -109,14 +103,14 @@
 
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $items; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
                                 <a href="<?php echo e(Route::has($item['route']) ? route($item['route']) : '#'); ?>" 
-                                   class="group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 
+                                   class="group flex items-center px-3 py-2 text-sm font-medium rounded-md 
                                           <?php echo e(request()->routeIs($item['route'] . '*') 
                                               ? 'bg-fab-blue text-white shadow-md' 
                                               : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 hover:shadow-sm'); ?>"
                                    :class="collapsed ? 'justify-center' : ''"
                                    title="<?php echo e($item['name']); ?>">
                                     
-                                    <svg class="flex-shrink-0 w-6 h-6 transition-colors duration-200
+                                    <svg class="flex-shrink-0 w-6 h-6
                                                 <?php echo e(request()->routeIs($item['route'] . '*') 
                                                     ? 'text-white' 
                                                     : 'text-gray-400 group-hover:text-gray-600'); ?>"
@@ -124,11 +118,8 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="<?php echo e($item['icon']); ?>" />
                                     </svg>
                                     
-                                    <span class="ml-3 whitespace-nowrap overflow-hidden transition-all duration-300"
-                                          x-show="!collapsed"
-                                          x-transition:enter="transition ease-out duration-100"
-                                          x-transition:enter-start="opacity-0 w-0"
-                                          x-transition:enter-end="opacity-100 w-auto">
+                                    <span class="ml-3 whitespace-nowrap overflow-hidden"
+                                          x-show="!collapsed">
                                         <?php echo e($item['name']); ?>
 
                                     </span>
@@ -142,8 +133,8 @@
             <!-- Toggle Button -->
             <div class="p-4 border-t border-gray-200">
                  <button @click="toggleCollapse()" 
-                         class="w-full flex items-center justify-center p-2 rounded-md hover:bg-gray-100 text-gray-500 hover:text-gray-900 transition-colors focus:outline-none">
-                     <svg class="w-6 h-6 transform transition-transform duration-300" 
+                         class="w-full flex items-center justify-center p-2 rounded-md hover:bg-gray-100 text-gray-500 hover:text-gray-900 focus:outline-none">
+                     <svg class="w-6 h-6" 
                           :class="collapsed ? 'rotate-180' : ''"
                           fill="none" viewBox="0 0 24 24" stroke="currentColor">
                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
@@ -237,7 +228,7 @@
         </div>
 
         <!-- Main content -->
-        <div class="flex flex-col flex-1 transition-all duration-300 ease-in-out" 
+        <div class="flex flex-col flex-1" 
              :class="collapsed ? 'md:pl-20' : 'md:pl-64'">
             <!-- Top navigation -->
             <div class="sticky top-0 z-10 flex flex-shrink-0 h-16 bg-white shadow">

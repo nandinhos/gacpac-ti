@@ -32,6 +32,21 @@ Existem 3 problemas no `Dockerfile` e 1 conflito de versão:
 
 ---
 
+## ⚠️ Pane Conhecida: Permissão npm no Runtime
+
+**Problema:** `./vendor/bin/sail npm install` falha com erro de permissão porque o `node_modules` foi criado por root durante o build anterior do Docker, e o usuário `sail` (uid 1000) não consegue escrever.
+
+**Causa raiz:** No Dockerfile original, `RUN npm install` rodava antes do `USER sail`, gerando node_modules com owner root.
+
+**Correção definitiva (aplicada nesta fase):** O Dockerfile foi reestruturado para:
+1. Fazer `USER sail` ANTES do `npm install` e `npm run build`
+2. Configurar `/home/sail/.npm` com permissões corretas
+3. Garantir que `node_modules` sempre pertença ao sail user desde o build
+
+**Após o rebuild**, qualquer LLM pode usar `./vendor/bin/sail npm install` diretamente sem `-u root`.
+
+---
+
 ## Ações Exatas
 
 ### Passo 1 — Parar os containers antes de editar

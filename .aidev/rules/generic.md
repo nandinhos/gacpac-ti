@@ -94,3 +94,48 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 
 
 ## Project: gacpac-ti
+
+---
+
+## Ferramentas de Desenvolvimento AI (Obrigatorio)
+
+### Laravel Boost (MCP Server — usar durante desenvolvimento)
+
+**Requer:** `./vendor/bin/sail up -d` (containers ativos)
+
+| Ferramenta | Quando usar |
+|---|---|
+| `list_routes` | Antes de criar rota — verificar se ja existe |
+| `database_schema` | Antes de migration — ver schema atual |
+| `database_query` | Debug de dados sem tinker manual |
+| `last_error` | Primeira acao ao investigar qualquer erro |
+| `tinker` | Executar PHP no contexto da app |
+| `search_docs` | Buscar documentacao Laravel/Livewire/PHPUnit/Pint |
+
+**Atualizar guidelines apos composer update:**
+```bash
+./vendor/bin/sail artisan boost:update
+```
+
+### Context7 (Documentacao Externa — usar ANTES de implementar)
+
+**Fluxo obrigatorio:**
+1. `resolve-library-id` com nome da biblioteca
+2. `query-docs` com library ID e a duvida especifica
+3. Implementar com base na documentacao retornada
+
+**Nao substituir por:** suposicoes ou conhecimento de treinamento desatualizado.
+
+### Ambiente de Execucao (Sail — OBRIGATORIO)
+
+Todos os comandos PHP/Artisan/Composer/NPM devem rodar via Sail:
+
+```bash
+./vendor/bin/sail artisan [cmd]                            # Artisan
+./vendor/bin/sail composer [cmd]                           # Composer
+./vendor/bin/sail npm [cmd]                                # NPM
+./vendor/bin/sail exec laravel.test ./vendor/bin/pint      # Pint
+./vendor/bin/sail artisan test                             # Testes
+```
+
+**NUNCA** executar `php`, `composer` ou `npm` diretamente no host.
