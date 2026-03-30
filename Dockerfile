@@ -39,30 +39,40 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Copy dependency files
-COPY composer.json composer.lock package.json ./
+COPY composer.json composer.lock package.json package-lock.json ./
 
-# Install PHP dependencies
+# Install PHP dependencies (as root, sem scripts pois artisan nao esta disponivel ainda)
 RUN composer install --optimize-autoloader --no-scripts --no-dev
-
-# Install Node dependencies
-RUN npm install
 
 # Copy application files
 COPY . .
 
-# Set permissions
+# Set permissions — tudo pertence ao sail antes de qualquer operacao NPM
 RUN chown -R sail:sail /var/www/html \
     && chmod -R 775 /var/www/html/storage \
     && chmod -R 775 /var/www/html/bootstrap/cache
+
+# Configurar npm cache para o usuario sail (evita conflitos de permissao no runtime)
+RUN mkdir -p /home/sail/.npm \
+    && chown -R sail:sail /home/sail/.npm
+
+# Switch to sail user ANTES de qualquer operacao npm
+USER sail
+
+# Install Node dependencies como sail user (node_modules fica com owner correto)
+RUN npm install
+
+# Build frontend assets como sail user
+RUN npm run build
+
+# Voltar para root temporariamente para operacoes de sistema
+USER root
 
 # Generate application key and optimize
 RUN php artisan package:discover --ansi
 RUN php artisan config:cache
 RUN php artisan route:cache
 RUN php artisan view:cache
-
-# Build frontend assets
-RUN npm run build
 
 # Copy nginx configuration
 COPY docker/nginx.conf /etc/nginx/sites-available/default
@@ -72,7 +82,6 @@ COPY docker/nginx-main.conf /etc/nginx/nginx.conf
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Copy and setup entrypoint script
-# Copy and setup entrypoint script
 COPY docker/start-container.sh /usr/local/bin/start-container
 RUN chmod +x /usr/local/bin/start-container
 
@@ -81,7 +90,7 @@ RUN mkdir -p /var/log/supervisor /var/run /tmp/laravel_views /var/www/html/stora
     && chown -R sail:sail /var/log/supervisor /var/run /tmp/laravel_views /var/www/html /var/lib/nginx /var/cache/nginx \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache /tmp/laravel_views
 
-# Switch to non-root user
+# Switch definitivo para sail user (sem necessidade de root no runtime)
 USER sail
 
 EXPOSE 8000
