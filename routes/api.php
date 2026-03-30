@@ -1,12 +1,6 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
-// Public routes (no authentication required)
-Route::get('test', function () {
-    return 'api ok';
-});
 
 Route::get('health', function () {
     return response()->json(['status' => 'ok', 'timestamp' => now()]);
@@ -16,8 +10,8 @@ Route::get('health', function () {
 Route::post('login', [App\Http\Controllers\AuthController::class, 'login']);
 
 // Protected routes (authentication required)
-Route::name('api.')->middleware(['auth:sanctum'])->group(function () {
-    
+Route::name('api.')->middleware(['auth:sanctum', 'throttle:api'])->group(function () {
+
     // Auth management
     Route::post('logout', [App\Http\Controllers\AuthController::class, 'logout']);
     Route::get('me', [App\Http\Controllers\AuthController::class, 'me']);
@@ -28,16 +22,16 @@ Route::name('api.')->middleware(['auth:sanctum'])->group(function () {
     // Custody routes (all authenticated users can view, based on role)
     Route::get('custody', [App\Http\Controllers\CustodyLogController::class, 'index'])->name('custody.index');
     Route::get('custody/{id}', [App\Http\Controllers\CustodyLogController::class, 'show'])->name('custody.show');
-    
+
     // Admin and Commission routes
     // Sectors routes
     Route::apiResource('sectors', App\Http\Controllers\SectorController::class);
-    
+
     // Users routes - TODO: Criar UserController
     // Route::apiResource('users', App\Http\Controllers\UserController::class);
     // Route::get('users/active', [App\Http\Controllers\UserController::class, 'getActiveUsers'])->name('users.active');
     // Route::get('users/sector/{sectorId}', [App\Http\Controllers\UserController::class, 'getUsersBySector'])->name('users.sector');
-    
+
     // Assets routes
     Route::apiResource('assets', App\Http\Controllers\AssetController::class);
     Route::get('assets/qr/{qrCode}', [App\Http\Controllers\AssetController::class, 'getByQrCode'])->name('assets.qr');
@@ -46,7 +40,7 @@ Route::name('api.')->middleware(['auth:sanctum'])->group(function () {
     Route::delete('assets/{assetId}/photos/{photoId}', [App\Http\Controllers\AssetController::class, 'deletePhoto'])->name('assets.photos.delete');
     Route::post('assets/{assetId}/maintenance', [App\Http\Controllers\AssetController::class, 'addMaintenance'])->name('assets.maintenance.add');
     Route::delete('assets/{assetId}/maintenance/{maintenanceId}', [App\Http\Controllers\AssetController::class, 'deleteMaintenance'])->name('assets.maintenance.delete');
-    
+
     // Custody management routes
     Route::post('custody', [App\Http\Controllers\CustodyLogController::class, 'store'])->name('custody.store');
     Route::put('custody/{id}', [App\Http\Controllers\CustodyLogController::class, 'update'])->name('custody.update');
