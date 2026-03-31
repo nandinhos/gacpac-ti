@@ -7,7 +7,7 @@ use App\Livewire\Inventory\Index;
 use App\Livewire\Inventory\Show;
 use App\Models\Asset;
 use App\Models\InventoryRecord;
-use App\Models\MilitaryUser;
+use App\Models\User;
 use App\Models\Sector;
 use App\Models\InventoryAsset;
 use App\Models\UncataloguedItem;
@@ -22,7 +22,7 @@ class InventoryFeatureTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->actingAs(MilitaryUser::factory()->create());
+        $this->actingAs(User::factory()->create());
     }
 
     public function test_can_view_inventory_index(): void
@@ -90,7 +90,7 @@ class InventoryFeatureTest extends TestCase
     public function test_can_view_inventory_create(): void
     {
         Sector::factory()->create();
-        MilitaryUser::factory()->create();
+        User::factory()->create();
 
         Livewire::test(Create::class)
             ->assertStatus(200)
@@ -102,7 +102,7 @@ class InventoryFeatureTest extends TestCase
     public function test_can_create_inventory(): void
     {
         $sector = Sector::factory()->create();
-        $responsible = MilitaryUser::factory()->create();
+        $responsible = User::factory()->create();
 
         Livewire::test(Create::class)
             ->set('commission_number', 'INV-TEST-001')
@@ -134,7 +134,7 @@ class InventoryFeatureTest extends TestCase
     public function test_create_inventory_validates_unique_commission_number(): void
     {
         $sector = Sector::factory()->create();
-        $responsible = MilitaryUser::factory()->create();
+        $responsible = User::factory()->create();
         InventoryRecord::factory()->create(['commission_number' => 'INV-DUPLICATE']);
 
         Livewire::test(Create::class)

@@ -6,7 +6,7 @@ use App\Livewire\Inventory\Create;
 use App\Livewire\Inventory\Show;
 use App\Models\Asset;
 use App\Models\InventoryRecord;
-use App\Models\MilitaryUser;
+use App\Models\User;
 use App\Models\Sector;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -19,12 +19,12 @@ class InventoryGlobalTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->actingAs(MilitaryUser::factory()->create());
+        $this->actingAs(User::factory()->create());
     }
 
     public function test_can_create_global_inventory(): void
     {
-        $responsible = MilitaryUser::factory()->create();
+        $responsible = User::factory()->create();
 
         Livewire::test(Create::class)
             ->set("commission_number", "INV-GLOBAL-001")

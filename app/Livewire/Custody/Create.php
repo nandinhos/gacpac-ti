@@ -55,7 +55,7 @@ class Create extends Component
     public function save()
     {
         $this->validate([
-            'user_id' => 'required|exists:military_users,id',
+            'user_id' => 'required|exists:users,id',
             'checkout_date' => 'required|date',
             'selectedAssets' => 'required|array|min:1',
             'selectedAssets.*' => 'exists:assets,id', // Basic existence check

@@ -5,7 +5,7 @@ namespace Tests\Feature;
 use App\Livewire\Inventory\Show;
 use App\Models\Asset;
 use App\Models\InventoryRecord;
-use App\Models\MilitaryUser;
+use App\Models\User;
 use App\Models\Sector;
 use App\Models\InventoryAsset;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -19,7 +19,7 @@ class InventoryBulkActionsTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->actingAs(MilitaryUser::factory()->create());
+        $this->actingAs(User::factory()->create());
     }
 
     public function test_can_select_all_pending_assets(): void

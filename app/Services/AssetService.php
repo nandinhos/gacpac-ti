@@ -13,7 +13,11 @@ class AssetService
             ->with(['category', 'sector'])
             ->when(isset($filters['sector_id']), fn ($q) => $q->where('sector_id', $filters['sector_id']))
             ->when(isset($filters['category_id']), fn ($q) => $q->where('category_id', $filters['category_id']))
-            ->when(isset($filters['search']), fn ($q) => $q->where('name', 'ilike', "%{$filters['search']}%"))
+            ->when(isset($filters['search']), function ($q) use ($filters) {
+                $driver = $q->getConnection()->getDriverName();
+                $operator = $driver === 'sqlite' ? 'like' : 'ilike';
+                return $q->where('name', $operator, "%{$filters['search']}%");
+            })
             ->paginate($filters['per_page'] ?? 15);
     }
 

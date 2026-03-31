@@ -4,7 +4,7 @@ namespace Database\Factories;
 
 use App\Models\InventoryRecord;
 use App\Models\Sector;
-use App\Models\MilitaryUser;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -24,7 +24,7 @@ class InventoryRecordFactory extends Factory
             'start_date' => now(),
             'end_date' => null,
             'sector_id' => Sector::factory(),
-            'responsible_user_id' => MilitaryUser::factory(),
+            'responsible_user_id' => User::factory(),
             'status' => 'Em Andamento',
             'notes' => $this->faker->sentence(),
         ];

@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\MilitaryUser;
+use App\Models\User;
 use App\Models\InventoryRecord;
 use App\Notifications\InventoryAssignedNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -18,7 +18,7 @@ class NotificationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = MilitaryUser::factory()->create();
+        $this->user = User::factory()->create();
     }
 
     public function test_dropdown_displays_unread_notifications_count()

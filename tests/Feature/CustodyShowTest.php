@@ -6,7 +6,7 @@ use App\Livewire\Custody\PrintCautela;
 use App\Livewire\Custody\Show;
 use App\Models\Asset;
 use App\Models\CustodyLog;
-use App\Models\MilitaryUser;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -17,7 +17,7 @@ class CustodyShowTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected MilitaryUser $user;
+    protected User $user;
 
     protected CustodyLog $custody;
 
@@ -25,9 +25,9 @@ class CustodyShowTest extends TestCase
     {
         parent::setUp();
 
-        $this->user = MilitaryUser::factory()->create([
-            'user_role' => 'admin',
-        ]);
+        \Spatie\Permission\Models\Role::create(['name' => 'admin']);
+        $this->user = User::factory()->create();
+        $this->user->assignRole('admin');
 
         $this->custody = CustodyLog::factory()
             ->for($this->user, 'user')
