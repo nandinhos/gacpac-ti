@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\Asset;
 use App\Models\CustodyLog;
-use App\Models\MilitaryUser;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -33,7 +32,7 @@ class CustodyModuleTest extends TestCase
     public function can_create_custody_with_available_assets()
     {
         $user = User::factory()->create();
-        $militaryUser = MilitaryUser::factory()->create();
+        $militaryUser = User::factory()->create();
         $asset = Asset::factory()->create(['status' => 'DISPONIVEL']);
 
         Livewire::actingAs($user)
@@ -63,7 +62,7 @@ class CustodyModuleTest extends TestCase
     public function cannot_create_custody_with_unavailable_assets()
     {
         $user = User::factory()->create();
-        $militaryUser = MilitaryUser::factory()->create();
+        $militaryUser = User::factory()->create();
         $asset = Asset::factory()->create(['status' => 'EM_USO']);
 
         Livewire::actingAs($user)

@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\InventoryRecord;
-use App\Models\MilitaryUser;
+use App\Models\User;
 use App\Models\Sector;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -15,7 +15,7 @@ class InventoryReportTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->actingAs(MilitaryUser::factory()->create());
+        $this->actingAs(User::factory()->create());
     }
 
     public function test_can_download_inventory_pdf(): void

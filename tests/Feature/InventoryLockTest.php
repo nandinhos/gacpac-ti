@@ -5,7 +5,7 @@ namespace Tests\Feature;
 use App\Livewire\Inventory\Show;
 use App\Models\Asset;
 use App\Models\InventoryRecord;
-use App\Models\MilitaryUser;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -17,7 +17,7 @@ class InventoryLockTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->actingAs(MilitaryUser::factory()->create());
+        $this->actingAs(User::factory()->create());
     }
 
     public function test_cannot_modify_concluded_inventory(): void

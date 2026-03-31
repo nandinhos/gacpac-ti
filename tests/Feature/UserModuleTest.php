@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\User;
-use App\Models\MilitaryUser;
 use App\Models\Sector;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -44,32 +43,30 @@ class UserModuleTest extends TestCase
             ->set('military_id', '123456-7')
             ->set('email', 'new_military@example.com')
             ->set('sector_id', $sector->id)
-            ->set('password', 'password')
-            ->set('password_confirmation', 'password')
             ->call('save')
             ->assertRedirect(route('users.index'));
 
-        $this->assertDatabaseHas('military_users', ['email' => 'new_military@example.com']);
+        $this->assertDatabaseHas('users', ['email' => 'new_military@example.com']);
     }
 
     public function test_can_edit_user()
     {
-        $user = User::factory()->create();
-        $targetUser = MilitaryUser::factory()->create();
+        $user = User::factory()->military()->create();
+        $targetUser = User::factory()->military()->create();
 
         Livewire::actingAs($user)
             ->test(\App\Livewire\Users\Edit::class, ['user' => $targetUser])
             ->set('name', 'Updated Military Name')
-            ->call('save')
+            ->call('update')
             ->assertRedirect(route('users.index'));
 
-        $this->assertDatabaseHas('military_users', ['id' => $targetUser->id, 'name' => 'Updated Military Name']);
+        $this->assertDatabaseHas('users', ['id' => $targetUser->id, 'name' => 'Updated Military Name']);
     }
 
     public function test_can_delete_user()
     {
         $user = User::factory()->create();
-        $targetUser = MilitaryUser::factory()->create();
+        $targetUser = User::factory()->create();
 
         Livewire::actingAs($user)
             ->test(\App\Livewire\Users\Index::class)
@@ -77,6 +74,6 @@ class UserModuleTest extends TestCase
             ->assertSet('confirmingDelete', $targetUser->id)
             ->call('delete');
 
-        $this->assertSoftDeleted('military_users', ['id' => $targetUser->id]);
+        $this->assertDatabaseMissing('users', ['id' => $targetUser->id]);
     }
 }

@@ -10,6 +10,13 @@
         <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
             <div class="overflow-hidden bg-white/70 backdrop-blur-md shadow-sm sm:rounded-lg border border-white/20">
                 <div class="p-6 text-gray-900">
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(session()->has('message')): ?>
+                        <div class="mb-4 p-4 rounded-xl bg-blue-50 border border-blue-100 text-blue-700 font-medium animate-pulse">
+                            <?php echo e(session('message')); ?>
+
+                        </div>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
                     <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
                         <div class="flex flex-col md:flex-row gap-4 w-full md:w-auto flex-1">
                             <div class="flex-1 relative group">

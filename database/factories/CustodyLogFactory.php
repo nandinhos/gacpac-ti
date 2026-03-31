@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Models\MilitaryUser;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -19,7 +19,7 @@ class CustodyLogFactory extends Factory
     {
         return [
             'cautela_number' => 'CAUTELA-' . $this->faker->unique()->numberBetween(1000, 9999),
-            'user_id' => MilitaryUser::factory(),
+            'user_id' => User::factory(),
             'checkout_date' => now(),
             'notes' => $this->faker->optional()->sentence(),
             'created_at' => now(),

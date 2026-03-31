@@ -26,6 +26,7 @@ class AssetController extends Controller
         $this->authorize('assets.create');
 
         $validated = $request->validate([
+            'qr_code' => ['required', 'string', 'unique:assets,qr_code'],
             'name' => ['required', 'string', 'max:255'],
             'model' => ['nullable', 'string', 'max:255'],
             'brand' => ['nullable', 'string', 'max:255'],
@@ -34,6 +35,8 @@ class AssetController extends Controller
             'sector_id' => ['required', 'exists:sectors,id'],
             'status' => ['required', 'string'],
         ]);
+
+        $validated['category'] = \App\Models\Category::find($validated['category_id'])->name;
 
         return new AssetResource($this->service->create($validated));
     }

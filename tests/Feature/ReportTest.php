@@ -67,7 +67,7 @@ class ReportTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        $militaryUser = \App\Models\MilitaryUser::factory()->create();
+        $militaryUser = \App\Models\User::factory()->create();
         $asset = Asset::factory()->create(['custodian_user_id' => $militaryUser->id]);
 
         $response = $this->get(route('reports.term', ['user_id' => $militaryUser->id]));

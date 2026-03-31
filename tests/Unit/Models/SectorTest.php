@@ -4,7 +4,7 @@ namespace Tests\Unit\Models;
 
 use App\Models\Sector;
 use App\Models\Asset;
-use App\Models\MilitaryUser;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -39,14 +39,14 @@ class SectorTest extends TestCase
         $this->assertInstanceOf(Asset::class, $sector->assets->first());
     }
 
-    public function test_sector_has_many_military_users()
+    public function test_sector_has_many_users()
     {
         $sector = Sector::factory()->create();
-        $user1 = MilitaryUser::factory()->create(['sector_id' => $sector->id]);
-        $user2 = MilitaryUser::factory()->create(['sector_id' => $sector->id]);
+        $user1 = User::factory()->create(['sector_id' => $sector->id]);
+        $user2 = User::factory()->create(['sector_id' => $sector->id]);
 
-        $this->assertCount(2, $sector->militaryUsers);
-        $this->assertInstanceOf(MilitaryUser::class, $sector->militaryUsers->first());
+        $this->assertCount(2, $sector->users);
+        $this->assertInstanceOf(User::class, $sector->users->first());
     }
 
     public function test_sector_code_must_be_unique()

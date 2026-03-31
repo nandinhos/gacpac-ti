@@ -1,1 +1,0 @@
-category-row-<?php echo e($category->id); ?><?php /**PATH /var/www/html/storage/framework/views/a76f1be65383d7a7bbec6e1d9cafbcaa.blade.php ENDPATH**/ ?>

@@ -41,4 +41,40 @@ class UserFactory extends Factory
             'email_verified_at' => null,
         ]);
     }
+
+    /**
+     * Indicate that the user is a military member.
+     */
+    public function military(string $rank = 'Sargento'): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_military' => true,
+            'force' => 'FAB',
+            'rank' => $rank,
+            'military_id' => fake()->numerify('#######-#'),
+            'organization' => 'GAC-PAC',
+            'sector_id' => \App\Models\Sector::factory(),
+            'is_active' => true,
+        ]);
+    }
+
+    /**
+     * Indicate that the user is active.
+     */
+    public function active(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_active' => true,
+        ]);
+    }
+
+    /**
+     * Indicate that the user is inactive.
+     */
+    public function inactive(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_active' => false,
+        ]);
+    }
 }

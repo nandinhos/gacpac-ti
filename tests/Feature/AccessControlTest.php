@@ -25,7 +25,7 @@ class NewAccessControlTest extends TestCase
         $admin->assignRole('admin');
 
         $this->actingAs($admin)
-            ->get(route('admin.users'))
+            ->get(route('admin.users.index'))
             ->assertStatus(200);
     }
 
@@ -35,7 +35,7 @@ class NewAccessControlTest extends TestCase
         $operator->assignRole('operator');
 
         $this->actingAs($operator)
-            ->get(route('admin.users'))
+            ->get(route('admin.users.index'))
             ->assertStatus(403);
     }
 

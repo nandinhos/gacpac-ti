@@ -1,0 +1,10 @@
+{
+  "stack": "laravel",
+  "project_type": "brownfield",
+  "llm": "unknown",
+  "runtime": "docker-sail",
+  "database": "postgres",
+  "prd": "",
+  "initialized_at": "2026-03-31T16:56:41-03:00",
+  "version": "1.0.0-dev"
+}

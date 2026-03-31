@@ -94,4 +94,20 @@ class User extends Authenticatable
                 ->whereNull('checkin_date');
         });
     }
+
+    /**
+     * Scope: Active users
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    /**
+     * Scope: By Role (using Spatie Permissions)
+     */
+    public function scopeByRole($query, string $role)
+    {
+        return $query->role($role);
+    }
 }
