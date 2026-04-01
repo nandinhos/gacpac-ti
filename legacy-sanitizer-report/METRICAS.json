@@ -1,0 +1,53 @@
+{
+  "generated_at": "2026-04-01T00:00:00Z",
+  "project": {
+    "name": "SGAITI - Sistema de Gestão de Ativos e Cautelas",
+    "path": "/home/gacpac/gacpac-ti",
+    "laravel_version": "12.0",
+    "php_version": "8.4"
+  },
+  "files_analyzed": 100,
+  "total_lines": 8500,
+  "metrics": {
+    "security": {
+      "score": 92,
+      "sql_injection": 0,
+      "xss_critical": 0,
+      "csrf_protected": true,
+      "auth_bypass": 0,
+      "secrets_in_code": 0
+    },
+    "code_quality": {
+      "score": 75,
+      "functions_over_200": 0,
+      "god_classes": 1,
+      "duplicated_code": 0,
+      "circular_dependencies": 0,
+      "complexity_average": 4.2
+    },
+    "bug_density": {
+      "score": 85,
+      "null_pointer": 0,
+      "type_juggling": 2,
+      "race_conditions": 1,
+      "undefined_variables": 0,
+      "bugs_per_1000_lines": 0.35
+    },
+    "performance": {
+      "score": 72,
+      "n_plus_1_queries": 2,
+      "missing_indexes": "to_verify",
+      "cache_usage": "partial",
+      "heavy_loops": 1
+    },
+    "dependencies": {
+      "score": 70,
+      "security_vulnerabilities": 0,
+      "outdated_packages": 0,
+      "version_conflicts": 0,
+      "unused_packages": "to_verify"
+    }
+  },
+  "overall_score": 78,
+  "status": "SATISFATÓRIO"
+}

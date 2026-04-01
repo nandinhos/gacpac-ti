@@ -1,0 +1,49 @@
+{
+  "nodes": [
+    {
+      "id": "SEC-006-001",
+      "label": "Race Condition - Custody/Create.php",
+      "type": "security",
+      "severity": "high",
+      "phase": 1
+    },
+    {
+      "id": "PER-001-001",
+      "label": "N+1 Queries - Inventory/Show.php",
+      "type": "performance",
+      "severity": "medium",
+      "phase": 2
+    },
+    {
+      "id": "PER-006-001",
+      "label": "Heavy Loop - bulkFind()",
+      "type": "performance",
+      "severity": "medium",
+      "phase": 2
+    },
+    {
+      "id": "BUG-002-001",
+      "label": "Type Juggling - Role check",
+      "type": "bug",
+      "severity": "medium",
+      "phase": 3
+    }
+  ],
+  "edges": [
+    {
+      "from": "SEC-006-001",
+      "to": "PER-001-001",
+      "type": "sequence"
+    },
+    {
+      "from": "PER-001-001",
+      "to": "PER-006-001",
+      "type": "sequence"
+    },
+    {
+      "from": "PER-006-001",
+      "to": "BUG-002-001",
+      "type": "sequence"
+    }
+  ]
+}

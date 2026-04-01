@@ -1,0 +1,54 @@
+{
+  "contract_id": "PER-001-001",
+  "type": "performance",
+  "severity": "medium",
+  "title": "N+1 Queries em Inventory/Show.php render()",
+  
+  "location": {
+    "file": "app/Livewire/Inventory/Show.php",
+    "line_start": 263,
+    "line_end": 273,
+    "function": "render",
+    "class": "Show"
+  },
+  
+  "description": {
+    "summary": "Método render executa múltiplas queries sem eager loading",
+    "impact": "Performance degrade com muitos ativos, múltiplas queries N+1",
+    "cwe_id": null
+  },
+  
+  "current_code": {
+    "snippet": "public function render()\n{\n    $foundAssetIds = InventoryAsset::where('inventory_id', $this->inventory->id)->pluck('asset_id');\n    \n    $foundAssets = Asset::whereIn('id', $foundAssetIds)->get();\n    \n    $query = Asset::query();\n    if ($this->inventory->sector_id) {\n        $query->where('sector_id', $this->inventory->sector_id);\n    }\n    $pendingAssets = $query->whereNotIn('id', $foundAssetIds)->get();\n    \n    $uncataloguedItems = UncataloguedItem::where('inventory_id', $this->inventory->id)->get();\n    \n    return view('livewire.inventory.show', [...]);\n}",
+    "full_context": "Método executa 4 queries separada sem eager loading de relações"
+  },
+  
+  "suggested_fix": {
+    "code": "public function render()\n{\n    $foundAssetIds = InventoryAsset::where('inventory_id', $this->inventory->id)->pluck('asset_id');\n    \n    $foundAssets = Asset::with(['category', 'sector'])->whereIn('id', $foundAssetIds)->get();\n    \n    $query = Asset::with(['category', 'sector']);\n    if ($this->inventory->sector_id) {\n        $query->where('sector_id', $this->inventory->sector_id);\n    }\n    $pendingAssets = $query->whereNotIn('id', $foundAssetIds)->get();\n    \n    $uncataloguedItems = UncataloguedItem::with('createdByUser')\n        ->where('inventory_id', $this->inventory->id)\n        ->get();\n    \n    return view('livewire.inventory.show', [...]);\n}",
+    "explanation": "Adicionar eager loading com with() para category, sector e createdByUser",
+    "language": "php",
+    "references": [
+      "laravel.com/docs/eloquent-relationships#eager-loading"
+    ]
+  },
+  
+  "acceptance_criteria": [
+    "Queries usam with() para relations",
+    "Teste de performance passa",
+    "Render time reduzido em >50%"
+  ],
+  
+  "estimated_effort": "small",
+  "estimated_hours": 1,
+  
+  "dependencies": [],
+  "blocks": [],
+  
+  "llm_prompt": "Otimizar N+1 queries em app/Livewire/Inventory/Show.php método render(). Adicionar with(['category', 'sector', 'createdByUser']) nas queries.",
+  
+  "metadata": {
+    "detected_by": "pattern_matcher",
+    "confidence": 0.90,
+    "false_positive_rate": 0.10
+  }
+}

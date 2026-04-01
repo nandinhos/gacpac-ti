@@ -1,0 +1,56 @@
+{
+  "contract_id": "SEC-006-001",
+  "type": "security",
+  "severity": "high",
+  "title": "Race Condition em Cautela/Create.php",
+  
+  "location": {
+    "file": "app/Livewire/Custody/Create.php",
+    "line_start": 65,
+    "line_end": 75,
+    "function": "save",
+    "class": "Create"
+  },
+  
+  "description": {
+    "summary": "Verificação de disponibilidade de ativos sem transaction lock",
+    "impact": "Usuário pode tentar criar cautela com ativos que se tornam indisponíveis entre verificação e inserção",
+    "cwe_id": "CWE-362"
+  },
+  
+  "current_code": {
+    "snippet": "$unavailableAssets = Asset::whereIn('id', $this->selectedAssets)\n                              ->where('status', '!=', 'DISPONIVEL')\n                              ->count();\n\nif ($unavailableAssets > 0) {\n    $this->addError('selectedAssets', 'Um ou mais itens selecionados não estão mais disponíveis.');\n    return;\n}\n\nDB::transaction(function () {\n    // ...\n});",
+    "full_context": "Método save() executa verificação fora da transação, permitindo race condition"
+  },
+  
+  "suggested_fix": {
+    "code": "DB::transaction(function () {\n    // Mover verificação para dentro da transação\n    $unavailableAssets = Asset::whereIn('id', $this->selectedAssets)\n        ->where('status', '!=', 'DISPONIVEL')\n        ->lockForUpdate() // Adicionar lock\n        ->count();\n\n    if ($unavailableAssets > 0) {\n        throw new \\Exception('Um ou mais itens selecionados não estão mais disponíveis.');\n    }\n    \n    // ... resto do código\n});",
+    "explanation": "Mover verificação para dentro da transação e usar lockForUpdate() para prevenir race condition",
+    "language": "php",
+    "references": [
+      "laravel.com/docs/database#database-transactions",
+      "owasp.org/index.php/Race_Condition"
+    ]
+  },
+  
+  "acceptance_criteria": [
+    "Verificação executada dentro de transaction",
+    "Usar lockForUpdate() nas queries",
+    "Teste de concorrência passa",
+    "Teste funcional passa"
+  ],
+  
+  "estimated_effort": "small",
+  "estimated_hours": 2,
+  
+  "dependencies": [],
+  "blocks": [],
+  
+  "llm_prompt": "Corrigir race condition em app/Livewire/Custody/Create.php método save(). Mover verificação de disponibilidade para dentro da transação com lockForUpdate().",
+  
+  "metadata": {
+    "detected_by": "pattern_matcher",
+    "confidence": 0.95,
+    "false_positive_rate": 0.05
+  }
+}

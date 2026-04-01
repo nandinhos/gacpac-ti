@@ -1,0 +1,53 @@
+{
+  "contract_id": "PER-006-001",
+  "type": "performance",
+  "severity": "medium",
+  "title": "Heavy Loop em Inventory/Show.php bulkFind()",
+  
+  "location": {
+    "file": "app/Livewire/Inventory/Show.php",
+    "line_start": 221,
+    "line_end": 226,
+    "function": "bulkFind",
+    "class": "Show"
+  },
+  
+  "description": {
+    "summary": "Loop com query inside (firstOrCreate)",
+    "impact": "Performance degrade com muitos itens selecionados",
+    "cwe_id": null
+  },
+  
+  "current_code": {
+    "snippet": "public function bulkFind()\n{\n    if ($this->inventory->status === 'Concluído') return;\n    if (empty($this->selectedPending)) return;\n\n    foreach ($this->selectedPending as $assetId) {\n        InventoryAsset::firstOrCreate([\n            'inventory_id' => $this->inventory->id,\n            'asset_id' => $assetId,\n        ]);\n    }\n    // ...\n}",
+    "full_context": "Loop executa N queries para N ativos"
+  },
+  
+  "suggested_fix": {
+    "code": "public function bulkFind()\n{\n    if ($this->inventory->status === 'Concluído') return;\n    if (empty($this->selectedPending)) return;\n\n    $existingIds = InventoryAsset::where('inventory_id', $this->inventory->id)\n        ->pluck('asset_id')\n        ->toArray();\n\n    $newAssets = array_diff($this->selectedPending, $existingIds);\n\n    if (!empty($newAssets)) {\n        $records = array_map(function ($assetId) {\n            return [\n                'inventory_id' => $this->inventory->id,\n                'asset_id' => $assetId,\n                'created_at' => now(),\n                'updated_at' => now(),\n            ];\n        }, $newAssets);\n\n        InventoryAsset::insert($records);\n    }\n    // ...\n}",
+    "explanation": "Usar insert() em vez de loop com firstOrCreate()",
+    "language": "php",
+    "references": [
+      "laravel.com/docs/eloquent#inserts"
+    ]
+  },
+  
+  "acceptance_criteria": [
+    "Usar insert() em vez de loop",
+    "Teste funcional passa"
+  ],
+  
+  "estimated_effort": "small",
+  "estimated_hours": 1,
+  
+  "dependencies": [],
+  "blocks": [],
+  
+  "llm_prompt": "Otimizar bulkFind() em app/Livewire/Inventory/Show.php. Substituir loop com firstOrCreate por insert() em batch.",
+  
+  "metadata": {
+    "detected_by": "pattern_matcher",
+    "confidence": 0.90,
+    "false_positive_rate": 0.10
+  }
+}

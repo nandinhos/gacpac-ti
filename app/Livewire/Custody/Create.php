@@ -11,12 +11,16 @@ use Livewire\Component;
 class Create extends Component
 {
     public $user_id;
+
     public $checkout_date;
+
     public $notes;
+
     public $cautela_number;
 
     // Asset Selection
     public $searchAsset = '';
+
     public $selectedAssets = [];
 
     public function mount()
@@ -28,16 +32,16 @@ class Create extends Component
     public function generateNumber()
     {
         $lastId = CustodyLog::max('id') ?? 0;
-        $this->cautela_number = 'CAUTELA-' . date('Y') . '-' . str_pad($lastId + 1, 4, '0', STR_PAD_LEFT);
+        $this->cautela_number = 'CAUTELA-'.date('Y').'-'.str_pad($lastId + 1, 4, '0', STR_PAD_LEFT);
     }
 
     public function getAvailableAssetsProperty()
     {
         return Asset::where('status', 'DISPONIVEL')
             ->where(function ($query) {
-                $query->where('name', 'like', '%' . $this->searchAsset . '%')
-                      ->orWhere('qr_code', 'like', '%' . $this->searchAsset . '%')
-                      ->orWhere('patrimony_number', 'like', '%' . $this->searchAsset . '%');
+                $query->where('name', 'like', '%'.$this->searchAsset.'%')
+                    ->orWhere('qr_code', 'like', '%'.$this->searchAsset.'%')
+                    ->orWhere('patrimony_number', 'like', '%'.$this->searchAsset.'%');
             })
             ->limit(50) // Limit to prevent overload
             ->get();
@@ -58,37 +62,40 @@ class Create extends Component
             'user_id' => 'required|exists:users,id',
             'checkout_date' => 'required|date',
             'selectedAssets' => 'required|array|min:1',
-            'selectedAssets.*' => 'exists:assets,id', // Basic existence check
+            'selectedAssets.*' => 'exists:assets,id',
             'cautela_number' => 'required|unique:custody_logs,cautela_number',
         ]);
 
-        // Race condition check: Verify if all selected assets are still available
-        $unavailableAssets = Asset::whereIn('id', $this->selectedAssets)
-                                  ->where('status', '!=', 'DISPONIVEL')
-                                  ->count();
+        try {
+            DB::transaction(function () {
+                $unavailableAssets = Asset::whereIn('id', $this->selectedAssets)
+                    ->where('status', '!=', 'DISPONIVEL')
+                    ->lockForUpdate()
+                    ->count();
 
-        if ($unavailableAssets > 0) {
-            $this->addError('selectedAssets', 'Um ou mais itens selecionados não estão mais disponíveis.');
-            // Refresh the list
-            $this->dispatch('assets-updated'); 
+                if ($unavailableAssets > 0) {
+                    throw new \Exception('Um ou mais itens selecionados não estão mais disponíveis.');
+                }
+
+                $custody = CustodyLog::create([
+                    'cautela_number' => $this->cautela_number,
+                    'user_id' => $this->user_id,
+                    'checkout_date' => $this->checkout_date,
+                    'notes' => $this->notes,
+                ]);
+
+                $custody->assets()->attach($this->selectedAssets);
+
+                Asset::whereIn('id', $this->selectedAssets)->update(['status' => 'EM_USO', 'custodian_user_id' => $this->user_id]);
+            });
+
+            return redirect()->route('custody.index');
+        } catch (\Exception $e) {
+            $this->addError('selectedAssets', $e->getMessage());
+            $this->dispatch('assets-updated');
+
             return;
         }
-
-        DB::transaction(function () {
-            $custody = CustodyLog::create([
-                'cautela_number' => $this->cautela_number,
-                'user_id' => $this->user_id,
-                'checkout_date' => $this->checkout_date,
-                'notes' => $this->notes,
-            ]);
-
-            $custody->assets()->attach($this->selectedAssets);
-
-            // Update assets status
-            Asset::whereIn('id', $this->selectedAssets)->update(['status' => 'EM_USO', 'custodian_user_id' => $this->user_id]);
-        });
-
-        return redirect()->route('custody.index');
     }
 
     public function render()

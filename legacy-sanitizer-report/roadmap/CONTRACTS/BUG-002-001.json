@@ -1,0 +1,53 @@
+{
+  "contract_id": "BUG-002-001",
+  "type": "bug",
+  "severity": "medium",
+  "title": "Type Juggling em comparações de role",
+  
+  "location": {
+    "file": "app/Livewire/Inventory/Show.php",
+    "line_start": 175,
+    "line_end": 199,
+    "function": "editUncatalogued, updateUncatalogued",
+    "class": "Show"
+  },
+  
+  "description": {
+    "summary": "Comparação de role com string não tipada",
+    "impacto": "Risco de bypass de permissão se role for null ou diferente",
+    "cwe_id": "CWE-477"
+  },
+  
+  "current_code": {
+    "snippet": "if ($item->created_by_user_id !== auth()->id() && auth()->user()->role !== 'admin') {\n    return;\n}",
+    "full_context": "Verificação manual de role ao invés de usar Policy"
+  },
+  
+  "suggested_fix": {
+    "code": "// Em editUncatalogued:\n$this->authorize('update', $item); // Usar Policy\n\n// Ou verificar via Gate:\nif (!\\Gate::allows('update-uncatalogued-item', $item)) {\n    return;\n}",
+    "explanation": "Usar Laravel Policies para autorização ao invés de verificação manual",
+    "language": "php",
+    "references": [
+      "laravel.com/docs/authorization"
+    ]
+  },
+  
+  "acceptance_criteria": [
+    "Usar Policy para autorização",
+    "Teste de permissão passa"
+  ],
+  
+  "estimated_effort": "small",
+  "estimated_hours": 2,
+  
+  "dependencies": [],
+  "blocks": [],
+  
+  "llm_prompt": "Refatorar verificação de permissão em app/Livewire/Inventory/Show.php para usar Laravel Policy ao invés de comparação manual de role.",
+  
+  "metadata": {
+    "detected_by": "pattern_matcher",
+    "confidence": 0.85,
+    "false_positive_rate": 0.15
+  }
+}

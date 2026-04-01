@@ -2,32 +2,42 @@
 
 namespace App\Livewire\Inventory;
 
-use App\Models\InventoryRecord;
 use App\Models\Asset;
 use App\Models\InventoryAsset;
+use App\Models\InventoryRecord;
 use App\Models\UncataloguedItem;
 use Livewire\Component;
 
 class Show extends Component
 {
     public InventoryRecord $inventory;
+
     public $qrCodeInput = '';
+
     public $uncataloguedDescription = '';
+
     public $notes = '';
-    
+
     public $selectedPending = [];
+
     public $selectedFound = [];
+
     public $selectAllPending = false;
+
     public $selectAllFound = false;
 
     // Finalize/Reopen Logic
     public $showReopenModal = false;
+
     public $reopenJustification = '';
+
     public $showFinalizeModal = false;
 
     public function openFinalizeModal()
     {
-        if ($this->inventory->status === 'Concluído') return;
+        if ($this->inventory->status === 'Concluído') {
+            return;
+        }
         $this->showFinalizeModal = true;
         $this->dispatch('open-modal', 'finalize-modal');
     }
@@ -70,10 +80,10 @@ class Show extends Component
         ]);
 
         session()->flash('message', 'Inventário reaberto com sucesso.');
-        
+
         $this->showReopenModal = false;
         $this->dispatch('close-modal', 'reopen-modal');
-        
+
         // Opcional: Recarregar a página para liberar os campos
         return redirect()->route('inventory.show', $this->inventory);
     }
@@ -82,7 +92,7 @@ class Show extends Component
     {
         if ($value) {
             $foundAssetIds = InventoryAsset::where('inventory_id', $this->inventory->id)->pluck('asset_id');
-            
+
             $query = Asset::query();
             if ($this->inventory->sector_id) {
                 $query->where('sector_id', $this->inventory->sector_id);
@@ -90,7 +100,7 @@ class Show extends Component
 
             $this->selectedPending = $query->whereNotIn('id', $foundAssetIds)
                 ->pluck('id')
-                ->map(fn($id) => (string) $id)
+                ->map(fn ($id) => (string) $id)
                 ->toArray();
         } else {
             $this->selectedPending = [];
@@ -102,7 +112,7 @@ class Show extends Component
         if ($value) {
             $this->selectedFound = InventoryAsset::where('inventory_id', $this->inventory->id)
                 ->pluck('asset_id')
-                ->map(fn($id) => (string) $id)
+                ->map(fn ($id) => (string) $id)
                 ->toArray();
         } else {
             $this->selectedFound = [];
@@ -117,15 +127,18 @@ class Show extends Component
 
     public function findAsset()
     {
-        if ($this->inventory->status === 'Concluído') return;
+        if ($this->inventory->status === 'Concluído') {
+            return;
+        }
         $this->validate(['qrCodeInput' => 'required|string']);
 
         $asset = Asset::where('qr_code', $this->qrCodeInput)
             ->orWhere('serial_number', $this->qrCodeInput)
             ->first();
 
-        if (!$asset) {
+        if (! $asset) {
             $this->addError('qrCodeInput', 'Ativo não encontrado.');
+
             return;
         }
 
@@ -136,6 +149,7 @@ class Show extends Component
 
         if ($exists) {
             $this->addError('qrCodeInput', 'Este ativo já foi registrado neste inventário.');
+
             return;
         }
 
@@ -150,7 +164,9 @@ class Show extends Component
 
     public function addUncatalogued()
     {
-        if ($this->inventory->status === 'Concluído') return;
+        if ($this->inventory->status === 'Concluído') {
+            return;
+        }
         $this->validate(['uncataloguedDescription' => 'required|string|max:255']);
 
         UncataloguedItem::create([
@@ -164,16 +180,18 @@ class Show extends Component
     }
 
     public $editingUncataloguedId = null;
+
     public $editingDescription = '';
 
     public function editUncatalogued($id)
     {
         $item = UncataloguedItem::find($id);
-        if (!$item) return;
+        if (! $item) {
+            return;
+        }
 
-        // Permission check
-        if ($item->created_by_user_id !== auth()->id() && auth()->user()->role !== 'admin') { // Assumindo role 'admin'
-             return;
+        if (! \Gate::allows('update', $item)) {
+            return;
         }
 
         $this->editingUncataloguedId = $id;
@@ -188,16 +206,17 @@ class Show extends Component
 
     public function updateUncatalogued()
     {
-        if ($this->inventory->status === 'Concluído') return;
-        
+        if ($this->inventory->status === 'Concluído') {
+            return;
+        }
+
         $this->validate(['editingDescription' => 'required|string|max:255']);
 
         $item = UncataloguedItem::find($this->editingUncataloguedId);
-        
+
         if ($item) {
-             // Permission check again
-            if ($item->created_by_user_id !== auth()->id() && auth()->user()->role !== 'admin') {
-                 return;
+            if (! \Gate::allows('update', $item)) {
+                return;
             }
 
             $item->update(['description' => $this->editingDescription]);
@@ -209,20 +228,44 @@ class Show extends Component
 
     public function removeUncatalogued($id)
     {
-        if ($this->inventory->status === 'Concluído') return;
+        if ($this->inventory->status === 'Concluído') {
+            return;
+        }
+
+        $item = UncataloguedItem::find($id);
+        if (! $item || ! \Gate::allows('delete', $item)) {
+            return;
+        }
+
         UncataloguedItem::where('inventory_id', $this->inventory->id)->where('id', $id)->delete();
     }
 
     public function bulkFind()
     {
-        if ($this->inventory->status === 'Concluído') return;
-        if (empty($this->selectedPending)) return;
+        if ($this->inventory->status === 'Concluído') {
+            return;
+        }
+        if (empty($this->selectedPending)) {
+            return;
+        }
 
-        foreach ($this->selectedPending as $assetId) {
-            InventoryAsset::firstOrCreate([
-                'inventory_id' => $this->inventory->id,
-                'asset_id' => $assetId,
-            ]);
+        $existingIds = InventoryAsset::where('inventory_id', $this->inventory->id)
+            ->pluck('asset_id')
+            ->toArray();
+
+        $newAssets = array_diff($this->selectedPending, $existingIds);
+
+        if (! empty($newAssets)) {
+            $records = array_map(function ($assetId) {
+                return [
+                    'inventory_id' => $this->inventory->id,
+                    'asset_id' => $assetId,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            }, $newAssets);
+
+            InventoryAsset::insert($records);
         }
 
         $this->selectedPending = [];
@@ -231,8 +274,12 @@ class Show extends Component
 
     public function bulkRemove()
     {
-        if ($this->inventory->status === 'Concluído') return;
-        if (empty($this->selectedFound)) return;
+        if ($this->inventory->status === 'Concluído') {
+            return;
+        }
+        if (empty($this->selectedFound)) {
+            return;
+        }
 
         InventoryAsset::where('inventory_id', $this->inventory->id)
             ->whereIn('asset_id', $this->selectedFound)
@@ -244,7 +291,9 @@ class Show extends Component
 
     public function finalize()
     {
-        if ($this->inventory->status === 'Concluído') return;
+        if ($this->inventory->status === 'Concluído') {
+            return;
+        }
         $this->inventory->update([
             'status' => 'Concluído',
             'end_date' => now(),
@@ -255,22 +304,23 @@ class Show extends Component
         $this->dispatch('close-modal', 'finalize-modal');
 
         session()->flash('message', 'Inventário concluído com sucesso.');
+
         return redirect()->route('inventory.index');
     }
 
     public function render()
     {
         $foundAssetIds = InventoryAsset::where('inventory_id', $this->inventory->id)->pluck('asset_id');
-        
-        $foundAssets = Asset::whereIn('id', $foundAssetIds)->get();
-        
-        $query = Asset::query();
+
+        $foundAssets = Asset::with(['category', 'sector'])->whereIn('id', $foundAssetIds)->get();
+
+        $query = Asset::with(['category', 'sector']);
         if ($this->inventory->sector_id) {
             $query->where('sector_id', $this->inventory->sector_id);
         }
         $pendingAssets = $query->whereNotIn('id', $foundAssetIds)->get();
 
-        $uncataloguedItems = UncataloguedItem::where('inventory_id', $this->inventory->id)->get();
+        $uncataloguedItems = UncataloguedItem::with(['createdBy'])->where('inventory_id', $this->inventory->id)->get();
 
         return view('livewire.inventory.show', [
             'foundAssets' => $foundAssets,
