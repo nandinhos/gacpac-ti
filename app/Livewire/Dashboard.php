@@ -2,13 +2,12 @@
 
 namespace App\Livewire;
 
-use Livewire\Component;
-
 use App\Models\Asset;
 use App\Models\CustodyLog;
 use App\Models\MaintenanceRecord;
-use App\Models\User;
 use App\Models\Sector;
+use App\Models\User;
+use Livewire\Component;
 
 class Dashboard extends Component
 {

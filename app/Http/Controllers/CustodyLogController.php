@@ -16,8 +16,9 @@ class CustodyLogController extends Controller
     public function index(Request $request): AnonymousResourceCollection
     {
         $this->authorize('assets.view'); // Usando permissão de ativos para cautelas por enquanto ou role auditor
-        
+
         $logs = $this->service->list($request->only(['sector_id', 'user_id', 'status', 'per_page']));
+
         return CustodyLogResource::collection($logs);
     }
 
@@ -43,14 +44,14 @@ class CustodyLogController extends Controller
     public function show(CustodyLog $custodyLog): CustodyLogResource
     {
         $this->authorize('assets.view');
-        
+
         return new CustodyLogResource($custodyLog->load(['asset', 'user', 'sector']));
     }
 
     public function checkin(CustodyLog $custodyLog): CustodyLogResource
     {
         $this->authorize('assets.edit');
-        
+
         return new CustodyLogResource($this->service->checkin($custodyLog));
     }
 

@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Traits\Auditable;
 
 class InventoryRecord extends Model
 {
-    use HasFactory, Auditable;
+    use Auditable, HasFactory;
+
     protected $table = 'inventory_records';
 
     protected $fillable = [
@@ -62,12 +63,14 @@ class InventoryRecord extends Model
             $asset = $inventoryAsset->asset;
             if ($asset) {
                 $asset->observation = $inventoryAsset->observation;
+
                 return $asset;
             }
+
             return null;
         })->filter()->values();
     }
-    
+
     // Atributo para itens não catalogados - retornar objetos completos
     public function getUncataloguedItemsAttribute()
     {
@@ -81,47 +84,47 @@ class InventoryRecord extends Model
             ];
         })->values();
     }
-    
+
     // Calcular itens pendentes (faltantes) = todos assets do setor - encontrados
     public function getPendingItemsAttribute()
     {
         $foundAssetIds = $this->inventoryAssets()->pluck('asset_id')->toArray();
-        
+
         $query = \App\Models\Asset::query();
-        
+
         // Se tem setor específico, filtrar por setor, senão pegar todos
         if ($this->sector_id) {
             $query->where('sector_id', $this->sector_id);
         }
-        
+
         // Excluir os já encontrados
-        if (!empty($foundAssetIds)) {
+        if (! empty($foundAssetIds)) {
             $query->whereNotIn('id', $foundAssetIds);
         }
-        
+
         return $query->get();
     }
-    
+
     // Resumo do inventário
     public function getSummaryAttribute()
     {
         $foundCount = $this->inventoryAssets()->count();
         $uncataloguedCount = $this->uncataloguedItems()->count();
-        
+
         // Calcular total de assets do setor
         $totalQuery = \App\Models\Asset::query();
         if ($this->sector_id) {
             $totalQuery->where('sector_id', $this->sector_id);
         }
         $totalCount = $totalQuery->count();
-        
+
         $pendingCount = $totalCount - $foundCount;
-        
+
         return [
             'total' => $totalCount,
             'found' => $foundCount,
             'pending' => $pendingCount,
-            'uncatalogued' => $uncataloguedCount
+            'uncatalogued' => $uncataloguedCount,
         ];
     }
 

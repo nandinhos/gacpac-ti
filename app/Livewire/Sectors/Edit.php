@@ -9,8 +9,11 @@ use Livewire\Component;
 class Edit extends Component
 {
     public Sector $sector;
+
     public string $name = '';
+
     public string $description = '';
+
     public bool $is_active = true;
 
     public function mount(Sector $sector)

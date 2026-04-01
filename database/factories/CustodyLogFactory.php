@@ -18,7 +18,7 @@ class CustodyLogFactory extends Factory
     public function definition(): array
     {
         return [
-            'cautela_number' => 'CAUTELA-' . $this->faker->unique()->numberBetween(1000, 9999),
+            'cautela_number' => 'CAUTELA-'.$this->faker->unique()->numberBetween(1000, 9999),
             'user_id' => User::factory(),
             'checkout_date' => now(),
             'notes' => $this->faker->optional()->sentence(),

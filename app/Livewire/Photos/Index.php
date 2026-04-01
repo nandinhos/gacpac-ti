@@ -15,6 +15,7 @@ class Index extends Component
     public Asset $asset;
 
     public $photos = [];
+
     public string $caption = '';
 
     public function mount(Asset $asset)
@@ -30,7 +31,7 @@ class Index extends Component
         ]);
 
         foreach ($this->photos as $photo) {
-            $path = $photo->store('asset-photos/' . $this->asset->id, 'public');
+            $path = $photo->store('asset-photos/'.$this->asset->id, 'public');
 
             $isFirst = $this->asset->photos()->count() === 0;
 

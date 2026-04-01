@@ -11,14 +11,23 @@ class Create extends Component
     public Asset $asset;
 
     public string $type = 'corretiva';
+
     public string $date = '';
+
     public string $description = '';
+
     public string $performed_by = '';
+
     public ?string $next_maintenance_date = null;
+
     public ?string $notes = null;
+
     public bool $is_upgrade = false;
+
     public ?string $parts_replaced = null;
+
     public ?int $sector_id = null;
+
     public float $cost = 0;
 
     public function mount(Asset $asset)
@@ -26,7 +35,7 @@ class Create extends Component
         $this->asset = $asset;
         $this->date = now()->format('Y-m-d');
         // Setor padrão de manutenção: ATI (ID 2)
-        $this->sector_id = 2; 
+        $this->sector_id = 2;
     }
 
     public function save()
@@ -51,7 +60,7 @@ class Create extends Component
         // Lógica de Status, Setor e Modificação
         $updateData = [
             'status' => 'MANUTENCAO',
-            'sector_id' => $this->sector_id
+            'sector_id' => $this->sector_id,
         ];
 
         if ($this->is_upgrade) {

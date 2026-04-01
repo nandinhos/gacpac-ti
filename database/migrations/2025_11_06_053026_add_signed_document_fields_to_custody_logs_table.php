@@ -31,7 +31,7 @@ return new class extends Migration
                 'signed_document_uploaded_at',
                 'signed_document_justification',
                 'signed_document_removed_at',
-                'signed_document_removal_justification'
+                'signed_document_removal_justification',
             ]);
         });
     }

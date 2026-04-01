@@ -2,17 +2,16 @@
 
 namespace Tests\Feature;
 
-use App\Models\Asset;
-use App\Models\User;
-use App\Models\Sector;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Livewire\Livewire;
-use Tests\TestCase;
-use App\Livewire\Assets\Index;
 use App\Livewire\Assets\Create;
 use App\Livewire\Assets\Edit;
+use App\Livewire\Assets\Index;
+use App\Models\Asset;
+use App\Models\Sector;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
 
 class AssetModuleTest extends TestCase
 {
@@ -61,7 +60,7 @@ class AssetModuleTest extends TestCase
             'qr_code' => 'QR-TEST-001',
             'location' => 'Armário 01',
         ]);
-        
+
         $asset = Asset::where('qr_code', 'QR-TEST-001')->first();
         $this->assertStringStartsWith('2028-01-01', (string) $asset->warranty_expiry);
     }
@@ -77,7 +76,7 @@ class AssetModuleTest extends TestCase
             ->set('name', 'Updated Name')
             ->call('save')
             ->assertRedirect(route('assets.edit', ['asset' => $asset, 'tab' => 'dados']));
-        
+
         $this->assertDatabaseHas('assets', [
             'id' => $asset->id,
             'name' => 'Updated Name',

@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Traits\Auditable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class MaintenanceRecord extends Model
 {
-    use HasFactory, Auditable;
+    use Auditable, HasFactory;
+
     protected $table = 'maintenance_records';
 
     protected $fillable = [

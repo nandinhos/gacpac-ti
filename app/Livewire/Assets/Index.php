@@ -4,9 +4,9 @@ namespace App\Livewire\Assets;
 
 use App\Models\Asset;
 use App\Models\Sector;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Livewire\Attributes\Url;
 
 class Index extends Component
 {

@@ -34,7 +34,7 @@ class NotificationController extends Controller
         }
 
         $notifications = $query->orderBy('created_at', 'desc')
-                               ->paginate($request->get('per_page', 20));
+            ->paginate($request->get('per_page', 20));
 
         return NotificationResource::collection($notifications);
     }

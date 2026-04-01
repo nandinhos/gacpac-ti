@@ -3,10 +3,10 @@
 namespace Tests\Unit\Models;
 
 use App\Models\Asset;
-use App\Models\Sector;
 use App\Models\AssetPhoto;
-use App\Models\MaintenanceRecord;
 use App\Models\CustodyLog;
+use App\Models\MaintenanceRecord;
+use App\Models\Sector;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -17,7 +17,7 @@ class AssetTest extends TestCase
     public function test_asset_can_be_created_with_valid_data()
     {
         $sector = Sector::factory()->create();
-        
+
         $assetData = [
             'name' => 'Notebook Dell',
             'description' => 'Notebook para uso administrativo',
@@ -31,7 +31,7 @@ class AssetTest extends TestCase
             'type' => 'COMPUTADOR',
             'brand' => 'Dell',
             'model' => 'Inspiron 15',
-            'serial_number' => 'DL123456789'
+            'serial_number' => 'DL123456789',
         ];
 
         $asset = Asset::create($assetData);
@@ -81,7 +81,7 @@ class AssetTest extends TestCase
     {
         $asset = Asset::factory()->create();
         $custodyLog = CustodyLog::factory()->create();
-        
+
         $custodyLog->assets()->attach($asset->id);
 
         $this->assertTrue($asset->custodyLogs()->exists());

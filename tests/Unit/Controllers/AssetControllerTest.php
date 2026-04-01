@@ -2,14 +2,12 @@
 
 namespace Tests\Unit\Controllers;
 
-use App\Http\Controllers\AssetController;
 use App\Models\Asset;
 use App\Models\Sector;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\Request;
-use Tests\TestCase;
 use Laravel\Sanctum\Sanctum;
+use Tests\TestCase;
 
 class AssetControllerTest extends TestCase
 {
@@ -18,7 +16,7 @@ class AssetControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Create and authenticate a user
         $role = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'admin']);
         $permissions = ['assets.view', 'assets.create', 'assets.edit', 'assets.delete'];
@@ -28,10 +26,10 @@ class AssetControllerTest extends TestCase
         $role->syncPermissions($permissions);
 
         $user = User::factory()->create([
-            'is_active' => true
+            'is_active' => true,
         ]);
         $user->assignRole($role);
-        
+
         Sanctum::actingAs($user);
     }
 
@@ -44,25 +42,25 @@ class AssetControllerTest extends TestCase
         $response = $this->getJson('/api/assets');
 
         $response->assertStatus(200)
-                ->assertJsonStructure([
-                    'data' => [
-                        '*' => [
-                            'id',
-                            'name',
-                            'qr_code',
-                            'status',
-                            'category_id',
-                            'sector_id'
-                        ]
-                    ]
-                ]);
+            ->assertJsonStructure([
+                'data' => [
+                    '*' => [
+                        'id',
+                        'name',
+                        'qr_code',
+                        'status',
+                        'category_id',
+                        'sector_id',
+                    ],
+                ],
+            ]);
     }
 
     public function test_store_creates_new_asset()
     {
         $category = \App\Models\Category::factory()->create();
         $sector = Sector::factory()->create();
-        
+
         $assetData = [
             'name' => 'Notebook Dell',
             'model' => 'Inspiron 15',
@@ -77,11 +75,11 @@ class AssetControllerTest extends TestCase
         $response = $this->postJson('/api/assets', $assetData);
 
         $response->assertStatus(201)
-                ->assertJsonPath('data.name', 'Notebook Dell');
+            ->assertJsonPath('data.name', 'Notebook Dell');
 
         $this->assertDatabaseHas('assets', [
             'name' => 'Notebook Dell',
-            'serial_number' => 'DL123456789'
+            'serial_number' => 'DL123456789',
         ]);
     }
 
@@ -94,15 +92,15 @@ class AssetControllerTest extends TestCase
         $response = $this->getJson("/api/assets/{$asset->id}");
 
         $response->assertStatus(200)
-                ->assertJsonStructure([
-                    'data' => [
-                        'id',
-                        'name',
-                        'qr_code',
-                        'category',
-                        'sector'
-                    ]
-                ]);
+            ->assertJsonStructure([
+                'data' => [
+                    'id',
+                    'name',
+                    'qr_code',
+                    'category',
+                    'sector',
+                ],
+            ]);
     }
 
     public function test_update_modifies_existing_asset()
@@ -113,18 +111,18 @@ class AssetControllerTest extends TestCase
 
         $updateData = [
             'name' => 'Notebook Dell Atualizado',
-            'status' => 'Em Manutenção'
+            'status' => 'Em Manutenção',
         ];
 
         $response = $this->putJson("/api/assets/{$asset->id}", $updateData);
 
         $response->assertStatus(200)
-                ->assertJsonPath('data.name', 'Notebook Dell Atualizado');
+            ->assertJsonPath('data.name', 'Notebook Dell Atualizado');
 
         $this->assertDatabaseHas('assets', [
             'id' => $asset->id,
             'name' => 'Notebook Dell Atualizado',
-            'status' => 'Em Manutenção'
+            'status' => 'Em Manutenção',
         ]);
     }
 
@@ -137,8 +135,8 @@ class AssetControllerTest extends TestCase
         $response = $this->deleteJson("/api/assets/{$asset->id}");
 
         $response->assertStatus(200)
-                ->assertJson(['message' => 'Ativo removido com sucesso.']);
-        
+            ->assertJson(['message' => 'Ativo removido com sucesso.']);
+
         $this->assertSoftDeleted('assets', ['id' => $asset->id]);
     }
 
@@ -149,13 +147,13 @@ class AssetControllerTest extends TestCase
         $asset = Asset::factory()->create([
             'sector_id' => $sector->id,
             'category_id' => $category->id,
-            'qr_code' => 'QR123'
+            'qr_code' => 'QR123',
         ]);
 
         $response = $this->getJson('/api/assets/qr/QR123');
 
         $response->assertStatus(200)
-                ->assertJsonPath('data.qr_code', 'QR123');
+            ->assertJsonPath('data.qr_code', 'QR123');
     }
 
     public function test_get_next_qr_code_returns_incremental_code()
@@ -163,8 +161,8 @@ class AssetControllerTest extends TestCase
         $response = $this->getJson('/api/assets/utils/next-qr-code');
 
         $response->assertStatus(200)
-                ->assertJsonStructure([
-                    'qr_code'
-                ]);
+            ->assertJsonStructure([
+                'qr_code',
+            ]);
     }
 }

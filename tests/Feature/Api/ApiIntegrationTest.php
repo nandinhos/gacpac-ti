@@ -7,8 +7,8 @@ use App\Models\Category;
 use App\Models\Sector;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class ApiIntegrationTest extends TestCase
@@ -18,15 +18,15 @@ class ApiIntegrationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Setup Roles and Permissions for Spatie
         $adminRole = Role::create(['name' => 'admin']);
         $viewerRole = Role::create(['name' => 'viewer']);
-        
+
         Permission::create(['name' => 'assets.view']);
         Permission::create(['name' => 'assets.create']);
         Permission::create(['name' => 'users.manage']);
-        
+
         $adminRole->givePermissionTo(['assets.view', 'assets.create', 'users.manage']);
         $viewerRole->givePermissionTo(['assets.view']);
     }
@@ -40,29 +40,29 @@ class ApiIntegrationTest extends TestCase
     public function test_authenticated_user_can_access_me_endpoint()
     {
         $user = User::factory()->create();
-        
+
         $response = $this->actingAs($user, 'sanctum')->getJson('/api/me');
-        
+
         $response->assertStatus(200)
-                 ->assertJsonPath('data.email', $user->email);
+            ->assertJsonPath('data.email', $user->email);
     }
 
     public function test_admin_can_list_assets()
     {
         $admin = User::factory()->create();
         $admin->assignRole('admin');
-        
+
         $sector = Sector::factory()->create();
         $category = Category::factory()->create();
         Asset::factory()->count(3)->create([
             'sector_id' => $sector->id,
-            'category_id' => $category->id
+            'category_id' => $category->id,
         ]);
 
         $response = $this->actingAs($admin, 'sanctum')->getJson('/api/assets');
 
         $response->assertStatus(200)
-                 ->assertJsonCount(3, 'data');
+            ->assertJsonCount(3, 'data');
     }
 
     public function test_viewer_can_list_assets_but_cannot_create()
@@ -75,9 +75,9 @@ class ApiIntegrationTest extends TestCase
 
         $response = $this->actingAs($viewer, 'sanctum')->postJson('/api/assets', [
             'name' => 'Novo Ativo',
-            'status' => 'disponivel'
+            'status' => 'disponivel',
         ]);
-        
+
         $response->assertStatus(403);
     }
 

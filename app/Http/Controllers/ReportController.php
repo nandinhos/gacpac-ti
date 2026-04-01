@@ -22,17 +22,17 @@ class ReportController extends Controller
         if ($request->has('status') && $request->status) {
             $query->where('status', $request->status);
         }
-        
+
         // Ordenação padrão
         $assets = $query->orderBy('name')->get();
 
         $pdf = Pdf::loadView('reports.pdf.assets', [
             'assets' => $assets,
             'title' => 'Relatório Geral de Ativos',
-            'filters' => $request->all()
+            'filters' => $request->all(),
         ]);
 
-        return $pdf->stream('relatorio-ativos-' . now()->format('YmdHis') . '.pdf');
+        return $pdf->stream('relatorio-ativos-'.now()->format('YmdHis').'.pdf');
     }
 
     public function maintenance(Request $request)
@@ -62,20 +62,20 @@ class ReportController extends Controller
         $pdf = Pdf::loadView('reports.pdf.maintenance', [
             'records' => $records,
             'title' => 'Relatório de Manutenção',
-            'filters' => $request->all()
+            'filters' => $request->all(),
         ]);
 
-        return $pdf->stream('relatorio-manutencao-' . now()->format('YmdHis') . '.pdf');
+        return $pdf->stream('relatorio-manutencao-'.now()->format('YmdHis').'.pdf');
     }
 
     public function term(Request $request)
     {
         $request->validate([
-            'user_id' => 'required|exists:users,id'
+            'user_id' => 'required|exists:users,id',
         ]);
 
         $user = User::find($request->user_id);
-        
+
         // Buscar ativos sob a guarda deste usuário
         // Assumindo que Asset tem custodian_user_id
         $assets = Asset::where('custodian_user_id', $user->id)
@@ -88,9 +88,9 @@ class ReportController extends Controller
             'user' => $user,
             'assets' => $assets,
             'title' => 'Termo de Responsabilidade',
-            'date' => now()
+            'date' => now(),
         ]);
 
-        return $pdf->stream('termo-responsabilidade-' . Str::slug($user->name) . '-' . now()->format('Ymd') . '.pdf');
+        return $pdf->stream('termo-responsabilidade-'.Str::slug($user->name).'-'.now()->format('Ymd').'.pdf');
     }
 }

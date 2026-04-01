@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\InventoryRecord;
 use App\Models\User;
-use App\Models\Sector;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -22,9 +21,9 @@ class InventoryReportTest extends TestCase
     {
         $inventory = InventoryRecord::factory()->create();
 
-        $response = $this->get(route("inventory.pdf", $inventory));
+        $response = $this->get(route('inventory.pdf', $inventory));
 
         $response->assertStatus(200);
-        $response->assertHeader("content-type", "application/pdf");
+        $response->assertHeader('content-type', 'application/pdf');
     }
 }

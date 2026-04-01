@@ -2,13 +2,13 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\InventoryRecord;
-use App\Models\User;
-use App\Models\Sector;
 use App\Models\Asset;
 use App\Models\InventoryAsset;
+use App\Models\InventoryRecord;
 use App\Models\ReopenHistory;
+use App\Models\Sector;
+use App\Models\User;
+use Illuminate\Database\Seeder;
 
 class InventorySeeder extends Seeder
 {
@@ -23,6 +23,7 @@ class InventorySeeder extends Seeder
 
         if ($users->isEmpty() || $sectors->isEmpty() || $assets->isEmpty()) {
             $this->command->info('Skipping InventorySeeder: Not enough users, sectors, or assets.');
+
             return;
         }
 

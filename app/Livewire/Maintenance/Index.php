@@ -4,9 +4,9 @@ namespace App\Livewire\Maintenance;
 
 use App\Models\Asset;
 use App\Models\MaintenanceRecord;
+use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Livewire\Attributes\Layout;
 
 #[Layout('layouts.sgaiti')]
 class Index extends Component
@@ -14,9 +14,11 @@ class Index extends Component
     use WithPagination;
 
     public Asset $asset;
+
     public bool $isEmbedded = false;
 
     public $search = '';
+
     public $typeFilter = '';
 
     protected $queryString = [
@@ -54,9 +56,9 @@ class Index extends Component
 
         if ($this->search) {
             $query->where(function ($q) {
-                $q->where('description', 'like', '%' . $this->search . '%')
-                  ->orWhere('performed_by', 'like', '%' . $this->search . '%')
-                  ->orWhere('notes', 'like', '%' . $this->search . '%');
+                $q->where('description', 'like', '%'.$this->search.'%')
+                    ->orWhere('performed_by', 'like', '%'.$this->search.'%')
+                    ->orWhere('notes', 'like', '%'.$this->search.'%');
             });
         }
 

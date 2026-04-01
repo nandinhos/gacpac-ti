@@ -45,7 +45,7 @@ class ReportTest extends TestCase
         $this->actingAs($user);
 
         $asset = Asset::factory()->create();
-        
+
         // Criar registro manualmente caso não tenha factory
         \App\Models\MaintenanceRecord::create([
             'asset_id' => $asset->id,
@@ -53,7 +53,7 @@ class ReportTest extends TestCase
             'date' => now(),
             'description' => 'Limpeza geral',
             'performed_by' => 'Técnico Teste',
-            'cost' => 150.00
+            'cost' => 150.00,
         ]);
 
         $response = $this->get(route('reports.maintenance'));

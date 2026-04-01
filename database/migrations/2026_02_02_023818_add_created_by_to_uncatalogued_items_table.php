@@ -8,16 +8,16 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table("uncatalogued_items", function (Blueprint $table) {
-            $table->foreignId("created_by_user_id")->nullable()->after("inventory_id")->constrained("military_users")->onDelete("set null");
+        Schema::table('uncatalogued_items', function (Blueprint $table) {
+            $table->foreignId('created_by_user_id')->nullable()->after('inventory_id')->constrained('military_users')->onDelete('set null');
         });
     }
 
     public function down(): void
     {
-        Schema::table("uncatalogued_items", function (Blueprint $table) {
-            $table->dropForeign(["created_by_user_id"]);
-            $table->dropColumn("created_by_user_id");
+        Schema::table('uncatalogued_items', function (Blueprint $table) {
+            $table->dropForeign(['created_by_user_id']);
+            $table->dropColumn('created_by_user_id');
         });
     }
 };

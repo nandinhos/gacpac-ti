@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\UncataloguedItem;
 use App\Models\InventoryRecord;
 use Illuminate\Database\Eloquent\Factories\Factory;
 

@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class AssetSeeder extends Seeder
@@ -57,7 +56,7 @@ class AssetSeeder extends Seeder
             ['qr_code' => 'SGTI-0039', 'serial_number' => 'PRJ-BENQ-GV30', 'category' => 'Outros Ativos de TI', 'name' => 'Projetor Portátil BenQ', 'sector_id' => $sectors[9]->id, 'custodian_user_id' => null, 'status' => 'Disponível', 'acquisition_date' => '2023-12-01'],
             ['qr_code' => 'SGTI-0040', 'serial_number' => 'CAM-CANON-T7I', 'category' => 'Outros Ativos de TI', 'name' => 'Câmera DSLR Canon T7i com lente 18-55mm', 'sector_id' => $sectors[9]->id, 'custodian_user_id' => null, 'status' => 'Disponível', 'acquisition_date' => '2022-11-11'],
             ['qr_code' => 'SGTI-0041', 'patrimony_id' => 'FAB-3005', 'serial_number' => 'PRT-HP-M428FDW', 'category' => 'Periféricos', 'name' => 'Impressora de Rede HP LaserJet Pro M428fdw', 'sector_id' => $sectors[1]->id, 'custodian_user_id' => null, 'status' => 'Em Uso', 'acquisition_date' => '2022-09-20'],
-            ['qr_code' => 'SGTI-0042', 'serial_number' => 'SCN-BROTHER-ADS2700W', 'category' => 'Periféricos', 'name' => 'Scanner de Rede Brother ADS-2700W', 'sector_id' => $sectors[1]->id, 'custodian_user_id' => null, 'status' => 'Em Uso', 'acquisition_date' => '2023-03-30']
+            ['qr_code' => 'SGTI-0042', 'serial_number' => 'SCN-BROTHER-ADS2700W', 'category' => 'Periféricos', 'name' => 'Scanner de Rede Brother ADS-2700W', 'sector_id' => $sectors[1]->id, 'custodian_user_id' => null, 'status' => 'Em Uso', 'acquisition_date' => '2023-03-30'],
         ];
 
         foreach ($assets as $asset) {

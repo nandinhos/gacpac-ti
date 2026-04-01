@@ -2,11 +2,11 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\PermissionRegistrar;
 use App\Models\User;
+use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 class RolesAndPermissionsSeeder extends Seeder
 {
@@ -44,7 +44,7 @@ class RolesAndPermissionsSeeder extends Seeder
             ->syncPermissions([
                 'assets.view', 'inventory.view', 'maintenance.view', 'reports.view', 'audit.view',
             ]);
-        
+
         Role::firstOrCreate(['name' => 'viewer', 'guard_name' => $guard])
             ->syncPermissions(['assets.view']);
 
@@ -58,7 +58,7 @@ class RolesAndPermissionsSeeder extends Seeder
                 'force' => 'FAB',
                 'organization' => 'GAC-PAC',
                 'is_active' => true,
-                'is_military' => true
+                'is_military' => true,
             ]
         );
         $user->assignRole('admin');
@@ -73,7 +73,7 @@ class RolesAndPermissionsSeeder extends Seeder
                 'force' => 'FAB',
                 'organization' => 'GAC-PAC',
                 'is_active' => true,
-                'is_military' => true
+                'is_military' => true,
             ]
         );
         $nando->assignRole('admin');

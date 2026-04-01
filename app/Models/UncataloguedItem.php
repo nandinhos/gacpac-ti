@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class UncataloguedItem extends Model
 {
     use HasFactory;
+
     protected $table = 'uncatalogued_items';
 
     protected $fillable = [

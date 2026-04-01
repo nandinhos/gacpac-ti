@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('condition')->nullable()->after('condition_rating'); // condition_rating -> condition
             $table->string('patrimony_number')->nullable()->after('patrimony_id'); // patrimony_id -> patrimony_number
             $table->decimal('purchase_value', 10, 2)->nullable()->after('purchase_price'); // purchase_price -> purchase_value
-            
+
             // Manter campos antigos por compatibilidade (não remover ainda)
         });
     }
@@ -31,10 +31,10 @@ return new class extends Migration
         Schema::table('assets', function (Blueprint $table) {
             $table->dropColumn([
                 'brand',
-                'type', 
+                'type',
                 'condition',
                 'patrimony_number',
-                'purchase_value'
+                'purchase_value',
             ]);
         });
     }

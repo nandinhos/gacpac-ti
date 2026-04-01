@@ -36,7 +36,7 @@ return new class extends Migration
                 'military_id',
                 'organization',
                 'sector_id',
-                'is_active'
+                'is_active',
             ]);
         });
     }

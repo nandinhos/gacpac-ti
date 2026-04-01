@@ -11,6 +11,7 @@ class Index extends Component
     use WithPagination;
 
     public $search = '';
+
     public $confirmingDelete = null;
 
     public function confirmDelete($id)
@@ -42,7 +43,7 @@ class Index extends Component
                 ->withCount(['users' => function ($query) {
                     $query->where('is_active', true);
                 }])
-                ->with(['users' => function($query) {
+                ->with(['users' => function ($query) {
                     $query->where('is_active', true);
                 }])
                 ->paginate(10),

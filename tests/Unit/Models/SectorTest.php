@@ -2,8 +2,8 @@
 
 namespace Tests\Unit\Models;
 
-use App\Models\Sector;
 use App\Models\Asset;
+use App\Models\Sector;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -18,7 +18,7 @@ class SectorTest extends TestCase
             'name' => 'Seção de Informática',
             'code' => 'SI',
             'description' => 'Responsável pela manutenção dos equipamentos de TI',
-            'is_active' => true
+            'is_active' => true,
         ];
 
         $sector = Sector::create($sectorData);

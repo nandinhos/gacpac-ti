@@ -2,11 +2,10 @@
 
 namespace App\Notifications;
 
+use App\Models\CustodyLog;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use App\Models\CustodyLog;
 
 class CustodyCreatedNotification extends Notification implements ShouldQueue
 {

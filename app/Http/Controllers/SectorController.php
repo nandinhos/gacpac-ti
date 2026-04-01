@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreSectorRequest;
+use App\Models\Sector;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use App\Models\Sector;
-use App\Http\Requests\StoreSectorRequest;
-use App\Http\Requests\UpdateSectorRequest;
 
 class SectorController extends Controller
 {
@@ -27,12 +26,12 @@ class SectorController extends Controller
 
             return response()->json([
                 'message' => 'Setor criado com sucesso',
-                'data' => $sector
+                'data' => $sector,
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Erro ao criar setor',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

@@ -12,7 +12,9 @@ class Index extends Component
     use WithPagination;
 
     public $search = '';
+
     public $status = '';
+
     public $sector_id = '';
 
     protected $queryString = [
@@ -24,20 +26,23 @@ class Index extends Component
     public function delete($id)
     {
         $inventory = InventoryRecord::find($id);
-        
+
         if ($inventory) {
             if ($inventory->status === 'Concluído') {
                 session()->flash('message', 'Inventários concluídos não podem ser excluídos.');
+
                 return;
             }
-            
+
             $inventory->delete();
             session()->flash('message', 'Inventário excluído com sucesso.');
         }
     }
 
     public $reopenId = null;
+
     public $reopenJustification = '';
+
     public $showReopenModal = false;
 
     public function openReopenModal($id)
@@ -55,7 +60,7 @@ class Index extends Component
         ]);
 
         $inventory = InventoryRecord::find($this->reopenId);
-        
+
         if ($inventory) {
             $inventory->update([
                 'status' => 'Reaberto',
@@ -88,7 +93,7 @@ class Index extends Component
     {
         $inventories = InventoryRecord::with(['sector', 'responsibleUser'])
             ->when($this->search, function ($query) {
-                $query->where('commission_number', 'like', '%' . $this->search . '%');
+                $query->where('commission_number', 'like', '%'.$this->search.'%');
             })
             ->when($this->status, function ($query) {
                 $query->where('status', $this->status);

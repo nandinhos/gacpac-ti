@@ -58,16 +58,16 @@ class StoreInventoryRecordRequest extends FormRequest
     protected function prepareForValidation()
     {
         // Gerar número de comissão automático se não fornecido
-        if (!$this->has('commission_number') || empty($this->commission_number)) {
+        if (! $this->has('commission_number') || empty($this->commission_number)) {
             $lastRecord = \App\Models\InventoryRecord::orderBy('id', 'desc')->first();
             $nextNumber = $lastRecord ? ($lastRecord->id + 1) : 1;
             $this->merge([
-                'commission_number' => 'INV-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT)
+                'commission_number' => 'INV-'.str_pad($nextNumber, 4, '0', STR_PAD_LEFT),
             ]);
         }
 
         // Garantir status padrão
-        if (!$this->has('status')) {
+        if (! $this->has('status')) {
             $this->merge(['status' => 'Em Andamento']);
         }
     }

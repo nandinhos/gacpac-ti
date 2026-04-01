@@ -8,10 +8,10 @@ use App\Models\Sector;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Url;
-
-use function Illuminate\Support\defer;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+
+use function Illuminate\Support\defer;
 
 class Edit extends Component
 {
@@ -25,33 +25,46 @@ class Edit extends Component
 
     // Basic Info
     public string $name = '';
+
     public string $brand = '';
+
     public string $model = '';
+
     public string $qr_code = '';
 
     // Identification
     public string $serial_number = '';
+
     public string $patrimony_number = '';
 
     // Classification
     public string $type = 'COMPUTADOR';
+
     public string $category = 'TI';
 
     // Status & Location
     public string $status = 'DISPONIVEL';
+
     public string $condition = 'NOVO';
+
     public ?int $sector_id = null;
+
     public ?string $location = null;
 
     // Financial
     public ?string $acquisition_date = null;
+
     public ?string $warranty_expiry = null;
+
     public ?string $purchase_value = null;
+
     public ?string $notes = null;
 
     // Photos
     public $uploadPhotos = [];
+
     public string $caption = '';
+
     public bool $photosReady = false;
 
     public function mount(Asset $asset)
@@ -103,6 +116,7 @@ class Edit extends Component
         $this->asset->update($validated);
 
         session()->flash('message', 'Ativo atualizado com sucesso.');
+
         return redirect()->route('assets.edit', ['asset' => $this->asset, 'tab' => $this->activeTab]);
     }
 
@@ -143,7 +157,7 @@ class Edit extends Component
         ]);
 
         foreach ($this->uploadPhotos as $photo) {
-            $path = $photo->store('asset-photos/' . $this->asset->id, 'public');
+            $path = $photo->store('asset-photos/'.$this->asset->id, 'public');
 
             $isFirst = $this->asset->photos()->count() === 0;
 

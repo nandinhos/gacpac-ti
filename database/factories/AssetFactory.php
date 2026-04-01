@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\Sector;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Asset>
@@ -18,30 +18,30 @@ class AssetFactory extends Factory
     public function definition(): array
     {
         $type = $this->faker->randomElement([
-            'COMPUTADOR', 'NOTEBOOK', 'MONITOR', 'TECLADO', 'MOUSE', 
+            'COMPUTADOR', 'NOTEBOOK', 'MONITOR', 'TECLADO', 'MOUSE',
             'IMPRESSORA', 'SCANNER', 'ROTEADOR', 'SWITCH', 'SERVIDOR',
             'TELEFONE', 'CELULAR', 'TABLET', 'PROJETOR', 'CAMERA',
-            'HD_EXTERNO', 'PENDRIVE', 'OUTROS'
+            'HD_EXTERNO', 'PENDRIVE', 'OUTROS',
         ]);
         $brand = $this->faker->randomElement(['Dell', 'HP', 'Lenovo', 'Acer', 'Samsung', 'LG']);
 
         return [
-            'qr_code' => 'SGTI-' . str_pad($this->faker->unique()->numberBetween(1, 9999), 4, '0', STR_PAD_LEFT),
-            'name' => $type . ' ' . $brand,
+            'qr_code' => 'SGTI-'.str_pad($this->faker->unique()->numberBetween(1, 9999), 4, '0', STR_PAD_LEFT),
+            'name' => $type.' '.$brand,
             'brand' => $brand,
             'model' => $this->faker->bothify('??##??'),
             'serial_number' => $this->faker->unique()->bothify('???########'),
             'patrimony_number' => $this->faker->unique()->bothify('PAT####'),
             'type' => $type,
             'category' => $this->faker->randomElement([
-                'COMPUTACAO', 'PERIFERICOS', 'REDE', 'COMUNICACAO', 
-                'AUDIOVISUAL', 'ARMAZENAMENTO', 'OUTROS'
+                'COMPUTACAO', 'PERIFERICOS', 'REDE', 'COMUNICACAO',
+                'AUDIOVISUAL', 'ARMAZENAMENTO', 'OUTROS',
             ]),
             'status' => $this->faker->randomElement([
-                'DISPONIVEL', 'EM_USO', 'MANUTENCAO', 'BAIXADO', 'EXTRAVIADO'
+                'DISPONIVEL', 'EM_USO', 'MANUTENCAO', 'BAIXADO', 'EXTRAVIADO',
             ]),
             'condition' => $this->faker->randomElement([
-                'NOVO', 'BOM', 'REGULAR', 'RUIM', 'INSERVIVEL'
+                'NOVO', 'BOM', 'REGULAR', 'RUIM', 'INSERVIVEL',
             ]),
             'sector_id' => Sector::factory(),
             'acquisition_date' => $this->faker->dateTimeBetween('-5 years', 'now')->format('Y-m-d'),

@@ -15,7 +15,7 @@ class MaintenanceService
             ->when(isset($filters['type']), fn ($q) => $q->where('type', $filters['type']))
             ->when(isset($filters['search']), function ($q) use ($filters) {
                 $q->where('description', 'ilike', "%{$filters['search']}%")
-                  ->orWhere('performed_by', 'ilike', "%{$filters['search']}%");
+                    ->orWhere('performed_by', 'ilike', "%{$filters['search']}%");
             })
             ->latest('date')
             ->paginate($filters['per_page'] ?? 15);

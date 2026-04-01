@@ -27,7 +27,7 @@ class SectorFactory extends Factory
                 'Seção de Inteligência',
                 'Seção de Segurança',
                 'Comando',
-                'Estado Maior'
+                'Estado Maior',
             ]),
             'description' => $this->faker->optional()->sentence(),
             'is_active' => true,

@@ -2,13 +2,13 @@
 
 namespace Tests\Unit\Models;
 
-use App\Models\User;
-use App\Models\Sector;
 use App\Models\CustodyLog;
+use App\Models\Sector;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
-use Tests\TestCase;
 use Spatie\Permission\Models\Role;
+use Tests\TestCase;
 
 class UserTest extends TestCase
 {
@@ -17,7 +17,7 @@ class UserTest extends TestCase
     public function test_user_can_be_created_with_military_data()
     {
         $sector = Sector::factory()->create();
-        
+
         $userData = [
             'name' => 'João Silva',
             'rank' => 'Sargento',
@@ -27,7 +27,7 @@ class UserTest extends TestCase
             'sector_id' => $sector->id,
             'email' => 'joao.silva@fab.mil.br',
             'password' => Hash::make('password123'),
-            'is_active' => true
+            'is_active' => true,
         ];
 
         $user = User::create($userData);
@@ -91,7 +91,7 @@ class UserTest extends TestCase
         $role = Role::create(['name' => 'admin']);
         $admin = User::factory()->create();
         $admin->assignRole($role);
-        
+
         $other = User::factory()->create();
 
         $adminCount = User::byRole('admin')->count();

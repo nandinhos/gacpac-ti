@@ -2,15 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Traits\Auditable;
-
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Asset extends Model
 {
-    use HasFactory, SoftDeletes, Auditable;
+    use Auditable, HasFactory, SoftDeletes;
 
     protected $fillable = [
         // Identificação Principal
@@ -26,7 +25,7 @@ class Asset extends Model
         'category',
         'category_id',
         'description', // Mantido pois é útil, mesmo se não obrigatório
-        
+
         // Estado e Localização
         'status',
         'condition',
@@ -62,7 +61,7 @@ class Asset extends Model
         'acquisition_date' => 'date',
         'warranty_expiry' => 'date',
         'purchase_value' => 'decimal:2',
-        
+
         // Casts de compatibilidade
         'purchase_price' => 'decimal:2',
         'condition_rating' => 'integer',

@@ -21,7 +21,7 @@ class Show extends Component
         $custodyAssets = $this->user->currentCustodyAssets()->get();
 
         return view('livewire.users.show', [
-            'custodyAssets' => $custodyAssets
+            'custodyAssets' => $custodyAssets,
         ])->layout('layouts.sgaiti');
     }
 }

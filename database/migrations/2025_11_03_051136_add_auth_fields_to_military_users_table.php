@@ -28,10 +28,10 @@ return new class extends Migration
         Schema::table('military_users', function (Blueprint $table) {
             $table->dropColumn([
                 'password',
-                'email_verified_at', 
+                'email_verified_at',
                 'remember_token',
                 'user_role',
-                'commission_inventories'
+                'commission_inventories',
             ]);
         });
     }

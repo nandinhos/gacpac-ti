@@ -3,18 +3,21 @@
 namespace App\Livewire\Admin;
 
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Spatie\Permission\Models\Role;
-use Illuminate\Support\Facades\Auth;
 
 class UserManagement extends Component
 {
     use WithPagination;
 
     public $search = '';
+
     public $isEditing = false;
+
     public $editingUser;
+
     public $selectedRole = '';
 
     protected $rules = [
@@ -39,11 +42,12 @@ class UserManagement extends Component
 
         if ($this->editingUser->id === Auth::id() && $this->selectedRole !== 'admin') {
             session()->flash('error', 'Você não pode remover seu próprio privilégio de admin.');
+
             return;
         }
 
         $this->editingUser->syncRoles([$this->selectedRole]);
-        
+
         $this->isEditing = false;
         $this->editingUser = null;
         session()->flash('message', 'Função atualizada com sucesso.');
@@ -59,8 +63,8 @@ class UserManagement extends Component
     {
         $users = User::query()
             ->with('roles')
-            ->where('name', 'like', '%' . $this->search . '%')
-            ->orWhere('email', 'like', '%' . $this->search . '%')
+            ->where('name', 'like', '%'.$this->search.'%')
+            ->orWhere('email', 'like', '%'.$this->search.'%')
             ->orderBy('name')
             ->paginate(10);
 

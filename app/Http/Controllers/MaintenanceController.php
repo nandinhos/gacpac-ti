@@ -17,8 +17,9 @@ class MaintenanceController extends Controller
     public function index(Request $request): AnonymousResourceCollection
     {
         $this->authorize('maintenance.view');
-        
+
         $records = $this->service->list($request->only(['asset_id', 'type', 'search', 'per_page']));
+
         return MaintenanceRecordResource::collection($records);
     }
 
@@ -46,7 +47,7 @@ class MaintenanceController extends Controller
     public function show(Asset $asset, MaintenanceRecord $maintenanceRecord): MaintenanceRecordResource
     {
         $this->authorize('maintenance.view');
-        
+
         return new MaintenanceRecordResource($maintenanceRecord->load('asset'));
     }
 
@@ -72,16 +73,18 @@ class MaintenanceController extends Controller
     public function destroy(Asset $asset, MaintenanceRecord $maintenanceRecord): JsonResponse
     {
         $this->authorize('maintenance.delete');
-        
+
         $this->service->delete($maintenanceRecord);
+
         return response()->json(['message' => 'Registro de manutenção removido com sucesso.']);
     }
 
     public function upcoming(Request $request): AnonymousResourceCollection
     {
         $this->authorize('maintenance.view');
-        
+
         $records = $this->service->getUpcoming($request->get('days', 30));
+
         return MaintenanceRecordResource::collection($records);
     }
 }

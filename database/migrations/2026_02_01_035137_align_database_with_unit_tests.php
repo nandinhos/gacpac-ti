@@ -12,31 +12,31 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('sectors', function (Blueprint $table) {
-            if (!Schema::hasColumn('sectors', 'code')) {
+            if (! Schema::hasColumn('sectors', 'code')) {
                 $table->string('code')->unique()->nullable()->after('name');
             }
-            if (!Schema::hasColumn('sectors', 'deleted_at')) {
+            if (! Schema::hasColumn('sectors', 'deleted_at')) {
                 $table->softDeletes();
             }
         });
 
         Schema::table('military_users', function (Blueprint $table) {
-            if (!Schema::hasColumn('military_users', 'registration')) {
+            if (! Schema::hasColumn('military_users', 'registration')) {
                 $table->string('registration')->unique()->nullable()->after('military_id');
             }
-            if (!Schema::hasColumn('military_users', 'role')) {
+            if (! Schema::hasColumn('military_users', 'role')) {
                 $table->string('role')->nullable()->after('user_role');
             }
             // Garantir que email seja único (não era no esquema base)
             $table->string('email')->unique()->change();
-            
-            if (!Schema::hasColumn('military_users', 'deleted_at')) {
+
+            if (! Schema::hasColumn('military_users', 'deleted_at')) {
                 $table->softDeletes();
             }
         });
 
         Schema::table('assets', function (Blueprint $table) {
-            if (!Schema::hasColumn('assets', 'deleted_at')) {
+            if (! Schema::hasColumn('assets', 'deleted_at')) {
                 $table->softDeletes();
             }
         });

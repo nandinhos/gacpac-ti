@@ -3,19 +3,25 @@
 namespace App\Livewire\Inventory;
 
 use App\Models\InventoryRecord;
-use App\Models\User;
 use App\Models\Sector;
+use App\Models\User;
 use App\Notifications\InventoryAssignedNotification;
 use Livewire\Component;
 
 class Create extends Component
 {
     public $commission_number;
+
     public $start_date;
+
     public $sector_id = '';
+
     public $responsible_user_id = '';
+
     public $notes = '';
+
     public $is_commission = false;
+
     public $selected_members = [];
 
     public function mount()
@@ -28,7 +34,7 @@ class Create extends Component
     {
         $year = date('Y');
         $lastId = InventoryRecord::max('id') ?? 0;
-        $this->commission_number = 'INV-' . $year . '-' . str_pad($lastId + 1, 4, '0', STR_PAD_LEFT);
+        $this->commission_number = 'INV-'.$year.'-'.str_pad($lastId + 1, 4, '0', STR_PAD_LEFT);
     }
 
     public function save()
@@ -59,7 +65,7 @@ class Create extends Component
             'is_commission' => $this->is_commission,
         ]);
 
-        if ($this->is_commission && !empty($this->selected_members)) {
+        if ($this->is_commission && ! empty($this->selected_members)) {
             $inventory->commissionMembers()->attach($this->selected_members);
         }
 
@@ -73,7 +79,7 @@ class Create extends Component
             }
         } catch (\Exception $e) {
             // Silently fail if notifications are not configured
-            \Log::warning('Failed to send inventory notification: ' . $e->getMessage());
+            \Log::warning('Failed to send inventory notification: '.$e->getMessage());
         }
 
         session()->flash('message', 'Inventário criado com sucesso.');

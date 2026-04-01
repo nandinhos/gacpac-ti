@@ -16,6 +16,7 @@ class AssetService
             ->when(isset($filters['search']), function ($q) use ($filters) {
                 $driver = $q->getConnection()->getDriverName();
                 $operator = $driver === 'sqlite' ? 'like' : 'ilike';
+
                 return $q->where('name', $operator, "%{$filters['search']}%");
             })
             ->paginate($filters['per_page'] ?? 15);

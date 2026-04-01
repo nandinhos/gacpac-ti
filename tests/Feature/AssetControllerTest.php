@@ -2,14 +2,14 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Tests\TestCase;
 use App\Models\Asset;
 use App\Models\Category;
 use App\Models\Sector;
-use Laravel\Sanctum\Sanctum;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
+use Laravel\Sanctum\Sanctum;
+use Tests\TestCase;
 
 class AssetControllerTest extends TestCase
 {
@@ -18,7 +18,7 @@ class AssetControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Seed permissions
         $role = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'admin']);
         $permissions = ['assets.view', 'assets.create', 'assets.edit', 'assets.delete'];
@@ -32,6 +32,7 @@ class AssetControllerTest extends TestCase
     {
         $user = User::factory()->create(['is_active' => true]);
         $user->assignRole('admin');
+
         return $user;
     }
 
@@ -50,7 +51,7 @@ class AssetControllerTest extends TestCase
 
         // Assert
         $response->assertStatus(200)
-                ->assertJsonCount(3, 'data');
+            ->assertJsonCount(3, 'data');
     }
 
     public function test_can_create_asset_with_valid_data()
@@ -77,11 +78,11 @@ class AssetControllerTest extends TestCase
 
         // Assert
         $response->assertStatus(201)
-                ->assertJsonPath('data.name', 'Dell Optiplex 3090'); // No Resource Name é formatado? Verificarei.
+            ->assertJsonPath('data.name', 'Dell Optiplex 3090'); // No Resource Name é formatado? Verificarei.
 
         $this->assertDatabaseHas('assets', [
             'qr_code' => 'QR001',
-            'serial_number' => 'DELL123456'
+            'serial_number' => 'DELL123456',
         ]);
     }
 
@@ -108,7 +109,7 @@ class AssetControllerTest extends TestCase
 
         $updateData = [
             'name' => 'Updated Name',
-            'status' => 'MANUTENCAO'
+            'status' => 'MANUTENCAO',
         ];
 
         $user = $this->createAdminUser();
@@ -123,7 +124,7 @@ class AssetControllerTest extends TestCase
         $this->assertDatabaseHas('assets', [
             'id' => $asset->id,
             'name' => 'Updated Name',
-            'status' => 'MANUTENCAO'
+            'status' => 'MANUTENCAO',
         ]);
     }
 
@@ -151,7 +152,7 @@ class AssetControllerTest extends TestCase
         $cat1 = Category::factory()->create();
         $cat2 = Category::factory()->create();
         $sector = Sector::factory()->create();
-        
+
         Asset::factory()->create(['category_id' => $cat1->id, 'sector_id' => $sector->id]);
         Asset::factory()->create(['category_id' => $cat2->id, 'sector_id' => $sector->id]);
         Asset::factory()->create(['category_id' => $cat1->id, 'sector_id' => $sector->id]);
@@ -164,7 +165,7 @@ class AssetControllerTest extends TestCase
 
         // Assert
         $response->assertStatus(200)
-                ->assertJsonCount(2, 'data');
+            ->assertJsonCount(2, 'data');
     }
 
     public function test_can_search_assets()
@@ -175,12 +176,12 @@ class AssetControllerTest extends TestCase
         Asset::factory()->create([
             'name' => 'Dell Laptop',
             'sector_id' => $sector->id,
-            'category_id' => $category->id
+            'category_id' => $category->id,
         ]);
         Asset::factory()->create([
             'name' => 'Apple Mac',
             'sector_id' => $sector->id,
-            'category_id' => $category->id
+            'category_id' => $category->id,
         ]);
 
         $user = $this->createAdminUser();
@@ -191,6 +192,6 @@ class AssetControllerTest extends TestCase
 
         // Assert
         $response->assertStatus(200)
-                ->assertJsonCount(1, 'data');
+            ->assertJsonCount(1, 'data');
     }
 }

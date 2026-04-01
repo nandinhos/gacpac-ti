@@ -27,7 +27,7 @@ return new class extends Migration
             // Para segurança, definimos um default antes de alterar se houver nulls
             DB::table('users')->whereNull('force')->update(['force' => 'FAB']);
             DB::table('users')->whereNull('organization')->update(['organization' => 'GAC-PAC']);
-            
+
             $table->string('force')->default('FAB')->nullable(false)->change();
             $table->string('organization')->default('GAC-PAC')->nullable(false)->change();
         });

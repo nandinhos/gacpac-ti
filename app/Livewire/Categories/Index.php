@@ -11,6 +11,7 @@ class Index extends Component
     use WithPagination;
 
     public $search = '';
+
     public $parentId = '';
 
     protected $queryString = [
@@ -31,16 +32,18 @@ class Index extends Component
     public function delete($id)
     {
         $category = Category::findOrFail($id);
-        
+
         // Verifica se tem ativos vinculados
         if ($category->assets()->count() > 0) {
             session()->flash('error', 'Não é possível excluir: existem ativos vinculados a esta categoria.');
+
             return;
         }
 
         // Verifica se tem categorias filhas
         if ($category->children()->count() > 0) {
             session()->flash('error', 'Não é possível excluir: existem subcategorias vinculadas.');
+
             return;
         }
 
@@ -55,7 +58,7 @@ class Index extends Component
             ->withCount('assets');
 
         if ($this->search) {
-            $query->where('name', 'like', '%' . $this->search . '%');
+            $query->where('name', 'like', '%'.$this->search.'%');
         }
 
         if ($this->parentId === 'root') {

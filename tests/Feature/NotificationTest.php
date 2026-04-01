@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
 use App\Models\InventoryRecord;
+use App\Models\User;
 use App\Notifications\InventoryAssignedNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -24,9 +24,9 @@ class NotificationTest extends TestCase
     public function test_dropdown_displays_unread_notifications_count()
     {
         $inventory = InventoryRecord::factory()->create([
-            'responsible_user_id' => $this->user->id
+            'responsible_user_id' => $this->user->id,
         ]);
-        
+
         $this->user->notify(new InventoryAssignedNotification($inventory));
 
         Livewire::actingAs($this->user)
@@ -38,9 +38,9 @@ class NotificationTest extends TestCase
     public function test_can_mark_notification_as_read_from_dropdown()
     {
         $inventory = InventoryRecord::factory()->create([
-            'responsible_user_id' => $this->user->id
+            'responsible_user_id' => $this->user->id,
         ]);
-        
+
         $this->user->notify(new InventoryAssignedNotification($inventory));
         $notification = $this->user->unreadNotifications->first();
 
@@ -56,7 +56,7 @@ class NotificationTest extends TestCase
     {
         $inventory1 = InventoryRecord::factory()->create(['responsible_user_id' => $this->user->id]);
         $inventory2 = InventoryRecord::factory()->create(['responsible_user_id' => $this->user->id]);
-        
+
         $this->user->notify(new InventoryAssignedNotification($inventory1));
         $this->user->notify(new InventoryAssignedNotification($inventory2));
 

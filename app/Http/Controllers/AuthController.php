@@ -2,20 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
-use App\Models\User;
-use App\Http\Requests\LoginRequest;
 
 class AuthController extends Controller
 {
     /**
      * Handle user login
      *
-     * @param Request $request
      * @return JsonResponse
      */
     public function login(Request $request)
@@ -54,47 +51,41 @@ class AuthController extends Controller
                     'commission_inventories' => $user->commission_inventories,
                 ],
                 'token' => $token,
-                'abilities' => $abilities
+                'abilities' => $abilities,
             ]);
 
         } catch (ValidationException $e) {
             return response()->json([
                 'message' => 'Dados inválidos',
-                'errors' => $e->errors()
+                'errors' => $e->errors(),
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Erro interno do servidor',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
 
     /**
      * Handle user logout
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function logout(Request $request): JsonResponse
     {
         $request->user()->currentAccessToken()->delete();
-        
+
         return response()->json([
-            'message' => 'Logout realizado com sucesso'
+            'message' => 'Logout realizado com sucesso',
         ]);
     }
 
     /**
      * Get authenticated user info
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function me(Request $request): JsonResponse
     {
         $user = $request->user();
-        
+
         return response()->json([
             'user' => [
                 'id' => $user->id,
@@ -106,35 +97,32 @@ class AuthController extends Controller
                 'user_role' => $user->user_role,
                 'commission_inventories' => $user->commission_inventories,
             ],
-            'abilities' => $this->getAbilitiesForRole($user->user_role)
+            'abilities' => $this->getAbilitiesForRole($user->user_role),
         ]);
     }
 
     /**
      * Get abilities based on user role for Sanctum tokens
-     *
-     * @param string $role
-     * @return array
      */
     private function getAbilitiesForRole(string $role): array
     {
-        return match($role) {
+        return match ($role) {
             'admin' => [
                 'view:all',
-                'create:all', 
+                'create:all',
                 'edit:all',
-                'delete:all'
+                'delete:all',
             ],
             'commission' => [
                 'view:custody',
                 'view:inventory',
                 'edit:inventory',
-                'edit:profile'
+                'edit:profile',
             ],
             'user' => [
                 'view:custody',
                 'view:profile',
-                'edit:profile'
+                'edit:profile',
             ],
             default => ['view:profile']
         };

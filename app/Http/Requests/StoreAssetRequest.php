@@ -28,20 +28,20 @@ class StoreAssetRequest extends FormRequest
             'serial_number' => ['nullable', 'string', 'max:100', 'unique:assets,serial_number'],
             'patrimony_number' => ['nullable', 'string', 'max:50', 'unique:assets,patrimony_number'],
             'type' => ['required', 'string', Rule::in([
-                'COMPUTADOR', 'NOTEBOOK', 'MONITOR', 'TECLADO', 'MOUSE', 
+                'COMPUTADOR', 'NOTEBOOK', 'MONITOR', 'TECLADO', 'MOUSE',
                 'IMPRESSORA', 'SCANNER', 'ROTEADOR', 'SWITCH', 'SERVIDOR',
                 'TELEFONE', 'CELULAR', 'TABLET', 'PROJETOR', 'CAMERA',
-                'HD_EXTERNO', 'PENDRIVE', 'OUTROS'
+                'HD_EXTERNO', 'PENDRIVE', 'OUTROS',
             ])],
             'category' => ['required', 'string', Rule::in([
-                'COMPUTACAO', 'PERIFERICOS', 'REDE', 'COMUNICACAO', 
-                'AUDIOVISUAL', 'ARMAZENAMENTO', 'OUTROS'
+                'COMPUTACAO', 'PERIFERICOS', 'REDE', 'COMUNICACAO',
+                'AUDIOVISUAL', 'ARMAZENAMENTO', 'OUTROS',
             ])],
             'status' => ['required', 'string', Rule::in([
-                'DISPONIVEL', 'EM_USO', 'MANUTENCAO', 'BAIXADO', 'EXTRAVIADO'
+                'DISPONIVEL', 'EM_USO', 'MANUTENCAO', 'BAIXADO', 'EXTRAVIADO',
             ])],
             'condition' => ['required', 'string', Rule::in([
-                'NOVO', 'BOM', 'REGULAR', 'RUIM', 'INSERVIVEL'
+                'NOVO', 'BOM', 'REGULAR', 'RUIM', 'INSERVIVEL',
             ])],
             'sector_id' => ['required', 'integer', 'exists:sectors,id'],
             'acquisition_date' => ['nullable', 'date', 'before_or_equal:today'],

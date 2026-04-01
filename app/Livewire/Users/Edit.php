@@ -3,22 +3,27 @@
 namespace App\Livewire\Users;
 
 use App\Models\User;
-use App\Models\Sector;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules;
 use Livewire\Component;
 
 class Edit extends Component
 {
     public User $user;
+
     public $name;
+
     public $rank;
+
     public $military_id;
+
     public $email;
+
     public string $password = '';
+
     public string $password_confirmation = '';
+
     public $sector_id;
+
     public $is_active = true;
 
     public function mount(User $user)

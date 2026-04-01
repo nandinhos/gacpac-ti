@@ -3,10 +3,9 @@
 namespace App\Livewire\Users;
 
 use App\Models\User;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
-
-use Livewire\Attributes\Title;
 
 #[Title('Usuários')]
 class Index extends Component
@@ -14,6 +13,7 @@ class Index extends Component
     use WithPagination;
 
     public $search = '';
+
     public $confirmingDelete = false;
 
     public function confirmDelete($id)

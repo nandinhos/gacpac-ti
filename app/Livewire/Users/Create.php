@@ -2,20 +2,23 @@
 
 namespace App\Livewire\Users;
 
-use App\Models\Sector;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rules;
 use Livewire\Component;
 
 class Create extends Component
 {
     public $name;
+
     public $rank;
+
     public $military_id;
+
     public $email;
+
     public $sector_id;
+
     public $is_active = true; // Default true
 
     protected $rules = [

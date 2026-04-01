@@ -16,6 +16,7 @@ class CategoryController extends Controller
     public function index(Request $request): AnonymousResourceCollection
     {
         $categories = $this->service->list($request->only(['search', 'per_page']));
+
         return CategoryResource::collection($categories);
     }
 
@@ -41,7 +42,7 @@ class CategoryController extends Controller
         $this->authorize('assets.edit');
 
         $validated = $request->validate([
-            'name' => ['sometimes', 'string', 'max:255', 'unique:categories,name,' . $category->id],
+            'name' => ['sometimes', 'string', 'max:255', 'unique:categories,name,'.$category->id],
             'description' => ['nullable', 'string'],
         ]);
 
@@ -51,8 +52,9 @@ class CategoryController extends Controller
     public function destroy(Category $category): JsonResponse
     {
         $this->authorize('assets.delete');
-        
+
         $this->service->delete($category);
+
         return response()->json(['message' => 'Categoria removida com sucesso.']);
     }
 }

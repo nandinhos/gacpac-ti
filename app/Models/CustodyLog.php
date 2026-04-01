@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class CustodyLog extends Model
 {
     use HasFactory;
+
     protected $table = 'custody_logs';
 
     /**
@@ -47,7 +48,7 @@ class CustodyLog extends Model
     public function assets()
     {
         return $this->belongsToMany(Asset::class, 'custody_assets')
-                    ->withTimestamps();
+            ->withTimestamps();
     }
 
     // Scopes

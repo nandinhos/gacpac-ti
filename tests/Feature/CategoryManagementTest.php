@@ -2,13 +2,14 @@
 
 namespace Tests\Feature;
 
+use App\Livewire\Categories\Create;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
-use Tests\TestCase;
-use App\Livewire\Categories\Create;
 use PHPUnit\Framework\Attributes\Test;
-use App\Models\Category; // Will be created later
+use Tests\TestCase;
+
+// Will be created later
 
 class CategoryManagementTest extends TestCase
 {

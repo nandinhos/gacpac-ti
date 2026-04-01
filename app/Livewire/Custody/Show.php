@@ -3,9 +3,9 @@
 namespace App\Livewire\Custody;
 
 use App\Models\CustodyLog;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
-use Illuminate\Support\Facades\Storage;
 
 class Show extends Component
 {
@@ -15,13 +15,18 @@ class Show extends Component
 
     // Signed Document Upload
     public $signedDocument;
+
     public $uploadJustification = '';
+
     public $showUploadModal = false;
+
     public $showRemoveModal = false;
+
     public $removeJustification = '';
 
     // Check-in Modal
     public $showCheckinModal = false;
+
     public $checkinJustification = '';
 
     public function mount(CustodyLog $custodyLog)
@@ -134,8 +139,8 @@ class Show extends Component
             $this->custodyLog->update([
                 'checkin_date' => now(),
                 'notes' => $this->custodyLog->notes
-                    ? $this->custodyLog->notes . "\n\n[BAIXA] " . now()->format('d/m/Y H:i') . ": " . $this->checkinJustification
-                    : "[BAIXA] " . now()->format('d/m/Y H:i') . ": " . $this->checkinJustification,
+                    ? $this->custodyLog->notes."\n\n[BAIXA] ".now()->format('d/m/Y H:i').': '.$this->checkinJustification
+                    : '[BAIXA] '.now()->format('d/m/Y H:i').': '.$this->checkinJustification,
             ]);
 
             // Release assets

@@ -11,20 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (!Schema::hasTable('categories')) {
+        if (! Schema::hasTable('categories')) {
             return;
         }
 
         Schema::table('categories', function (Blueprint $table) {
-            if (!Schema::hasColumn('categories', 'parent_id')) {
+            if (! Schema::hasColumn('categories', 'parent_id')) {
                 $table->foreignId('parent_id')->nullable()->constrained('categories')->onDelete('cascade');
             }
 
-            if (!Schema::hasColumn('categories', 'color')) {
+            if (! Schema::hasColumn('categories', 'color')) {
                 $table->string('color')->nullable();
             }
 
-            if (!Schema::hasColumn('categories', 'deleted_at')) {
+            if (! Schema::hasColumn('categories', 'deleted_at')) {
                 $table->softDeletes();
             }
         });
@@ -35,7 +35,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        if (!Schema::hasTable('categories')) {
+        if (! Schema::hasTable('categories')) {
             return;
         }
 

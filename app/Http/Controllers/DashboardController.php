@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use App\Models\Asset;
-use App\Models\User;
-use App\Models\Sector;
 use App\Models\CustodyLog;
 use App\Models\InventoryRecord;
+use App\Models\Sector;
+use App\Models\User;
+use Illuminate\Support\Facades\Cache;
 
 class DashboardController extends Controller
 {
@@ -29,71 +28,71 @@ class DashboardController extends Controller
             $custodyLogs = CustodyLog::all();
             $inventoryRecords = InventoryRecord::all();
 
-        $totalAssets = $assets->count();
-        $assetsByStatus = $assets->groupBy('status')->map->count();
-        $assetsByCategory = $assets->groupBy('category')->map->count();
-        $maintenanceNeeded = $assets->where('status', 'Manutenção')->count();
+            $totalAssets = $assets->count();
+            $assetsByStatus = $assets->groupBy('status')->map->count();
+            $assetsByCategory = $assets->groupBy('category')->map->count();
+            $maintenanceNeeded = $assets->where('status', 'Manutenção')->count();
 
-        $activeCustody = $custodyLogs->whereNull('checkin_date')->count();
+            $activeCustody = $custodyLogs->whereNull('checkin_date')->count();
 
-        $activeInventory = $inventoryRecords->where('status', 'Em Andamento')->count();
+            $activeInventory = $inventoryRecords->where('status', 'Em Andamento')->count();
 
-        $totalUsers = $users->count();
-        $activeUsers = $users->where('is_active', true)->count();
+            $totalUsers = $users->count();
+            $activeUsers = $users->where('is_active', true)->count();
 
-        $totalSectors = $sectors->count();
+            $totalSectors = $sectors->count();
 
-        $recentAssets = $assets->sortByDesc('created_at')->take(5)->map(function ($asset) {
-            return [
-                'id' => $asset->id,
-                'name' => $asset->name,
-                'qr_code' => $asset->qr_code,
-                'category' => $asset->category,
-                'created_at' => $asset->created_at->toISOString(),
-            ];
-        });
+            $recentAssets = $assets->sortByDesc('created_at')->take(5)->map(function ($asset) {
+                return [
+                    'id' => $asset->id,
+                    'name' => $asset->name,
+                    'qr_code' => $asset->qr_code,
+                    'category' => $asset->category,
+                    'created_at' => $asset->created_at->toISOString(),
+                ];
+            });
 
-        $recentCustody = $custodyLogs->sortByDesc('checkout_date')->take(5)->map(function ($custody) {
-            return [
-                'id' => $custody->id,
-                'cautela_number' => $custody->cautela_number,
-                'checkout_date' => $custody->checkout_date->toISOString(),
-                'checkin_date' => $custody->checkin_date?->toISOString(),
-                'user_name' => '',
-                'user_rank' => '',
-            ];
-        });
+            $recentCustody = $custodyLogs->sortByDesc('checkout_date')->take(5)->map(function ($custody) {
+                return [
+                    'id' => $custody->id,
+                    'cautela_number' => $custody->cautela_number,
+                    'checkout_date' => $custody->checkout_date->toISOString(),
+                    'checkin_date' => $custody->checkin_date?->toISOString(),
+                    'user_name' => '',
+                    'user_rank' => '',
+                ];
+            });
 
-        return response()->json([
-            'assets' => [
-                'total' => $totalAssets,
-                'byStatus' => [
-                    'emUso' => $assetsByStatus->get('Em Uso', 0),
-                    'disponivel' => $assetsByStatus->get('Disponível', 0),
-                    'manutencao' => $assetsByStatus->get('Manutenção', 0),
-                    'baixado' => $assetsByStatus->get('Baixado', 0),
+            return response()->json([
+                'assets' => [
+                    'total' => $totalAssets,
+                    'byStatus' => [
+                        'emUso' => $assetsByStatus->get('Em Uso', 0),
+                        'disponivel' => $assetsByStatus->get('Disponível', 0),
+                        'manutencao' => $assetsByStatus->get('Manutenção', 0),
+                        'baixado' => $assetsByStatus->get('Baixado', 0),
+                    ],
+                    'byCategory' => $assetsByCategory->toArray(),
+                    'maintenanceNeeded' => $maintenanceNeeded,
                 ],
-                'byCategory' => $assetsByCategory->toArray(),
-                'maintenanceNeeded' => $maintenanceNeeded,
-            ],
-            'custody' => [
-                'active' => $activeCustody,
-            ],
-            'inventory' => [
-                'active' => $activeInventory,
-            ],
-            'users' => [
-                'total' => $totalUsers,
-                'active' => $activeUsers,
-            ],
-            'sectors' => [
-                'total' => $totalSectors,
-            ],
-            'recent' => [
-                'assets' => $recentAssets->values(),
-                'custody' => $recentCustody->values(),
-            ],
+                'custody' => [
+                    'active' => $activeCustody,
+                ],
+                'inventory' => [
+                    'active' => $activeInventory,
+                ],
+                'users' => [
+                    'total' => $totalUsers,
+                    'active' => $activeUsers,
+                ],
+                'sectors' => [
+                    'total' => $totalSectors,
+                ],
+                'recent' => [
+                    'assets' => $recentAssets->values(),
+                    'custody' => $recentCustody->values(),
+                ],
             ]);
-                });
+        });
     }
 }
