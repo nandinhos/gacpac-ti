@@ -7,7 +7,7 @@
 # =====================================================
 
 detect_llm() {
-    # OpenCode detection
+    # 1. Verificar variáveis de ambiente (primário)
     if [[ "$OPENCODE" == "1" ]] || [[ "$OPENCODE" == "true" ]]; then
         echo "opencode"
         return
@@ -33,9 +33,43 @@ detect_llm() {
         return
     fi
     
+    # 2. Verificar CLAUDE_TASK_ID (Claude Code)
     if [ -n "$CLAUDE_TASK_ID" ]; then
         if [[ "$CLAUDE_TASK_ID" == *"antigravity"* ]]; then
             echo "antigravity"
+            return
+        fi
+    fi
+    
+    # 3. Fallback: verificar context.json do DEVORQ (funciona no Docker)
+    local devorq_context="${DEVORQ_DIR:-.devorq}/state/context.json"
+    if [ -f "$devorq_context" ]; then
+        local llm_from_context=$(grep -o '"llm"[[:space:]]*:[[:space:]]*"[^"]*"' "$devorq_context" 2>/dev/null | cut -d'"' -f4)
+        if [ -n "$llm_from_context" ] && [[ "$llm_from_context" != "unknown" ]]; then
+            echo "$llm_from_context"
+            return
+        fi
+    fi
+    
+    # 4. Detecção por arquivo de sessão
+    local devorq_session="${DEVORQ_DIR:-.devorq}/state/session.json"
+    if [ -f "$devorq_session" ]; then
+        local llm_from_session=$(grep -o '"llm"[[:space:]]*:[[:space:]]*"[^"]*"' "$devorq_session" 2>/dev/null | head -1 | cut -d'"' -f4)
+        if [ -n "$llm_from_session" ] && [[ "$llm_from_session" != "unknown" ]]; then
+            echo "$llm_from_session"
+            return
+        fi
+    fi
+    
+    # 5. Detecção por nome do container/podman
+    if [ -f "/.dockerenv" ]; then
+        # Dentro do Docker, tentar detectar pelo hostname
+        if hostname | grep -qi "opencode"; then
+            echo "opencode"
+            return
+        fi
+        if hostname | grep -qi "claude"; then
+            echo "claude"
             return
         fi
     fi
