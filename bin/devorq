@@ -23,6 +23,8 @@ log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
 # Carregar módulos
 source "$DEVORQ_ROOT/lib/detect.sh"
+source "$DEVORQ_ROOT/lib/lessons.sh"
+source "$DEVORQ_ROOT/lib/handoff.sh"
 
 # =====================================================
 # COMANDOS
@@ -216,35 +218,376 @@ EOF
 }
 
 cmd_skills() {
-    echo "Skills DEVORQ:"
-    ls -1 "$DEVORQ_DIR/skills/" 2>/dev/null | sed 's|/||g' | while read skill; do
-        echo "  - $skill"
+    local skills_dir="$DEVORQ_DIR/skills"
+
+    if [ ! -d "$skills_dir" ]; then
+        echo "Skills DEVORQ (0 skills):"
+        return 0
+    fi
+
+    echo "Skills DEVORQ ($(ls -1 "$skills_dir/" 2>/dev/null | wc -l | tr -d ' ') skills):"
+
+    local found_any=false
+    for skill_dir in "$skills_dir"/*/; do
+        [ -d "$skill_dir" ] || continue
+        found_any=true
+        local skill
+        skill=$(basename "$skill_dir")
+        local version=""
+        if [ -f "$skill_dir/CHANGELOG.md" ]; then
+            version=$(grep -o 'v[0-9]\+\.[0-9]\+\.[0-9]\+' "$skill_dir/CHANGELOG.md" 2>/dev/null | head -1)
+        fi
+        echo "  - $skill ${version:-v?}"
     done
+}
+
+# =====================================================
+# SPECS
+# =====================================================
+
+cmd_spec() {
+    local subcmd="${2:-index}"
+    case "$subcmd" in
+        index)
+            local spec_index="$DEVORQ_ROOT/bin/spec-index"
+            if [ -f "$spec_index" ]; then
+                log "📋 Gerando índice de specs..."
+                bash "$spec_index"
+            else
+                log_error "bin/spec-index não encontrado"
+                return 1
+            fi
+            ;;
+        list)
+            local index_file="$DEVORQ_ROOT/docs/specs/_index.md"
+            if [ -f "$index_file" ]; then
+                cat "$index_file"
+            else
+                log_error "Índice não encontrado. Execute: devorq spec index"
+                return 1
+            fi
+            ;;
+        status)
+            spec_status
+            ;;
+        update)
+            spec_update
+            ;;
+        *)
+            log_error "Subcomando desconhecido: $subcmd"
+            echo "Uso: devorq spec [index|list|status|update]"
+            return 1
+            ;;
+    esac
+}
+
+spec_status() {
+    log "📊 Analisando status das specs..."
+    echo ""
+    
+    local specs_dir="$DEVORQ_ROOT/docs/specs"
+    local count_approved=0
+    local count_implemented=0
+    
+    for spec_file in "$specs_dir"/*.md; do
+        [ -f "$spec_file" ] || continue
+        [ "$(basename "$spec_file")" = "_index.md" ] && continue
+        
+        local spec_id spec_title spec_status domain related_files related_tasks files_exist
+        spec_id=$(grep -m1 "^id:" "$spec_file" 2>/dev/null | cut -d: -f2 | xargs)
+        spec_title=$(grep -m1 "^title:" "$spec_file" 2>/dev/null | cut -d: -f2- | xargs)
+        spec_status=$(grep -m1 "^status:" "$spec_file" 2>/dev/null | cut -d: -f2 | xargs)
+        domain=$(grep -m1 "^domain:" "$spec_file" 2>/dev/null | cut -d: -f2 | xargs)
+        
+        # Contagem precisa de related_files (só no bloco YAML)
+        related_files=$(awk '/^related_files:/,/^---/' "$spec_file" 2>/dev/null | grep -c "^  - " || echo "0")
+        [ -z "$related_files" ] && related_files=0
+        
+        # Contagem related_tasks
+        related_tasks=$(grep -c "^  - TASK-" "$spec_file" 2>/dev/null || echo "0")
+        [ -z "$related_tasks" ] && related_tasks=0
+        
+        # Verificar existência dos arquivos
+        files_exist=0
+        if [ "$related_files" -gt 0 ]; then
+            local file_list
+            file_list=$(awk '/^related_files:/,/^---/' "$spec_file" 2>/dev/null | grep "^  - " | sed 's/^  - //')
+            for f in $file_list; do
+                if [ -e "$f" ] || [ -d "$f" ]; then
+                    files_exist=$((files_exist + 1))
+                fi
+            done
+        fi
+        
+        echo "## $spec_id: $spec_title"
+        echo "  Status: $spec_status | Domínio: $domain"
+        echo "  Related files: $related_files | Encontrados: $files_exist"
+        echo "  Related tasks: $related_tasks"
+        
+        # Critério: related_files > 0 E > 50% existem
+        local percent=0
+        if [ "$related_files" -gt 0 ]; then
+            percent=$((files_exist * 100 / related_files))
+        fi
+        
+        if [ "$spec_status" = "approved" ] && [ "$related_files" -gt 0 ] && [ "$percent" -ge 50 ]; then
+            echo "  → Implementada ($percent% existe) ✓"
+        elif [ "$spec_status" = "approved" ] && [ "$related_files" -gt 0 ]; then
+            echo "  → Parcialmente implementada ($percent% existe)"
+        elif [ "$spec_status" = "approved" ]; then
+            echo "  → Aguarda implementação"
+        fi
+        
+        echo ""
+        
+        [ "$spec_status" = "approved" ] && count_approved=$((count_approved + 1))
+        [ "$spec_status" = "implemented" ] && count_implemented=$((count_implemented + 1))
+    done
+    
+    echo "---"
+    echo "Resumo: $count_approved approved, $count_implemented implemented"
+}
+
+spec_update() {
+    log "🔄 Atualizando status das specs..."
+    echo ""
+    
+    local specs_dir="$DEVORQ_ROOT/docs/specs"
+    local updated=0
+    
+    for spec_file in "$specs_dir"/*.md; do
+        [ -f "$spec_file" ] || continue
+        [ "$(basename "$spec_file")" = "_index.md" ] && continue
+        
+        local spec_id spec_status related_files files_exist percent
+        spec_id=$(grep -m1 "^id:" "$spec_file" 2>/dev/null | cut -d: -f2 | xargs)
+        spec_status=$(grep -m1 "^status:" "$spec_file" 2>/dev/null | cut -d: -f2 | xargs)
+        
+        related_files=$(awk '/^related_files:/,/^---/' "$spec_file" 2>/dev/null | grep -c "^  - " || echo "0")
+        [ -z "$related_files" ] && related_files=0
+        
+        files_exist=0
+        if [ "$related_files" -gt 0 ]; then
+            local file_list
+            file_list=$(awk '/^related_files:/,/^---/' "$spec_file" 2>/dev/null | grep "^  - " | sed 's/^  - //')
+            for f in $file_list; do
+                if [ -e "$f" ] || [ -d "$f" ]; then
+                    files_exist=$((files_exist + 1))
+                fi
+            done
+        fi
+        
+        percent=0
+        [ "$related_files" -gt 0 ] && percent=$((files_exist * 100 / related_files))
+        
+        if [ "$spec_status" = "approved" ] && [ "$related_files" -gt 0 ] && [ "$percent" -ge 50 ]; then
+            log "Atualizando $spec_id: approved → implemented ($files_exist/$related_files = $percent%)"
+            sed -i "s/^status: approved$/status: implemented/" "$spec_file"
+            sed -i "s/^updated_at: [0-9-]*$/updated_at: $(date +%Y-%m-%d)/" "$spec_file"
+            updated=$((updated + 1))
+        fi
+    done
+    
+    echo ""
+    log "Specs atualizadas: $updated"
+    log "Regenerando índice..."
+    bash "$DEVORQ_ROOT/bin/spec-index"
+    log_success "Concluído!"
+}
+
+# =====================================================
+# LIÇÕES
+# =====================================================
+
+cmd_lessons() {
+    local subcmd="${2:-list}"
+    case "$subcmd" in
+        list)
+            lessons_list "$DEVORQ_DIR"
+            ;;
+        validate)
+            lessons_validate "$DEVORQ_DIR"
+            ;;
+        apply)
+            lessons_apply "$DEVORQ_DIR" "${3:-}"
+            ;;
+        *)
+            log_error "Subcomando desconhecido: $subcmd"
+            echo "Uso: devorq lessons <list|validate|apply> [nome]"
+            exit 1
+            ;;
+    esac
+}
+
+# =====================================================
+# HANDOFF
+# =====================================================
+
+cmd_handoff() {
+    local subcmd="${2:-status}"
+    case "$subcmd" in
+        generate)
+            log "Gerando handoff file..."
+            local handoff_file
+            handoff_file=$(generate_handoff "$DEVORQ_DIR" "$DEVORQ_ROOT")
+            log_success "Handoff gerado: $handoff_file"
+            echo ""
+            echo "[Gate 4] Revisar o handoff antes de passar para o próximo LLM:"
+            echo ""
+            cat "$handoff_file"
+            echo ""
+            echo "Arquivo: $handoff_file"
+            ;;
+        status)
+            handoff_status "$DEVORQ_DIR"
+            ;;
+        list)
+            handoff_list "$DEVORQ_DIR"
+            ;;
+        update)
+            handoff_update_status "$DEVORQ_DIR" "${3:-em_andamento}"
+            ;;
+        *)
+            log_error "Subcomando desconhecido: $subcmd"
+            echo "Uso: devorq handoff <generate|status|list|update>"
+            exit 1
+            ;;
+    esac
+}
+
+# =====================================================
+# SKILL (versioning e rollback)
+# =====================================================
+
+cmd_skill() {
+    local subcmd="${2:-list}"
+    case "$subcmd" in
+        rollback)
+            local skill_name="${3:-}"
+            local target_version="${4:-}"
+            if [ -z "$skill_name" ] || [ -z "$target_version" ]; then
+                echo "Uso: devorq skill rollback <nome_skill> <versao>"
+                echo "Exemplo: devorq skill rollback scope-guard v1.0.0"
+                exit 1
+            fi
+            skill_rollback "$DEVORQ_DIR/skills" "$skill_name" "$target_version"
+            ;;
+        version)
+            local skill_name="${3:-}"
+            local bump_type="${4:-minor}"
+            if [ -z "$skill_name" ]; then
+                echo "Uso: devorq skill version <nome_skill> <patch|minor|major>"
+                exit 1
+            fi
+            version_skill "$DEVORQ_DIR/skills" "$skill_name" "$bump_type"
+            ;;
+        versions)
+            local skill_name="${3:-}"
+            if [ -z "$skill_name" ]; then
+                echo "Uso: devorq skill versions <nome_skill>"
+                exit 1
+            fi
+            local versions_dir="$DEVORQ_DIR/skills/$skill_name/VERSIONS"
+            if [ -d "$versions_dir" ]; then
+                echo "Versões disponíveis para $skill_name:"
+                ls -1 "$versions_dir" | sed 's/.md$//' | sed 's/^/  /'
+            else
+                echo "Nenhuma versão encontrada para $skill_name"
+            fi
+            ;;
+        *)
+            log_error "Subcomando desconhecido: $subcmd"
+            echo "Uso: devorq skill <rollback|version|versions>"
+            exit 1
+            ;;
+    esac
+}
+
+cmd_upgrade() {
+    local target="${2:-}"
+
+    if [ -z "$target" ]; then
+        log_error "Informe o caminho do projeto a atualizar."
+        echo "Uso: devorq upgrade <caminho_do_projeto>"
+        echo "Exemplo: devorq upgrade ~/projects/meu-projeto"
+        exit 1
+    fi
+
+    target="$(realpath "$target")"
+
+    if [ ! -d "$target" ]; then
+        log_error "Diretório não encontrado: $target"
+        exit 1
+    fi
+
+    log "Atualizando DEVORQ em: $target"
+
+    # Garantir que bin/ e lib/ existam no destino
+    mkdir -p "$target/bin" "$target/lib"
+
+    # Copiar CLI
+    cp "$DEVORQ_ROOT/bin/devorq" "$target/bin/devorq"
+    cp "$DEVORQ_ROOT/bin/devorq-prompt" "$target/bin/devorq-prompt" 2>/dev/null || true
+    chmod +x "$target/bin/devorq"
+
+    # Copiar apenas os módulos shell (não sobrescrever .py específicos do projeto)
+    for f in "$DEVORQ_ROOT/lib"/*.sh; do
+        cp "$f" "$target/lib/"
+    done
+
+    # Copiar subdiretório orchestration se existir
+    if [ -d "$DEVORQ_ROOT/lib/orchestration" ]; then
+        mkdir -p "$target/lib/orchestration"
+        cp "$DEVORQ_ROOT/lib/orchestration/"*.sh "$target/lib/orchestration/" 2>/dev/null || true
+    fi
+
+    log_success "DEVORQ atualizado em: $target"
+    log_info "Execute './bin/devorq init' no projeto para reinicializar o contexto."
 }
 
 cmd_help() {
     cat << EOF
-DEVORQ - Desenvolvimento Orquestrador
+DEVORQ v2.0 — Orquestrador de Desenvolvimento Multi-LLM
 
-Uso: devorq <comando> [opções]
+Uso: devorq <comando> [opcoes]
 
-Comandos:
-  init              Inicializar projeto (detectar stack, tipo, regras)
-  flow <intent>     Executar fluxo completo para uma task
-  agent             Ativar modo agente
-  context           Mostrar contexto atual
-  checkpoint        Criar checkpoint
-  info              Mostrar info resumida
-  skills            Listar skills
-  help              Esta ajuda
+Comandos principais:
+  init                          Inicializar projeto (detectar stack, tipo, regras)
+  flow <intent>                 Executar fluxo completo para uma task
+  agent                         Mostrar modo de agente ativo
+  context                       Mostrar contexto detectado
+  checkpoint                    Criar checkpoint de continuidade
+  info                          Mostrar info resumida
+  skills                        Listar skills disponíveis com versões
+  upgrade <path>                Atualizar DEVORQ instalado em outro projeto
 
-Fluxo:
-  devorq init                           → Configurar projeto
-  devorq flow "implementar autenticação" → Executar task completa
+Handoff multi-LLM:
+  handoff generate              Gerar spec padronizada para próximo LLM (Gate 4)
+  handoff status                Mostrar status do handoff atual
+  handoff list                  Listar histórico de handoffs
+  handoff update <status>       Atualizar status (em_andamento|aguardando_merge|concluido)
 
-Exemplo:
-  devorq init
-  devorq flow "criar sistema de login OAuth2"
+Pipeline de aprendizado:
+  lessons list                  Listar lições pendentes, validadas e aplicadas
+  lessons validate              Exibir lições para validação via Context7 (Gate 6)
+  lessons apply <nome>          Aplicar lição numa skill (Gate 7)
+
+Versionamento de skills:
+  skill rollback <skill> <v>    Reverter skill para versão anterior
+  skill version <skill> <bump>  Criar snapshot de nova versão (patch|minor|major)
+  skill versions <skill>        Listar versões disponíveis de uma skill
+
+Fluxo obrigatório (v2.0):
+  1. devorq init
+  2. /scope-guard            [Gate 1: aprovar contrato]
+  3. /pre-flight             [Gate 2: aprovar antes de implementar]
+  4. devorq handoff generate [Gate 4: aprovar antes de trocar LLM]
+  5. TDD RED->GREEN->REFACTOR
+  6. /quality-gate           [Gate 3: aprovar antes de commitar]
+  7. /session-audit
+  8. /learned-lesson         [Gate 5: salvar lições?]
+  9. devorq lessons validate [Gate 6: validação Context7]
+ 10. devorq lessons apply    [Gate 7: aplicar nas skills]
 EOF
 }
 
@@ -253,13 +596,18 @@ EOF
 # =====================================================
 
 case "${1:-help}" in
-    init)       cmd_init ;;
-    flow)      cmd_flow "$@" ;;
-    agent)     cmd_agent ;;
-    context)   cmd_context ;;
-    checkpoint) cmd_checkpoint ;;
-    info)      cmd_info ;;
-    skills)    cmd_skills ;;
+    init)        cmd_init ;;
+    flow)        cmd_flow "$@" ;;
+    agent)       cmd_agent ;;
+    context)     cmd_context ;;
+    checkpoint)  cmd_checkpoint ;;
+    info)        cmd_info ;;
+    skills)      cmd_skills ;;
+    lessons)     cmd_lessons "$@" ;;
+    handoff)     cmd_handoff "$@" ;;
+    skill)       cmd_skill "$@" ;;
+    spec)        cmd_spec "$@" ;;
+    upgrade)     cmd_upgrade "$@" ;;
     help|--help|-h) cmd_help ;;
-    *)         log_error "Comando desconhecido: $1"; cmd_help; exit 1 ;;
+    *)           log_error "Comando desconhecido: $1"; cmd_help; exit 1 ;;
 esac

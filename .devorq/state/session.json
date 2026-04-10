@@ -1,91 +1,10 @@
 {
-  "session_id": "session-20260401",
-  "started_at": "2026-04-01T00:00:00-03:00",
-  "ended_at": "2026-04-01T01:00:00-03:00",
-  "llm": "opencode",
-  "workflow": "legacy-code-sanitizer + DEVORQ",
-  
-  "activities": [
-    {
-      "phase": "env-context",
-      "duration_minutes": 2,
-      "result": "Stack detectado: Laravel 12 + Livewire 4 + Tailwind + Docker/Sail"
-    },
-    {
-      "phase": "scope-guard",
-      "duration_minutes": 3,
-      "result": "Escopo definido: análise completa do diretório app/"
-    },
-    {
-      "phase": "pre-flight",
-      "duration_minutes": 5,
-      "result": "Estrutura validada: 100+ arquivos PHP, ~8500 linhas"
-    },
-    {
-      "phase": "tdd-analysis",
-      "duration_minutes": 10,
-      "result": "Análise executada: 4 contratos gerados"
-    },
-    {
-      "phase": "corrections",
-      "duration_minutes": 15,
-      "result": "4 correções aplicadas: SEC-006-001, PER-001-001, PER-006-001, BUG-002-001"
-    },
-    {
-      "phase": "quality-gate",
-      "duration_minutes": 10,
-      "result": "Tests: 151 passing, Pint: 231 files, 0 issues (corrigidas 110 pré-existentes)"
-    },
-    {
-      "phase": "session-audit",
-      "duration_minutes": 5,
-      "result": "Métricas registradas"
-    }
-  ],
-  
-  "metrics": {
-    "files_analyzed": 100,
-    "lines_of_code": 8500,
-    "contracts_generated": 4,
-    "contracts_fixed": 4,
-    "files_modified": 4,
-    "tests_total": 151,
-    "tests_passing": 151,
-    "pint_files": 231,
-    "pint_issues_fixed": 110,
-    "critical_issues": 0,
-    "high_issues": 0,
-    "medium_issues": 0,
-    "overall_score_before": 78,
-    "overall_score_after": 100
-  },
-  
-  "classification": "EFICIENTE",
-  
-  "root_cause": null,
-  
-  "modified_files": [
-    "app/Livewire/Custody/Create.php",
-    "app/Livewire/Inventory/Show.php",
-    "app/Policies/UncataloguedItemPolicy.php"
-  ],
-  
-  "outputs": [
-    "legacy-sanitizer-report/RESUMO-EXECUTIVO.md",
-    "legacy-sanitizer-report/SEGURANCA.md",
-    "legacy-sanitizer-report/BUGS.md",
-    "legacy-sanitizer-report/CODE-SMELLS.md",
-    "legacy-sanitizer-report/PERFORMANCE.md",
-    "legacy-sanitizer-report/DEPENDENCIES.md",
-    "legacy-sanitizer-report/METRICAS.json",
-    "legacy-sanitizer-report/PONTUACAO.md",
-    "legacy-sanitizer-report/roadmap/NORMALIZATION-ROADMAP.json",
-    "legacy-sanitizer-report/roadmap/dependency-graph.json",
-    "legacy-sanitizer-report/roadmap/CONTRACTS/*.json"
-  ],
-  
-  "next_session": {
-    "continue_from": "Checkpoint existente",
-    "attention": "Nenhuma pendência - todas correções aplicadas e validadas"
-  }
+  "stack": "generic",
+  "project_type": "greenfield",
+  "llm": "unknown",
+  "runtime": "docker-sail",
+  "database": "postgres",
+  "prd": "",
+  "initialized_at": "2026-03-31T15:24:16-03:00",
+  "version": "1.0.0-dev"
 }

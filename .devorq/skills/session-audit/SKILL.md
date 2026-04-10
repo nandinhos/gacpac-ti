@@ -61,6 +61,22 @@ globs:
 - Atenção: [warnings]
 ```
 
+## Pós-Audit — Etapa Obrigatória
+
+Após gerar o report, executar obrigatoriamente:
+
+```
+/learned-lesson
+```
+
+Capturar ao menos uma lição da sessão (mesmo que classificada como EFICIENTE).
+Se não houver lição nova, registrar explicitamente: "Nenhuma lição nova identificada nesta sessão."
+
+As lições ficam em `.devorq/state/lessons-pending/` aguardando validação via:
+```bash
+./bin/devorq lessons validate
+```
+
 ---
 
-> **Débito que previne**: D19 (Observer sessions), ineficiência invisível
+> **Débitos que previne**: D19 (Observer sessions), ineficiência invisível, lições perdidas entre sessões
