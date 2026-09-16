@@ -66,4 +66,4 @@ permalink: gacpac-ti/roadmap
 | **Docs** | ✅ | Centralizada |
 | **IA/MCP** | ✅ | Boost + Context7 + Basic Memory + context-mode; AST em graphify-out |
 
-> **Próximos Passos Sugeridos:** manter a suíte verde (`php artisan test`, 151 testes), trocar a senha seed do admin em qualquer ambiente exposto e avaliar cache/filas quando o volume de uso crescer.
+> **Próximos Passos Sugeridos:** manter a suíte verde (`php artisan test`, 151 testes) e trocar a senha seed do admin em qualquer ambiente exposto. Fila desnecessária por ora: as 4 notificações usam só o canal `database` (INSERT local) — reavaliar se entrar canal externo (e-mail).

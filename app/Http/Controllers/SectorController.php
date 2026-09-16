@@ -5,21 +5,24 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreSectorRequest;
 use App\Http\Requests\UpdateSectorRequest;
 use App\Models\Sector;
+use App\Services\SectorService;
 use Illuminate\Support\Facades\Cache;
 
 class SectorController extends Controller
 {
+    public function __construct(private SectorService $service) {}
+
     public function index()
     {
         return Cache::remember('sectors_list', 3600, function () { // Cache por 1 hora
-            return Sector::orderBy('name')->get();
+            return $this->service->all();
         });
     }
 
     public function store(StoreSectorRequest $request)
     {
         try {
-            $sector = Sector::create($request->validated());
+            $sector = $this->service->create($request->validated());
 
             // Limpar cache de setores
             Cache::forget('sectors_list');
@@ -43,7 +46,7 @@ class SectorController extends Controller
 
     public function update(UpdateSectorRequest $request, Sector $sector)
     {
-        $sector->update($request->validated());
+        $sector = $this->service->update($sector, $request->validated());
 
         // Limpar cache de setores
         Cache::forget('sectors_list');
@@ -53,7 +56,7 @@ class SectorController extends Controller
 
     public function destroy(Sector $sector)
     {
-        $sector->delete();
+        $this->service->delete($sector);
 
         // Limpar cache de setores
         Cache::forget('sectors_list');
