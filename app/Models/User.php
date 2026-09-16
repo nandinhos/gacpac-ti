@@ -16,6 +16,13 @@ class User extends Authenticatable
     use Auditable, HasApiTokens, HasFactory, HasRoles, Notifiable;
 
     /**
+     * Spatie guard pinned to web: Auth::shouldUse('sanctum') rewrites
+     * config auth.defaults.guard at runtime, which would make role and
+     * permission lookups miss the web-guarded records.
+     */
+    protected $guard_name = 'web';
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var list<string>

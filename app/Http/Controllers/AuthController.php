@@ -35,7 +35,9 @@ class AuthController extends Controller
             $user->tokens()->delete();
 
             // Create new token with abilities based on role
-            $abilities = $this->getAbilitiesForRole($user->user_role);
+            // users table has no role column: Spatie roles are the source of truth
+            $role = $user->getRoleNames()->first() ?? 'user';
+            $abilities = $this->getAbilitiesForRole($role);
             $token = $user->createToken('auth-token', $abilities)->plainTextToken;
 
             return response()->json([
@@ -47,7 +49,7 @@ class AuthController extends Controller
                     'military_id' => $user->military_id,
                     'sector_id' => $user->sector_id,
                     'email' => $user->email,
-                    'user_role' => $user->user_role,
+                    'user_role' => $role,
                     'commission_inventories' => $user->commission_inventories,
                 ],
                 'token' => $token,
