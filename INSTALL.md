@@ -69,6 +69,18 @@ Para desenvolvimento com hot-reload, use `npm run dev` em vez de `build` (o Vite
 - Health check: http://localhost:8900/up (esperado: `200`)
 - Testes: `docker compose exec laravel.test php artisan test` (esperado: 151 passando, 0 falhas)
 
+## Ferramentas de IA (MCP — opcional, padronizado)
+
+O arquivo vivo `.mcp.json` é **ignorado no Git** (pode conter chaves pessoais). Para ficar no padrão da equipe:
+
+```bash
+cp .mcp.json.example .mcp.json
+# edite .mcp.json e preencha CONTEXT7_API_KEY com a sua chave
+# reinicie o agente/IDE para carregar os servidores
+```
+
+Servidores padrão: `laravel-boost` (via Sail), `context7` (docs oficiais), `basic-memory` (memória entre sessões), `context-mode` (economia de contexto e sandbox). Nunca commite chaves reais — o template versionado mantém `CONTEXT7_API_KEY` vazia.
+
 ## Comandos do dia a dia
 
 ```bash

@@ -1,0 +1,51 @@
+{
+  "mcpServers": {
+    "context7": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp@latest"
+      ],
+      "env": {
+        "CONTEXT7_API_KEY": ""
+      },
+      "description": "Context7 server for documentation lookups"
+    },
+    "basic-memory": {
+      "command": "uvx",
+      "args": [
+        "basic-memory",
+        "mcp"
+      ],
+      "description": "Persistent memory for cross-session knowledge"
+    },
+    "context-mode": {
+      "command": "context-mode",
+      "description": "Context saving, session continuity and sandboxed execution"
+    },
+    "laravel-boost": {
+      "command": "docker",
+      "args": [
+        "compose",
+        "exec",
+        "-T",
+        "-u",
+        "1000:1000",
+        "-e",
+        "WWWUSER=1000",
+        "-e",
+        "WWWGROUP=1000",
+        "laravel.test",
+        "php",
+        "artisan",
+        "boost:mcp"
+      ],
+      "description": "Laravel Boost MCP via Sail (main branch)"
+    }
+  },
+  "projectConfig": {
+    "name": "gacpac-ti",
+    "stack": "generic",
+    "version": "1.0.0"
+  }
+}

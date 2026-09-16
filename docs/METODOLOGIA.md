@@ -19,7 +19,7 @@ permalink: gacpac-ti/docs/metodologia
 
 - **Branches:** trabalho em `dev` (ou `feature/*` a partir dela); `main` recebe apenas via promoção de `dev` testada e verde. Direto na `main`, só higiene/docs triviais.
 - **AST-first:** antes de ler código em volume, consulte o grafo local (`graphify-out/graph.json`, 6 mil+ nós) com `graphify path|explain`; proibido despejar arquivos inteiros no contexto.
-- **context-mode:** servidor MCP ativo (ver `.mcp.json`) — execuções sandbox e análises via script, não leitura massiva.
+- **context-mode:** servidor MCP ativo (copie `.mcp.json.example` para `.mcp.json`, ver [INSTALL](../INSTALL.md)) — execuções sandbox e análises via script, não leitura massiva.
 
 ## Fluxo de trabalho (DEVORQ)
 
