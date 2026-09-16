@@ -64,6 +64,7 @@ amp-support-bundle-*.json.gz
 .serena/
 .mcp.json
 project-docs/*.tmp
+graphify-out/
 
 # AI Dev State (keep folders but ignore backups)
 .aidev/backups/

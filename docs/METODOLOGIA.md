@@ -15,6 +15,12 @@ permalink: gacpac-ti/docs/metodologia
 3. **Pequenos passos rastreáveis.** Commits atômicos, em português, que contam a história do projeto.
 4. **Não quebre o verde.** A suíte de testes é o contrato coletivo: vermelho é tarefa, nunca ruído.
 
+## Pipeline (CEH clássico + ferramentas)
+
+- **Branches:** trabalho em `dev` (ou `feature/*` a partir dela); `main` recebe apenas via promoção de `dev` testada e verde. Direto na `main`, só higiene/docs triviais.
+- **AST-first:** antes de ler código em volume, consulte o grafo local (`graphify-out/graph.json`, 6 mil+ nós) com `graphify path|explain`; proibido despejar arquivos inteiros no contexto.
+- **context-mode:** servidor MCP ativo (ver `.mcp.json`) — execuções sandbox e análises via script, não leitura massiva.
+
 ## Fluxo de trabalho (DEVORQ)
 
 Toda task segue o ciclo (detalhes e prompts em [QUICKSTART.md](../QUICKSTART.md)):

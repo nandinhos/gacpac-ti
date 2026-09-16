@@ -53,9 +53,9 @@ Conjunto real de permissões (`RolesAndPermissionsSeeder`): `assets.view/create/
 
 ```mermaid
 flowchart LR
-    DEV["Dev local<br/>Sail :8900<br/>pgsql + pgadmin"] --> TEST["php artisan test<br/>151 testes verdes"]
-    TEST --> MAIN["main<br/>sempre deployável"]
-    MAIN --> ORIGIN["origin/main<br/>push direto"]
+    DEV["dev<br/>trabalho diário<br/>Sail :8900"] --> TEST["php artisan test<br/>151 testes verdes"]
+    TEST --> MAIN["main<br/>promoção de dev<br/>sempre deployável"]
+    MAIN --> ORIGIN["origin/main + origin/dev<br/>push"]
 ```
 
 Convenções: [METODOLOGIA](./METODOLOGIA.md) · Setup: [INSTALL.md](../INSTALL.md) · API: [API.md](./API.md) · Arquitetura: [ARCHITECTURE.md](./ARCHITECTURE.md)

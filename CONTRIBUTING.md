@@ -10,10 +10,10 @@ permalink: gacpac-ti/contributing
 
 Todo desenvolvimento usa **Laravel Sail** — não instale PHP/Node no host. Suba com `docker compose up -d` (ver [INSTALL.md](./INSTALL.md)).
 
-## Branches
+## Branches (CEH clássico)
 
-- `main` — estável, sempre deployável e sincronizada com `origin/main`
-- Branches de trabalho curtas a partir de `main`; abra PR ou avance direto quando combinado
+- `dev` — trabalho diário e features (sincronizada com `origin/dev`)
+- `main` — estável, recebe só promoção de `dev` verde; sincronizada com `origin/main`
 
 ## Padrão de commits (obrigatório)
 

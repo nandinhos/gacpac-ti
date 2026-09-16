@@ -50,7 +50,8 @@ permalink: gacpac-ti/roadmap
 ## 🟢 FASE 6 — Ecossistema de IA (Boost, Serena, Stitch)
 - [x] Laravel Boost (MCP) integrado e validado via Sail
 - [x] Serena MCP removida da esteira em 2026-09-16 (bloco no `.mcp.json` + diretório `.serena/`)
-- [x] Servidores MCP declarados em `.mcp.json` (Boost, Context7, Basic Memory)
+- [x] Servidores MCP declarados em `.mcp.json` (Boost, Context7, Basic Memory, context-mode)
+- [x] Grafo AST local via Graphify (`graphify-out/`, ignorado no Git) com `dev` sincronizada (topologia CEH clássica)
 
 ---
 
@@ -63,6 +64,6 @@ permalink: gacpac-ti/roadmap
 | **Código** | ✅ | Padronizado via Services |
 | **API** | ✅ | RESTful Completa |
 | **Docs** | ✅ | Centralizada |
-| **IA/MCP** | ✅ | Boost + Context7 + Basic Memory OK |
+| **IA/MCP** | ✅ | Boost + Context7 + Basic Memory + context-mode; AST em graphify-out |
 
 > **Próximos Passos Sugeridos:** manter a suíte verde (`php artisan test`, 151 testes), trocar a senha seed do admin em qualquer ambiente exposto e avaliar cache/filas quando o volume de uso crescer.
