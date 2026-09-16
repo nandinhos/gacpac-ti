@@ -7,8 +7,7 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white/70 backdrop-blur-md overflow-hidden shadow-sm sm:rounded-lg border border-white/20">
-                <div class="p-6 text-gray-900">
+            <x-ui.card>
                     <div class="mb-4 flex flex-col sm:flex-row justify-between items-center gap-4">
                         <input wire:model.live.debounce.300ms="search" type="text" placeholder="Buscar setores..." class="border-gray-200 focus:border-fab-blue focus:ring-fab-blue rounded-xl shadow-sm w-full sm:w-1/3 bg-white/50">
                         <a href="{{ route('sectors.create') }}" class="inline-flex items-center px-4 py-2 bg-fab-blue border border-transparent rounded-xl font-bold text-xs text-white uppercase tracking-widest hover:bg-fab-blue-hover active:bg-fab-blue-hover focus:outline-none focus:ring-2 focus:ring-fab-blue focus:ring-offset-2 transition ease-in-out duration-150 shadow-lg shadow-fab-blue/20">
@@ -23,18 +22,10 @@
                         <table class="min-w-full divide-y divide-gray-200" x-data="{ activeSector: null }">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        {{ __('Nome') }}
-                                    </th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
-                                        {{ __('Militares') }}
-                                    </th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        {{ __('Descrição') }}
-                                    </th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        {{ __('Status') }}
-                                    </th>
+                                    <x-ui.th>{{ __('Nome') }}</x-ui.th>
+                                    <x-ui.th align="center">{{ __('Militares') }}</x-ui.th>
+                                    <x-ui.th>{{ __('Descrição') }}</x-ui.th>
+                                    <x-ui.th>{{ __('Status') }}</x-ui.th>
                                     <th scope="col" class="relative px-6 py-3 text-right">
                                         <span class="sr-only">{{ __('Ações') }}</span>
                                     </th>
@@ -123,11 +114,7 @@
                                         </td>
                                     </tr>
                                 @empty
-                                    <tr>
-                                        <td colspan="5" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center italic">
-                                            {{ __('Nenhum setor encontrado.') }}
-                                        </td>
-                                    </tr>
+                                    <x-ui.empty-row :colspan="5" :message="__('Nenhum setor encontrado.')" />
                                 @endforelse
                             </tbody>
                         </table>
@@ -136,8 +123,7 @@
                     <div class="mt-4">
                         {{ $sectors->links() }}
                     </div>
-                </div>
-            </div>
+            </x-ui.card>
         </div>
     </div>
 

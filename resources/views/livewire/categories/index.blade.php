@@ -7,8 +7,7 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="overflow-hidden bg-white/70 backdrop-blur-md shadow-sm sm:rounded-lg border border-white/20">
-                <div class="p-6 text-gray-900">
+            <x-ui.card>
                     {{-- Mensagens de feedback --}}
                     @if (session()->has('message'))
                         <div class="mb-6 p-4 bg-green-100/50 backdrop-blur-sm border border-green-200 text-green-700 rounded-xl shadow-sm flex items-center">
@@ -163,8 +162,7 @@
                             {{ $categories->links() }}
                         </div>
                     @endif
-                </div>
-            </div>
+            </x-ui.card>
         </div>
     </div>
 

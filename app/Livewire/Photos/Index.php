@@ -82,7 +82,11 @@ class Index extends Component
         $assetPhotos = AssetPhoto::where('asset_id', $this->asset->id)
             ->orderByDesc('is_primary')
             ->orderByDesc('uploaded_at')
-            ->get();
+            ->get()
+            // Skip records whose file no longer exists on disk (stale rows
+            // would otherwise render as broken images in the gallery).
+            ->filter(fn (AssetPhoto $photo) => Storage::disk('public')->exists($photo->url))
+            ->values();
 
         return view('livewire.photos.index', [
             'assetPhotos' => $assetPhotos,

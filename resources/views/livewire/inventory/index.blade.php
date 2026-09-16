@@ -7,8 +7,7 @@
 
     <div class="py-12">
         <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
-            <div class="overflow-hidden bg-white/70 backdrop-blur-md shadow-sm sm:rounded-lg border border-white/20">
-                <div class="p-6 text-gray-900">
+            <x-ui.card>
                     @if (session()->has('message'))
                         <div class="mb-4 p-4 rounded-xl bg-blue-50 border border-blue-100 text-blue-700 font-medium animate-pulse">
                             {{ session('message') }}
@@ -123,7 +122,7 @@
                     <div class="mt-8">
                         {{ $inventories->links() }}
                     </div>
-                </div>
+            </x-ui.card>
             </div>
         </div>
 

@@ -26,7 +26,7 @@
 
                 <!-- Email Address -->
                 <div class="group">
-                    <x-input-label for="email" :value="__('Identidade Militar / E-mail')" class="text-[10px] font-bold uppercase tracking-widest text-blue-200/60 mb-1 ml-1" />
+                    <label for="email" class="block text-[10px] font-bold uppercase tracking-widest text-white mb-1 ml-1">{{ __('Identidade Militar / E-mail') }}</label>
                     <x-text-input id="email" class="block mt-1 w-full bg-white/5 border-white/10 text-white placeholder-blue-300/30 focus:border-white/40 focus:ring-white/20 backdrop-blur-sm transition-all duration-300 rounded-xl py-3" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" placeholder="usuario@fab.mil.br" />
                     <x-input-error :messages="$errors->get('email')" class="mt-2 text-red-300 text-xs" />
                 </div>
@@ -34,9 +34,9 @@
                 <!-- Password -->
                 <div class="group">
                     <div class="flex items-center justify-between mb-1 ml-1">
-                        <x-input-label for="password" :value="__('Senha')" class="text-[10px] font-bold uppercase tracking-widest text-blue-200/60" />
+                        <label for="password" class="block text-[10px] font-bold uppercase tracking-widest text-white mb-1 ml-1">{{ __('Senha') }}</label>
                         @if (Route::has('password.request'))
-                            <a class="text-[10px] font-bold uppercase tracking-widest text-blue-300/50 hover:text-white transition-colors" href="{{ route('password.request') }}">
+                            <a class="text-[10px] font-bold uppercase tracking-widest text-blue-200 hover:text-white transition-colors" href="{{ route('password.request') }}">
                                 {{ __('Recuperar Acesso') }}
                             </a>
                         @endif
@@ -52,7 +52,7 @@
                 <!-- Remember Me -->
                 <div class="flex items-center ml-1">
                     <input id="remember_me" type="checkbox" class="rounded-lg border-white/10 bg-white/5 text-fab-blue shadow-sm focus:ring-white/20 w-4 h-4" name="remember">
-                    <span class="ms-3 text-xs font-semibold text-blue-100/60 uppercase tracking-widest">{{ __('Manter conectado') }}</span>
+                    <span class="ms-3 text-xs font-semibold text-blue-100/90 uppercase tracking-widest">{{ __('Manter conectado') }}</span>
                 </div>
 
                 <div class="pt-2">

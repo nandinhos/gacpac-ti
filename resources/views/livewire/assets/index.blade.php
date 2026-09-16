@@ -6,8 +6,7 @@
     </x-slot>
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white/70 backdrop-blur-md overflow-hidden shadow-sm sm:rounded-lg border border-white/20">
-                <div class="p-6 text-gray-900">
+            <x-ui.card>
                     <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
                         <div class="flex flex-col md:flex-row gap-4 w-full md:w-auto flex-1">
                             <div class="flex-1 relative group">
@@ -153,8 +152,7 @@
                     <div class="mt-4">
                         {{ $assets->links() }}
                     </div>
-                </div>
-            </div>
+            </x-ui.card>
         </div>
     </div>
 
