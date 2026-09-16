@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreCustodyLogRequest;
 use App\Http\Resources\CustodyLogResource;
 use App\Models\CustodyLog;
 use App\Services\CustodyService;
@@ -22,30 +23,24 @@ class CustodyLogController extends Controller
         return CustodyLogResource::collection($logs);
     }
 
-    public function store(Request $request): CustodyLogResource
+    public function store(StoreCustodyLogRequest $request): CustodyLogResource
     {
         $this->authorize('assets.edit');
 
-        $validated = $request->validate([
-            'asset_id' => ['required', 'exists:assets,id'],
-            'user_id' => ['required', 'exists:users,id'],
-            'sector_id' => ['required', 'exists:sectors,id'],
-            'date' => ['required', 'date'],
-            'return_date' => ['nullable', 'date'],
-            'notes' => ['nullable', 'string'],
-        ]);
+        $log = $this->service->create($request->only([
+            'cautela_number', 'user_id', 'checkout_date', 'term_url', 'notes',
+        ]));
 
-        $validated['number'] = $this->service->getNextNumber();
-        $validated['status'] = 'active';
+        $log->assets()->attach($request->validated()['assetIds']);
 
-        return new CustodyLogResource($this->service->create($validated));
+        return new CustodyLogResource($log->load(['assets', 'user']));
     }
 
     public function show(CustodyLog $custodyLog): CustodyLogResource
     {
         $this->authorize('assets.view');
 
-        return new CustodyLogResource($custodyLog->load(['asset', 'user', 'sector']));
+        return new CustodyLogResource($custodyLog->load(['assets', 'user']));
     }
 
     public function checkin(CustodyLog $custodyLog): CustodyLogResource

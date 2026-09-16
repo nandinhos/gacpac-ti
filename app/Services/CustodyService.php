@@ -10,10 +10,13 @@ class CustodyService
     public function list(array $filters = []): LengthAwarePaginator
     {
         return CustodyLog::query()
-            ->with(['asset', 'user', 'sector'])
-            ->when(isset($filters['sector_id']), fn ($q) => $q->where('sector_id', $filters['sector_id']))
+            ->with(['assets', 'user'])
+            ->when(isset($filters['sector_id']), fn ($q) => $q->whereHas(
+                'user', fn ($u) => $u->where('sector_id', $filters['sector_id'])
+            ))
             ->when(isset($filters['user_id']), fn ($q) => $q->where('user_id', $filters['user_id']))
-            ->when(isset($filters['status']), fn ($q) => $q->where('status', $filters['status']))
+            ->when(($filters['status'] ?? null) === 'open', fn ($q) => $q->open())
+            ->when(($filters['status'] ?? null) === 'closed', fn ($q) => $q->closed())
             ->latest()
             ->paginate($filters['per_page'] ?? 15);
     }
@@ -37,15 +40,21 @@ class CustodyService
 
     public function checkin(CustodyLog $custodyLog): CustodyLog
     {
-        $custodyLog->update(['checked_in_at' => now(), 'status' => 'returned']);
+        $custodyLog->update(['checkin_date' => now()]);
 
         return $custodyLog->fresh();
     }
 
     public function getNextNumber(): string
     {
-        $last = CustodyLog::max('number') ?? 0;
+        $year = now()->year;
 
-        return str_pad($last + 1, 6, '0', STR_PAD_LEFT);
+        $last = CustodyLog::where('cautela_number', 'like', '%/'.$year)
+            ->orderBy('id', 'desc')
+            ->value('cautela_number');
+
+        $next = $last && preg_match('/^(\d+)/', $last, $m) ? ((int) $m[1]) + 1 : 1;
+
+        return str_pad($next, 3, '0', STR_PAD_LEFT).'/GAC-PAC/'.$year;
     }
 }
