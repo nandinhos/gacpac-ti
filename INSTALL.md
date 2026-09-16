@@ -100,6 +100,7 @@ docker compose logs -f laravel.test     # logs da app
 | Página sem CSS | `public/build` ausente | `npm run build` dentro do container |
 | Fotos não aparecem | symlink do storage | `php artisan storage:link` dentro do container |
 | Porta ocupada | outro serviço na 8900 | ajuste `APP_PORT` no `.env` e recrie (`up -d`) |
+| `vendor/autoload.php` ausente ou classe Illuminate não encontrada | vendor dessincronizado | `docker compose exec laravel.test composer install` e rode os testes de novo |
 
 ## Premissas deste guia
 
