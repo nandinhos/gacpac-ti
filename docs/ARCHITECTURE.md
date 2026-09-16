@@ -19,9 +19,9 @@ Cliente API ─► Sanctum + Spatie ──► Controllers/API Resources ──�
 
 - **Web (`routes/web.php`, ~63 rotas):** páginas Livewire por módulo (`app/Livewire/{Assets,Custody,Inventory,Maintenance,Users,Sectors,Categories,Reports,Photos,Notifications,Admin}`), layout `app`, telas públicas em `layouts/guest`, impressão em `layouts/print`.
 - **API (`routes/api.php`, 52 rotas, prefixo `api.`):** controllers em `app/Http/Controllers` com API Resources, auth por token Sanctum (`POST /api/login`), throttle `60 req/min`.
-- **Regra de negócio:** concentrada em `app/Services` (ex.: `CustodyService`), chamada por Livewire e controllers — não duplicar lógica nas camadas de entrada.
+- **Regra de negócio:** camada `app/Services` (ex.: `CustodyService`) atende os controllers da API; os componentes Livewire operam diretamente sobre os Models. Regra nova deve nascer em Services (ver [METODOLOGIA](./METODOLOGIA.md)).
 - **Validação:** `app/Http/Requests` (Store/Update por recurso); login web com throttle anti-brute-force.
-- **Autorização:** papéis Spatie (`admin`, `gestor_ti`, `responsavel_setor`, `usuario`) + Policies/Gates; a API aplica autorização policy-based em todos os controllers.
+- **Autorização:** papéis Spatie no guard `web` (`admin` com todas as permissões, `operator`, `auditor`, `viewer`) + Policies/Gates; a API aplica autorização policy-based em todos os controllers.
 - **Uploads:** fotos de ativos em `storage/app/public/asset-photos`, servidos via symlink `public/storage` (`php artisan storage:link`).
 - **Design system:** componentes Blade `x-ui:*` em `resources/views/components/ui` (button, card, input, table, badge, modal…).
 

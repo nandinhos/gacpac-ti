@@ -124,6 +124,8 @@ Suíte com 151 testes (Feature + Unit) cobrindo auth, ativos, fotos, cautelas, A
 | [QUICKSTART.md](./QUICKSTART.md) | Ativação do fluxo DEVORQ com IA |
 | [ROADMAP.md](./ROADMAP.md) | Fases de mitigação técnica (concluídas) |
 | [CONTRIBUTING.md](./CONTRIBUTING.md) | Como contribuir (Sail + Git + commits) |
+| [docs/METODOLOGIA.md](./docs/METODOLOGIA.md) | Filosofia, fluxo DEVORQ e Definition of Done |
+| [docs/MAPA.md](./docs/MAPA.md) | Grafo do projeto (módulos, papéis, entrega) |
 | [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) | Arquitetura e fluxos principais |
 | [docs/API.md](./docs/API.md) | Referência da API REST |
 
@@ -135,7 +137,7 @@ Desenvolvido para unidades da **Força Aérea Brasileira (FAB)**:
 
 - Hierarquia e postos/graduações (oficiais, graduados, praças)
 - Processos de cautela e inventário militares
-- Papéis via Spatie: `admin`, `gestor_ti`, `responsavel_setor`, `usuario`
+- Papéis via Spatie (guard `web`): `admin` (todas as permissões), `operator`, `auditor`, `viewer`
 
 ---
 
