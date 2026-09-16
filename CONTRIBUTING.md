@@ -34,6 +34,16 @@ Ex.: `fix (custody): valida devolução sem termo assinado`
 3. `npm run build` se mexeu em CSS/JS
 4. Nomear **só os arquivos alterados** no commit (sem `git add -A` em árvore suja)
 
+## Rotina do grafo AST
+
+Após refactors grandes (mover/deletar classes, trocar dependências entre módulos):
+
+```bash
+graphify update .
+```
+
+Isso mantém `graphify-out/` fiel ao código (ignorado no Git, uso local). Sem isso, o AST-first consulta um mapa velho.
+
 ## Regras de código
 
 - Regra de negócio em `app/Services`, nunca direto no controller/Livewire
