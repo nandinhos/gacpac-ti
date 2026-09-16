@@ -21,7 +21,7 @@ flowchart TB
         CTL["Controllers API<br/>Asset, CustodyLog, InventoryRecord,<br/>Maintenance, Category, Sector,<br/>User, Notification, Report, Auth"]
     end
     subgraph Servicos["Services (usados pela API)"]
-        SVC["Asset, Custody, Inventory,<br/>Maintenance, Category,<br/>Sector*, User"]
+        SVC["Asset, Custody, Inventory,<br/>Maintenance, Category, User"]
     end
     subgraph Modelos["Models → PostgreSQL"]
         MDL["Asset, AssetPhoto, Category,<br/>CustodyLog, InventoryRecord,<br/>InventoryAsset, UncataloguedItem,<br/>ReopenHistory, MaintenanceRecord,<br/>User, Sector, AuditLog"]
@@ -31,8 +31,6 @@ flowchart TB
     LWC --> MDL
     CTL --> SVC --> MDL
 ```
-
-`*` `SectorService` existe mas hoje não tem consumidor — ou ganha uso ou sai na próxima higiene.
 
 Leitura: a Web reativa fala direto com os Models; a API passa por Services. Regra nova entra em Services (padrão em [METODOLOGIA](./METODOLOGIA.md)).
 

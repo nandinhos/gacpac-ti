@@ -78,7 +78,6 @@ class User extends Authenticatable
         return $this->belongsTo(Sector::class);
     }
 
-    // Relacionamentos migrados do MilitaryUser
     public function assets()
     {
         return $this->hasMany(Asset::class, 'custodian_user_id');

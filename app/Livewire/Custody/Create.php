@@ -4,7 +4,7 @@ namespace App\Livewire\Custody;
 
 use App\Models\Asset;
 use App\Models\CustodyLog;
-use App\Models\User; // Changed from MilitaryUser
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 

@@ -27,7 +27,7 @@ class Dashboard extends Component
             'totalAssets' => Asset::count(),
             'assetsInUse' => Asset::where('status', 'EM_USO')->count(),
             'activeCustodies' => CustodyLog::open()->count(),
-            'totalMilUsers' => User::count(), // Changed from MilitaryUser::count()
+            'totalMilUsers' => User::count(),
             'totalSectors' => Sector::count(),
             'recentCustodies' => CustodyLog::latest()->take(5)->get(),
             'overdueMaintenances' => $overdueMaintenances,
