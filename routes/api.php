@@ -8,7 +8,8 @@ Route::get('health', function () {
 });
 
 // Authentication routes
-Route::post('login', [App\Http\Controllers\AuthController::class, 'login']);
+Route::post('login', [App\Http\Controllers\AuthController::class, 'login'])
+    ->middleware('throttle:6,1');
 
 // Protected routes (authentication required)
 Route::name('api.')->middleware(['auth:sanctum', 'throttle:api'])->group(function () {

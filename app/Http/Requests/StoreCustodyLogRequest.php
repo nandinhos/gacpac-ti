@@ -18,7 +18,7 @@ class StoreCustodyLogRequest extends FormRequest
             'userId' => 'required|string|exists:users,id',
             'checkoutDate' => 'required|date',
             'assetIds' => 'required|array|min:1',
-            'assetIds.*' => 'string|exists:assets,id',
+            'assetIds.*' => 'integer|exists:assets,id',
             'termUrl' => 'nullable|string|max:500',
             'notes' => 'nullable|string',
         ];

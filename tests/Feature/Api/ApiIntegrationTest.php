@@ -19,6 +19,10 @@ class ApiIntegrationTest extends TestCase
     {
         parent::setUp();
 
+        // Spatie caches permissions: refresh the cache so RefreshDatabase
+        // state is visible to hasPermissionTo() in every test.
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
         // Setup Roles and Permissions for Spatie
         $adminRole = Role::create(['name' => 'admin']);
         $viewerRole = Role::create(['name' => 'viewer']);

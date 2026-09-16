@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreSectorRequest;
+use App\Http\Requests\UpdateSectorRequest;
 use App\Models\Sector;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
 class SectorController extends Controller
@@ -41,9 +41,9 @@ class SectorController extends Controller
         return $sector;
     }
 
-    public function update(Request $request, Sector $sector)
+    public function update(UpdateSectorRequest $request, Sector $sector)
     {
-        $sector->update($request->all());
+        $sector->update($request->validated());
 
         // Limpar cache de setores
         Cache::forget('sectors_list');

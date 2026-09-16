@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateSectorRequest extends FormRequest
 {
@@ -11,7 +12,7 @@ class UpdateSectorRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,8 +22,21 @@ class UpdateSectorRequest extends FormRequest
      */
     public function rules(): array
     {
+        $sectorId = $this->route('sector');
+
         return [
-            //
+            'name' => ['sometimes', 'required', 'string', 'max:100', Rule::unique('sectors', 'name')->ignore($sectorId)],
+            'description' => ['nullable', 'string', 'max:500'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'name.required' => 'O nome do setor é obrigatório.',
+            'name.unique' => 'Já existe outro setor com este nome.',
+            'name.max' => 'O nome não pode ter mais de 100 caracteres.',
+            'description.max' => 'A descrição não pode ter mais de 500 caracteres.',
         ];
     }
 }
