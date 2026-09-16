@@ -14,7 +14,7 @@ permalink: gacpac-ti/roadmap
 
 ## 🟢 FASE 0 — Ferramentas de Desenvolvimento
 - [x] Laravel Boost instalado e configurado (MCP Server via `.mcp.json`)
-- [x] Estrutura `.aidev/` com análises, planos e estado do projeto
+- [x] Orquestrador DEVORQ ativo em `.devorq/` (skills, regras e estado)
 - [x] `boost:update` no `post-update-cmd` do `composer.json`
 - [x] Context7 integrado para documentação externa
 
