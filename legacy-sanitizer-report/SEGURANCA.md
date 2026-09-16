@@ -1,3 +1,9 @@
+---
+title: SEGURANCA
+type: note
+permalink: gacpac-ti/legacy-sanitizer-report/seguranca
+---
+
 # RELATÓRIO DE SEGURANÇA
 
 ## Visão Geral

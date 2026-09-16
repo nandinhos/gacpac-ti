@@ -1,3 +1,9 @@
+---
+title: QUICKSTART
+type: note
+permalink: gacpac-ti/quickstart
+---
+
 # DEVORQ Prompt Activation
 
 > Simplesmente copie e cole este prompt no início de qualquer conversa com IA para ativar o fluxo DEVORQ.

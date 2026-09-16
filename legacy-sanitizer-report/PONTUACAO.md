@@ -1,3 +1,9 @@
+---
+title: PONTUACAO
+type: note
+permalink: gacpac-ti/legacy-sanitizer-report/pontuacao
+---
+
 # PONTUAÇÃO DE MATURIDADE
 
 ## Score Geral: **78/100** - SATISFATÓRIO

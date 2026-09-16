@@ -1,3 +1,9 @@
+---
+title: SLASH_COMMANDS
+type: note
+permalink: gacpac-ti/slash-commands
+---
+
 # DEVORQ Slash Commands
 
 > Comandos para ativar o workflow DEVORQ em qualquer plataforma de IA

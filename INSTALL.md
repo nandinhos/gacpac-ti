@@ -1,205 +1,95 @@
-# DEVORQ - Instalação e Uso
-
-## O que é DEVORQ?
-
-DEVORQ é um orquestrador de desenvolvimento orientado a skills que transforma qualquer LLM em um desenvolvedor disciplinado, seguindo as melhores práticas de programação.
-
-## Requisitos
-
-- Bash 4.0+
-- Git
-- (Opcional) Docker para projetos Laravel com Sail
-- (Opcional) MCP Context7 para validação de documentação
-
-## Instalação em Novo Projeto
-
-### Método 1: Clone Direto
-
-```bash
-# Clone o repositório
-git clone https://github.com/nandinhos/devorq.git /caminho/para/devorq
-
-# Copie a estrutura para seu projeto
-cp -r /caminho/para/devorq/.devorq /seu-projeto/
-cp -r /caminho/para/devorq/bin /seu-projeto/
-cp /caminho/para/devorq/lib/detect.sh /seu-projeto/lib/
-
-# Configure a CLI
-chmod +x /seu-projeto/bin/devorq
-export PATH="$PATH:/seu-projeto/bin"
-
-# Inicialize
-cd /seu-projeto
-devorq init
-```
-
-### Método 2: Submodule (Recomendado para múltiplos projetos)
-
-```bash
-# Adicione como submodule no seu projeto
-git submodule add https://github.com/nandinhos/devorq.git .devorq
-
-# Configure
-chmod +x .devorq/bin/devorq
-export PATH="$PATH:$(pwd)/.devorq/bin"
-
-# Inicialize
-devorq init
-```
-
-### Método 3: Instalação Global
-
-```bash
-# Clone global
-git clone https://github.com/nandinhos/devorq.git /opt/devorq
-
-# Adicione ao PATH (adicione no ~/.bashrc ou ~/.zshrc)
-export DEVORQ_ROOT=/opt/devorq
-export PATH="$PATH:$DEVORQ_ROOT/bin"
-
-# Use em qualquer projeto
-cd /seu-projeto
-devorq init
-```
-
-## Uso Básico
-
-### Inicializar Projeto
-
-```bash
-devorq init
-```
-
-Detecta automaticamente:
-- Stack (Laravel, Node, Python, etc)
-- Tipo de projeto (greenfield, brownfield, legacy)
-- Runtime (Docker, local)
-- Banco de dados
-- LLM atual
-
-### Executar Fluxo Completo
-
-```bash
-devorq flow "implementar sistema de login OAuth2"
-```
-
-Executa automaticamente:
-1. Detecção de contexto
-2. Análise de projeto (PRD, legado)
-3. Estabelecimento de regras
-4. Brainstorm rigoroso
-5. Geração de contrato (/scope-guard)
-6. Geração de spec detalhada
-
-### Modo Agente
-
-```bash
-devorq agent
-```
-
-Mostra o fluxo completo de desenvolvimento e skills disponíveis.
-
-### Verificar Contexto
-
-```bash
-devorq context
-```
-
-## Estrutura de Arquivos
-
-```
-seu-projeto/
-├── .devorq/                 # Configurações DEVORQ
-│   ├── skills/              # Skills do sistema
-│   │   ├── scope-guard/
-│   │   ├── tdd/
-│   │   └── ...
-│   ├── rules/               # Regras do projeto
-│   │   └── project.md
-│   └── state/               # Estado persistente
-│       ├── context.json
-│       └── ...
-├── bin/
-│   └── devorq               # CLI
-├── lib/
-│   ├── detect.sh            # Módulo de detecção
-│   └── orchestration/
-│       └── flow.sh          # Orquestrador
-└── (seu código)
-```
-
-## Comandos Disponíveis
-
-| Comando | Descrição |
-|---------|-----------|
-| `devorq init` | Inicializar projeto |
-| `devorq flow <intent>` | Executar fluxo completo |
-| `devorq agent` | Ativar modo agente |
-| `devorq context` | Mostrar contexto atual |
-| `devorq checkpoint` | Criar checkpoint |
-| `devorq info` | Info resumida |
-| `devorq skills` | Listar skills |
-| `devorq help` | Ajuda |
-
-## Configuração de MCP (Opcional)
-
-Para usar validação com Context7, configure o `.mcp.json`:
-
-```json
-{
-  "mcpServers": {
-    "context7": {
-      "command": "npx",
-      "args": ["-y", "@context7/mcp-server"]
-    }
-  }
-}
-```
-
-## Stack Suportadas
-
-- **PHP puro**: Validação de PSR
-- **Laravel**: TALL Stack (Tailwind, Alpine.js, Laravel, Livewire)
-- **Filament**: Admin panels
-- **Python**: Análise de documentos, extração de dados
-- **Node.js**: Next.js, React, Vue
-- **Go/Rust**: Genérico
-
-## Fluxo de Desenvolvimento
-
-```
-1. devorq init                    → Configurar projeto
-2. devorq flow "minha task"       → Executar task completa
-
-Durante a implementação:
-- /env-context     → Detectar contexto (automático)
-- /scope-guard     → Contrato de escopo
-- /pre-flight      → Validar tipos
-- /schema-validate → Validar banco
-- tdd              → RED → GREEN → REFACTOR
-- /quality-gate    → Checklist pré-commit
-- /session-audit   → Métricas de eficiência
-- checkpoint       → Para continuidade
-```
-
-## Perguntas Frequentes
-
-### Preciso de internet?
-- Não, funciona offline para detecção de stack
-- MCP Context7 requer internet para validação de documentação
-
-### Funciona com qualquer LLM?
-- Sim, detecta automaticamente: Antigravity, Gemini, Claude, MiniMax
-
-### Posso customizar as skills?
-- Sim, edite os arquivos em `.devorq/skills/`
-
-### Como atualizar?
-```bash
-cd .devorq  # ou onde安装ou
-git pull origin main
-```
-
+---
+title: INSTALL
+type: note
+permalink: gacpac-ti/install
 ---
 
-Para mais informações, consulte FLUXO_DESENVOLVIMENTO.md
+# Instalação — SGTI-GAC
+
+Guia de instalação local com **Laravel Sail** (Docker). Tempo estimado: 15–30 min na primeira vez (build das imagens).
+
+## Pré-requisitos
+
+- Docker + Docker Compose
+- Git
+- 4 GB de RAM livre (Sail + PostgreSQL + build Vite)
+
+> Não é preciso instalar PHP, Composer, Node ou PostgreSQL no host — tudo roda nos containers.
+
+## Passo a passo
+
+### 1. Clonar e entrar no projeto
+
+```bash
+git clone <url-do-repo> gacpac-ti
+cd gacpac-ti
+```
+
+### 2. Arquivo de ambiente
+
+```bash
+cp .env.example .env
+```
+
+O `.env.example` já vem ajustado para Sail: `APP_PORT=8900`, banco `pgsql` no host `pgsql`, `APP_NAME=SGTI-GAC`.
+
+### 3. Subir os containers
+
+```bash
+docker compose up -d --build
+```
+
+Serviços: `laravel.test` (PHP 8.4 + Nginx), `pgsql` (PostgreSQL), `pgadmin` (opcional, se habilitado no compose).
+
+### 4. Chave, banco e dados iniciais
+
+```bash
+docker compose exec laravel.test php artisan key:generate
+docker compose exec laravel.test php artisan migrate --seed
+docker compose exec laravel.test php artisan storage:link
+```
+
+Os seeders criam papéis (`admin`, `gestor_ti`, `responsavel_setor`, `usuario`), setores de exemplo e o usuário administrador:
+
+- **Login:** `admin@gac.pac.br`
+- **Senha:** `admin123` (ambiente local — troque em produção)
+
+### 5. Assets do frontend
+
+```bash
+docker compose exec laravel.test npm install   # só na primeira vez
+docker compose exec laravel.test npm run build # gera public/build
+```
+
+Para desenvolvimento com hot-reload, use `npm run dev` em vez de `build` (o Vite dev server roda dentro do container).
+
+### 6. Acessar e verificar
+
+- App: http://localhost:8900/login
+- Health check: http://localhost:8900/up (esperado: `200`)
+- Testes: `docker compose exec laravel.test php artisan test` (esperado: 151 passando, 0 falhas)
+
+## Comandos do dia a dia
+
+```bash
+docker compose up -d                    # subir
+docker compose down                     # parar
+docker compose exec laravel.test php artisan migrate          # novas migrations
+docker compose exec laravel.test php artisan test --filter=X  # um teste
+docker compose logs -f laravel.test     # logs da app
+```
+
+## Problemas comuns
+
+| Sintoma | Causa provável | Solução |
+|---|---|---|
+| `502` no navegador | Container ainda subindo ou build incompleto | `docker compose up -d --build` e aguarde o health do `pgsql` |
+| `500` no login | `APP_KEY` ausente | `php artisan key:generate` dentro do container |
+| Página sem CSS | `public/build` ausente | `npm run build` dentro do container |
+| Fotos não aparecem | symlink do storage | `php artisan storage:link` dentro do container |
+| Porta ocupada | outro serviço na 8900 | ajuste `APP_PORT` no `.env` e recrie (`up -d`) |
+
+## Premissas deste guia
+
+- Instalação **local de desenvolvimento** com Sail; produção exige HTTPS, segredos próprios e `APP_DEBUG=false`.
+- Banco padrão é o PostgreSQL do compose; trocar de SGBD exige ajustar `.env` e drivers.

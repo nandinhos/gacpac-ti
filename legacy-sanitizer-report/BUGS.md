@@ -1,3 +1,9 @@
+---
+title: BUGS
+type: note
+permalink: gacpac-ti/legacy-sanitizer-report/bugs
+---
+
 # RELATÓRIO DE BUGS
 
 ## Visão Geral

@@ -1,3 +1,9 @@
+---
+title: opencode
+type: note
+permalink: gacpac-ti/prompts/opencode
+---
+
 # DEVORQ - OpenCode Activation
 
 ## Ativar

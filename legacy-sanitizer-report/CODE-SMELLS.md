@@ -1,3 +1,9 @@
+---
+title: CODE-SMELLS
+type: note
+permalink: gacpac-ti/legacy-sanitizer-report/code-smells
+---
+
 # RELATÓRIO DE CODE SMELLS
 
 ## Visão Geral

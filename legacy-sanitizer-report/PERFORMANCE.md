@@ -1,3 +1,9 @@
+---
+title: PERFORMANCE
+type: note
+permalink: gacpac-ti/legacy-sanitizer-report/performance
+---
+
 # RELATÓRIO DE PERFORMANCE
 
 ## Visão Geral

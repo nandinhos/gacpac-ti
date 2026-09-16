@@ -1,3 +1,9 @@
+---
+title: DEPENDENCIES
+type: note
+permalink: gacpac-ti/legacy-sanitizer-report/dependencies
+---
+
 # RELATÓRIO DE DEPENDÊNCIAS
 
 ## Visão Geral

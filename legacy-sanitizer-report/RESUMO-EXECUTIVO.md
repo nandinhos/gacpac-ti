@@ -1,3 +1,9 @@
+---
+title: RESUMO-EXECUTIVO
+type: note
+permalink: gacpac-ti/legacy-sanitizer-report/resumo-executivo
+---
+
 # RESUMO EXECUTIVO - Análise de Código Legado
 
 **Projeto:** SGAITI - Sistema de Gestão de Ativos e Cautelas  

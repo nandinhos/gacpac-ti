@@ -1,3 +1,9 @@
+---
+title: ROADMAP
+type: note
+permalink: gacpac-ti/roadmap
+---
+
 # 🗺️ ROADMAP — Plano de Mitigação Técnica (Finalizado)
 
 > **Projeto:** gacpac-ti — Sistema de Gestão de Ativos e Cautelas (SGAITI)
@@ -7,8 +13,8 @@
 ---
 
 ## 🟢 FASE 0 — Ferramentas de Desenvolvimento
-- [x] Laravel Boost instalado e configurado (MCP Server)
-- [x] Padrão de uso documentado em `.aidev/rules/generic.md`
+- [x] Laravel Boost instalado e configurado (MCP Server via `.mcp.json`)
+- [x] Estrutura `.aidev/` com análises, planos e estado do projeto
 - [x] `boost:update` no `post-update-cmd` do `composer.json`
 - [x] Context7 integrado para documentação externa
 
@@ -39,13 +45,12 @@
 ## 🟢 FASE 5 — Consolidação da Documentação
 - [x] Estrutura organizada em `/docs` (`ARCHITECTURE.md`, `API.md`)
 - [x] Criado `CONTRIBUTING.md` com guia de Sail e Git
-- [x] Checklist de mitigação concluído no Brain
+- [x] `README.md` e `INSTALL.md` reescritos para a stack real (Laravel 12 + Sail)
 
 ## 🟢 FASE 6 — Ecossistema de IA (Boost, Serena, Stitch)
 - [x] Laravel Boost (MCP) integrado e validado via Sail
 - [x] Serena MCP configurado (Semantic Analysis)
-- [x] Stitch MCP configurado (Google Vibe Design)
-- [x] Scripts de monitoramento (`mcp-servers.sh`, `health-check.sh`) atualizados
+- [x] Servidores MCP declarados em `.mcp.json`
 
 ---
 
@@ -60,4 +65,4 @@
 | **Docs** | ✅ | Centralizada |
 | **IA/MCP** | ✅ | Boost + Serena + Stitch OK |
 
-> **Próximos Passos Sugeridos:** Corrigir os testes unitários legados de `MilitaryUser` (renomeando para `User` conforme nova regra de negócio definida pelo usuário).
+> **Próximos Passos Sugeridos:** manter a suíte verde (`php artisan test`, 151 testes), trocar a senha seed do admin em qualquer ambiente exposto e avaliar cache/filas quando o volume de uso crescer.

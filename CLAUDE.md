@@ -1,3 +1,9 @@
+---
+title: CLAUDE
+type: note
+permalink: gacpac-ti/claude
+---
+
 # DEVORQ - Configuração para Claude Code
 
 > Este arquivo ativa o workflow DEVORQ automaticamente no Claude Code.
